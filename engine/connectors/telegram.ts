@@ -1,3 +1,4 @@
+import { createClient } from "@supabase/supabase-js"
 import { Api, TelegramClient } from "telegram"
 import { StringSession } from "telegram/sessions/index.js"
 
@@ -48,6 +49,25 @@ async function fetchAmazonImage(asin: string): Promise<string | null> {
   }
 }
 
+/**
+ * Last resort for offers whose store page gives no usable image: re-host the
+ * photo the channel posted with the deal, in the public `offer-images` bucket.
+ */
+function createPhotoUploader(env: NodeJS.ProcessEnv) {
+  const key = env.SUPABASE_SECRET_KEY || env.SUPABASE_SERVICE_ROLE_KEY
+  if (!env.SUPABASE_URL || !key) return null
+  const storage = createClient(env.SUPABASE_URL, key, { auth: { persistSession: false } })
+    .storage.from("offer-images")
+
+  return async (path: string, photo: Buffer) => {
+    const { error } = await storage.upload(path, photo, {
+      contentType: "image/jpeg",
+      upsert: true,
+    })
+    return error ? null : storage.getPublicUrl(path).data.publicUrl
+  }
+}
+
 export function createTelegramConnector(env: NodeJS.ProcessEnv): Connector {
   const {
     TELEGRAM_API_ID,
@@ -81,6 +101,7 @@ export function createTelegramConnector(env: NodeJS.ProcessEnv): Connector {
         { connectionRetries: 3 },
       )
       await client.connect()
+      const uploadPhoto = createPhotoUploader(env)
 
       const offers = new Map<string, OfferRow>()
       try {
@@ -112,15 +133,27 @@ export function createTelegramConnector(env: NodeJS.ProcessEnv): Connector {
             const title = extractTitle(text)
             if (!prices || !title) continue
 
+            let image =
+              canonical.store_id === "amazon"
+                ? await fetchAmazonImage(canonical.external_id)
+                : await fetchPreviewImage(canonical.url)
+            if (!image && uploadPhoto && message.photo) {
+              try {
+                const photo = await client.downloadMedia(message)
+                if (Buffer.isBuffer(photo)) {
+                  image = await uploadPhoto(`${canonical.store_id}/${canonical.external_id}.jpg`, photo)
+                }
+              } catch {
+                // photo is optional; the offer just stays hidden without one
+              }
+            }
+
             console.log(`[telegram] + ${canonical.store_id} ${canonical.external_id} R$ ${prices.price}`)
             offers.set(key, {
               store_id: canonical.store_id,
               external_id: canonical.external_id,
               title,
-              image:
-                canonical.store_id === "amazon"
-                  ? await fetchAmazonImage(canonical.external_id)
-                  : await fetchPreviewImage(canonical.url),
+              image,
               category_slug: guessCategory(title),
               price: prices.price,
               original_price: prices.original,
