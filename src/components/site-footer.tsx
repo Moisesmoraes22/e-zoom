@@ -1,0 +1,89 @@
+import Link from "next/link"
+
+import { CATEGORIES, STORES } from "@/lib/mock-data"
+
+export function SiteFooter() {
+  return (
+    <footer className="border-t border-border bg-card">
+      <div className="container mx-auto max-w-7xl px-4 py-12">
+        <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
+          <div className="col-span-2 sm:col-span-1">
+            <span className="text-lg font-semibold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+              HibridLink
+            </span>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Um hub que reúne ofertas do Mercado Livre, Shopee e Amazon para
+              você comparar e escolher onde comprar.
+            </p>
+          </div>
+
+          <div>
+            <h3 className="mb-3 text-sm font-semibold text-foreground">
+              Categorias
+            </h3>
+            <ul className="flex flex-col gap-2 text-sm text-muted-foreground">
+              {CATEGORIES.slice(0, 5).map((category) => (
+                <li key={category.slug}>
+                  <Link
+                    href={`/categoria/${category.slug}`}
+                    className="transition-colors hover:text-primary"
+                  >
+                    {category.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="mb-3 text-sm font-semibold text-foreground">
+              Lojas parceiras
+            </h3>
+            <ul className="flex flex-col gap-2 text-sm text-muted-foreground">
+              {Object.values(STORES)
+                .filter((store) => store.id !== "telegram")
+                .map((store) => (
+                  <li key={store.id}>{store.name}</li>
+                ))}
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="mb-3 text-sm font-semibold text-foreground">
+              Sobre
+            </h3>
+            <ul className="flex flex-col gap-2 text-sm text-muted-foreground">
+              <li>
+                <Link href="#" className="transition-colors hover:text-primary">
+                  Como funciona
+                </Link>
+              </li>
+              <li>
+                <Link href="#" className="transition-colors hover:text-primary">
+                  Perguntas frequentes
+                </Link>
+              </li>
+              <li>
+                <Link href="#" className="transition-colors hover:text-primary">
+                  Contato
+                </Link>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="mt-10 border-t border-border pt-6 text-xs text-muted-foreground">
+          <p>
+            HibridLink é um hub de ofertas. Os produtos são vendidos e
+            entregues pelas lojas parceiras — ao clicar em &quot;Ver
+            oferta&quot;, você é redirecionado para finalizar a compra por lá.
+          </p>
+          <p className="mt-2">
+            © {new Date().getFullYear()} HibridLink. Todos os direitos
+            reservados.
+          </p>
+        </div>
+      </div>
+    </footer>
+  )
+}
