@@ -20,7 +20,7 @@ export default async function Home() {
   const deals = live ? products.slice(0, 8) : DEALS
   const popular = live ? products.slice(8, 32) : FEATURED_PRODUCTS
   const priceDrops = live
-    ? products.filter((p) => p.originalPrice && p.originalPrice > p.price)
+    ? products.filter((p) => p.isPriceDrop)
     : PRICE_DROP_PRODUCTS
   const featured = [...products]
     .sort(

@@ -6,11 +6,17 @@ import Link from "next/link"
 import { ArrowRight, Heart, Star, Truck } from "lucide-react"
 
 import { OfferLink } from "@/components/offer-link"
+import { PriceSparkline } from "@/components/price-sparkline"
 import { StoreBadge } from "@/components/store-badge"
 import { Badge } from "@/components/ui/badge"
 import { useFavorites } from "@/lib/favorites-context"
 import type { Product } from "@/lib/types"
-import { cn, formatCurrency, formatReviewCount } from "@/lib/utils"
+import {
+  calculateDiscountPercent,
+  cn,
+  formatCurrency,
+  formatReviewCount,
+} from "@/lib/utils"
 
 export function ProductCard({
   product,
@@ -87,6 +93,12 @@ export function ProductCard({
               {product.originalPrice && (
                 <span className="text-xs text-muted-foreground line-through">
                   {formatCurrency(product.originalPrice)}
+                </span>
+              )}
+              {product.isPriceDrop && product.priceHistory && (
+                <span className="mt-1 flex items-center gap-2 text-xs font-medium text-primary">
+                  <PriceSparkline values={product.priceHistory} />
+                  caiu {calculateDiscountPercent(product.price, Math.max(...product.priceHistory))}%
                 </span>
               )}
               {product.installments && (

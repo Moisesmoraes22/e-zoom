@@ -5,6 +5,7 @@ import { Heart, Star, Truck } from "lucide-react"
 import { useRef } from "react"
 
 import { OfferLink } from "@/components/offer-link"
+import { PriceSparkline } from "@/components/price-sparkline"
 import { StoreBadge } from "@/components/store-badge"
 import { Button } from "@/components/ui/button"
 import { STORES } from "@/lib/mock-data"
@@ -105,6 +106,23 @@ export function ProductDetail({
               em {STORES[bestOffer.store].name}
             </p>
           </div>
+
+          {product.priceHistory && (
+            <div className="rounded-2xl border border-border p-4">
+              <p className="text-xs font-medium text-muted-foreground">
+                Histórico de preços
+              </p>
+              <PriceSparkline
+                values={product.priceHistory}
+                className="mt-2 h-12 w-full text-primary"
+              />
+              <p className="mt-2 text-xs text-muted-foreground">
+                Menor {formatCurrency(Math.min(...product.priceHistory))} · maior{" "}
+                {formatCurrency(Math.max(...product.priceHistory))} ·{" "}
+                {product.priceHistory.length} registros
+              </p>
+            </div>
+          )}
 
           <Button asChild className="w-full gap-2 rounded-full active:scale-95">
             <OfferLink
