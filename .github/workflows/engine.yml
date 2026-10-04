@@ -26,3 +26,21 @@ jobs:
           TELEGRAM_CHANNELS: ${{ secrets.TELEGRAM_CHANNELS }}
           AMAZON_ASSOCIATE_TAG: ${{ secrets.AMAZON_ASSOCIATE_TAG }}
           ML_AFFILIATE_URL_TEMPLATE: ${{ secrets.ML_AFFILIATE_URL_TEMPLATE }}
+
+  mercadolivre:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: node engine/run.ts mercadolivre
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          ML_CLIENT_ID: ${{ secrets.ML_CLIENT_ID }}
+          ML_CLIENT_SECRET: ${{ secrets.ML_CLIENT_SECRET }}
+          ML_AFFILIATE_URL_TEMPLATE: ${{ secrets.ML_AFFILIATE_URL_TEMPLATE }}

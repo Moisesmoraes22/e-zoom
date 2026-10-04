@@ -1,65 +1,33 @@
 import type { Connector, OfferRow } from "../types.ts"
 
 const API = "https://api.mercadolibre.com"
+const PER_CATEGORY = 15
 
-/** Search terms per site category. Tune freely; each term is one API call. */
-const QUERIES: Record<string, string[]> = {
-  eletronicos: ["fone bluetooth", "smartwatch", "carregador"],
-  casa: ["air fryer", "cadeira escritorio", "aspirador"],
-  games: ["controle ps5", "headset gamer"],
-  calcados: ["tenis masculino", "tenis feminino"],
-  esporte: ["bicicleta", "esteira"],
-  beleza: ["perfume", "secador de cabelo"],
+/**
+ * Our category slug -> Mercado Livre category ids. We read each category's
+ * best sellers (/highlights): the public keyword search (/sites/MLB/search)
+ * answers 403 for new apps, while highlights and catalog endpoints work.
+ */
+const CATEGORIES: Record<string, string[]> = {
+  eletronicos: ["MLB1000", "MLB1648", "MLB1051"],
+  casa: ["MLB1574", "MLB5726"],
+  moda: ["MLB1430"],
+  beleza: ["MLB1246"],
+  esporte: ["MLB1276"],
+  games: ["MLB1144"],
+  infantil: ["MLB1384", "MLB1132"],
 }
 
-interface MlSearchItem {
-  id: string
-  title: string
+interface MlProduct {
+  name: string
+  pictures?: { url: string }[]
+}
+
+interface MlProductItem {
   price: number
   original_price: number | null
-  thumbnail: string | null
-  permalink: string
   condition?: string
   shipping?: { free_shipping?: boolean }
-}
-
-/**
- * Pure mapping from a Mercado Livre search item to an offer row.
- * Returns null for anything that isn't a real, discounted, new item.
- */
-export function mapMlItem(
-  item: MlSearchItem,
-  categorySlug: string,
-  buildAffiliateUrl: (url: string) => string | null,
-): OfferRow | null {
-  if (item.condition && item.condition !== "new") return null
-  if (!item.original_price || item.original_price <= item.price) return null
-  if (!(item.price > 0)) return null
-
-  return {
-    store_id: "mercado_livre",
-    external_id: item.id,
-    title: item.title,
-    image: item.thumbnail
-      ? item.thumbnail.replace(/^http:/, "https:").replace("-I.jpg", "-O.jpg")
-      : null,
-    category_slug: categorySlug,
-    price: item.price,
-    original_price: item.original_price,
-    url: item.permalink,
-    affiliate_url: buildAffiliateUrl(item.permalink),
-    is_free_shipping: item.shipping?.free_shipping ?? false,
-    source: "api",
-  }
-}
-
-/**
- * Affiliate links come from a template in ML_AFFILIATE_URL_TEMPLATE, e.g.
- * "{url}?your_param=your_value", copied from what the Mercado Livre
- * affiliate tool generates for you. Unset means no affiliate link yet.
- */
-function makeAffiliateBuilder(template: string | undefined) {
-  return (url: string) => (template ? template.replace("{url}", url) : null)
 }
 
 async function getToken(clientId: string, clientSecret: string) {
@@ -90,25 +58,64 @@ export function createMercadoLivreConnector(env: NodeJS.ProcessEnv): Connector {
         )
       }
       const token = await getToken(ML_CLIENT_ID, ML_CLIENT_SECRET)
-      const buildAffiliateUrl = makeAffiliateBuilder(ML_AFFILIATE_URL_TEMPLATE)
+      const get = async <T>(path: string): Promise<T> => {
+        const response = await fetch(`${API}${path}`, {
+          headers: { authorization: `Bearer ${token}` },
+        })
+        if (!response.ok) throw new Error(`ML ${path} failed: ${response.status}`)
+        return (await response.json()) as T
+      }
+
       const offers = new Map<string, OfferRow>()
 
-      for (const [category, terms] of Object.entries(QUERIES)) {
-        for (const term of terms) {
-          const response = await fetch(
-            `${API}/sites/MLB/search?q=${encodeURIComponent(term)}&limit=50`,
-            { headers: { authorization: `Bearer ${token}` } },
+      const buildOffer = async (id: string, category: string) => {
+        const [product, { results }] = await Promise.all([
+          get<MlProduct>(`/products/${id}`),
+          get<{ results: MlProductItem[] }>(`/products/${id}/items?limit=10`),
+        ])
+        const image = product.pictures?.[0]?.url
+        // Cheapest new listing of this catalog product.
+        const best = results
+          .filter((item) => item.condition === "new" && item.price > 0)
+          .sort((a, b) => a.price - b.price)[0]
+        if (!best || !image || !product.name) return
+
+        const url = `https://www.mercadolivre.com.br/p/${id}`
+        offers.set(id, {
+          store_id: "mercado_livre",
+          external_id: id,
+          title: product.name,
+          image: image.replace(/^http:/, "https:"),
+          category_slug: category,
+          price: best.price,
+          original_price:
+            best.original_price && best.original_price > best.price
+              ? best.original_price
+              : null,
+          url,
+          affiliate_url: ML_AFFILIATE_URL_TEMPLATE
+            ? ML_AFFILIATE_URL_TEMPLATE.replace("{url}", url)
+            : null,
+          is_free_shipping: best.shipping?.free_shipping ?? false,
+          source: "api",
+        })
+      }
+
+      for (const [category, mlIds] of Object.entries(CATEGORIES)) {
+        for (const mlId of mlIds) {
+          const { content } = await get<{ content: { id: string; type: string }[] }>(
+            `/highlights/MLB/category/${mlId}`,
           )
-          if (!response.ok) {
-            throw new Error(`ML search "${term}" failed: ${response.status}`)
+          const ids = content
+            .filter((entry) => entry.type === "PRODUCT" && !offers.has(entry.id))
+            .slice(0, PER_CATEGORY)
+          // Small batches keep us well under the API rate limit.
+          for (let i = 0; i < ids.length; i += 5) {
+            await Promise.allSettled(
+              ids.slice(i, i + 5).map((entry) => buildOffer(entry.id, category)),
+            )
           }
-          const { results } = (await response.json()) as {
-            results: MlSearchItem[]
-          }
-          for (const item of results) {
-            const row = mapMlItem(item, category, buildAffiliateUrl)
-            if (row) offers.set(row.external_id, row)
-          }
+          console.log(`[mercadolivre] ${category}/${mlId}: ${offers.size} ofertas até agora`)
         }
       }
       return [...offers.values()]
