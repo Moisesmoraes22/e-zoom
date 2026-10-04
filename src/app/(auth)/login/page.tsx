@@ -4,7 +4,7 @@ import { redirect } from "next/navigation"
 
 import { AuthCard } from "@/components/auth/auth-ui"
 import { LoginForm } from "@/components/auth/login-form"
-import { safeNext } from "@/lib/auth/validate"
+import { safeLoginNext } from "@/lib/auth/validate"
 import { createClient } from "@/lib/supabase/server"
 
 export const metadata: Metadata = { title: "Entrar" }
@@ -15,7 +15,7 @@ export default async function LoginPage({
   searchParams: Promise<{ next?: string; erro?: string }>
 }) {
   const { next, erro } = await searchParams
-  const target = safeNext(next, "/")
+  const target = safeLoginNext(next, "/")
 
   // Already signed in: nothing to do here. getClaims() verifies the token's signature.
   const supabase = await createClient()

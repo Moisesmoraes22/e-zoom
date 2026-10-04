@@ -54,6 +54,9 @@ const STORAGE_KEY = "hibridlink:favorites"
 // Removals the account has not confirmed yet; retried first on the next sync so a
 // favorite removed while offline is not brought back by the merge.
 const PENDING_KEY = "hibridlink:favorites-pending"
+// Ids known to be in the account. Kept on the device so that signing out (or an expired
+// session) removes the account's favorites from the screen even after a page reload.
+const ACCOUNT_KEY = "hibridlink:favorites-account"
 
 export function FavoritesProvider({ children }: { children: ReactNode }) {
   const { status } = useAuth()
@@ -83,6 +86,15 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  const persistAccount = () => {
+    try {
+      if (accountIdsRef.current.size === 0) localStorage.removeItem(ACCOUNT_KEY)
+      else localStorage.setItem(ACCOUNT_KEY, JSON.stringify([...accountIdsRef.current]))
+    } catch {
+      // storage unavailable
+    }
+  }
+
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY)
@@ -90,6 +102,8 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
       if (raw) setItems(JSON.parse(raw))
       const pending = JSON.parse(localStorage.getItem(PENDING_KEY) ?? "[]")
       if (Array.isArray(pending)) pendingRef.current = new Set(pending.filter((id) => typeof id === "string"))
+      const account = JSON.parse(localStorage.getItem(ACCOUNT_KEY) ?? "[]")
+      if (Array.isArray(account)) accountIdsRef.current = new Set(account.filter((id) => typeof id === "string"))
     } catch {
       // ignore malformed/inaccessible storage
     }
@@ -121,6 +135,7 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
       persistPending()
       if (run !== runRef.current) return
       accountIdsRef.current = result.accountIds
+      persistAccount()
       setItems((prev) => mergeLoaded(prev, result.loaded))
       setSyncState("synced")
     } catch {
@@ -135,15 +150,17 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
       wasSignedInRef.current = true
       // eslint-disable-next-line react-hooks/set-state-in-effect -- starts the account sync when the session appears
       void runSync()
-    } else if (status === "anonymous" && wasSignedInRef.current) {
-      // Signed out (or the session expired): the account's favorites must not stay on
-      // screen as if they were the visitor's. They are safe in the account; anything that
-      // never reached it (a failed sync) stays on the device.
+    } else if (status === "anonymous" && (wasSignedInRef.current || accountIdsRef.current.size > 0)) {
+      // Signed out, the session expired, or the device still holds the account's favorites
+      // from an earlier session that is gone: they must not stay on screen as if they were
+      // the visitor's. They are safe in the account; anything that never reached it (a
+      // failed sync) stays on the device.
       wasSignedInRef.current = false
       runRef.current++
       setItems((prev) => prev.filter((item) => !accountIdsRef.current.has(item.id)))
       accountIdsRef.current = new Set()
       pendingRef.current = new Set()
+      persistAccount()
       persistPending()
       setSyncState("idle")
     }
@@ -155,7 +172,10 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
     if (!signedIn || !isOfferId(id)) return
     getApi()
       .addMany([id])
-      .then(() => accountIdsRef.current.add(id))
+      .then(() => {
+        accountIdsRef.current.add(id)
+        persistAccount()
+      })
       .catch(fail)
   }
 
@@ -168,6 +188,7 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
       .then(() => {
         pendingRef.current.delete(id)
         accountIdsRef.current.delete(id)
+        persistAccount()
         persistPending()
       })
       .catch(fail)

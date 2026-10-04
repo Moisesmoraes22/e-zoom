@@ -1,5 +1,10 @@
 import { createBrowserClient } from "@supabase/ssr"
 
+/** False when the two public variables were not provided at build time (the site then runs as visitor-only). */
+export const supabaseConfigured = Boolean(
+  process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+)
+
 /**
  * Browser client (Client Components only). Uses the publishable key; everything it can
  * read or write is limited by RLS. @supabase/ssr keeps the session in cookies and

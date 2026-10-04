@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react"
 
-import { createClient } from "@/lib/supabase/client"
+import { createClient, supabaseConfigured } from "@/lib/supabase/client"
 
 export interface AuthUser {
   id: string
@@ -27,9 +27,14 @@ const AuthContext = createContext<AuthState & { signOut: () => Promise<void> }>(
  * on the server. Public pages stay static; this fills in after the page loads.
  */
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<AuthState>({ status: "loading", user: null })
+  // Without the public Supabase variables the site simply behaves as visitor-only.
+  const [state, setState] = useState<AuthState>({
+    status: supabaseConfigured ? "loading" : "anonymous",
+    user: null,
+  })
 
   useEffect(() => {
+    if (!supabaseConfigured) return
     const supabase = createClient()
     // Fires once with the stored session, then on sign in, sign out, token refresh and
     // expiry. Only state is set here: calling Supabase from this callback can deadlock.

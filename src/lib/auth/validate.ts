@@ -42,8 +42,30 @@ export function resetPasswordMessage(error: AuthErrorLike): string {
 
 export { RATE_LIMITED }
 
-/** Only follow same-site relative paths after login (blocks open redirects). */
+const BASE = "http://internal.invalid"
+
+/**
+ * Same-site relative paths only. Rejects absolute URLs, protocol-relative (`//host`),
+ * backslashes (browsers treat `\` as `/`) and control characters (browsers strip tabs and
+ * newlines, so `/\t/evil.com` would become `//evil.com`). The result is re-built from a
+ * parsed URL, so it cannot carry anything but a path, query and hash.
+ */
 export function safeNext(next: string | null | undefined, fallback = "/"): string {
-  if (!next || !next.startsWith("/") || next.startsWith("//") || next.includes("\\")) return fallback
-  return next
+  if (!next || !next.startsWith("/") || next.startsWith("//")) return fallback
+  if (/[\\\u0000-\u001f\u007f\u2028\u2029]/.test(next)) return fallback
+  try {
+    const url = new URL(next, BASE)
+    if (url.origin !== BASE) return fallback
+    return url.pathname + url.search + url.hash
+  } catch {
+    return fallback
+  }
+}
+
+const AUTH_PAGES = /^\/(login|cadastro|recuperar-senha|redefinir-senha|auth)(\/|\?|#|$)/
+
+/** Where to go after signing in: same-site, and never back to an auth page (that would loop). */
+export function safeLoginNext(next: string | null | undefined, fallback = "/"): string {
+  const target = safeNext(next, fallback)
+  return AUTH_PAGES.test(target) ? fallback : target
 }
