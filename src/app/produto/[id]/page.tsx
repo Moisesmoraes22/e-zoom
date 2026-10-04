@@ -22,9 +22,9 @@ export async function generateMetadata({
   const { id } = await params
   const { products } = await getCatalog()
   const product = products.find((p) => p.id === id) ?? ALL_PRODUCTS.find((p) => p.id === id)
-  if (!product) return { title: "Oferta não encontrada — HibridLink" }
+  if (!product) return { title: "Oferta não encontrada" }
   return {
-    title: `${product.title} — HibridLink`,
+    title: product.title,
     description: `${product.title} por ${formatCurrency(product.price)} em ${STORES[product.store].name}. Veja o histórico de preço e vá direto para a loja.`,
     openGraph: { images: [product.image] },
   }

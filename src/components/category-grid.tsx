@@ -9,18 +9,26 @@ import type { CategoryCount } from "@/lib/deals"
 export function CategoryGrid({
   categories,
   showCounts,
+  withHeader = true,
+  gridClassName = "grid-cols-2 sm:grid-cols-4 lg:grid-cols-8",
 }: {
   categories: CategoryCount[]
   showCounts: boolean
+  /** Off on /categorias, where the page has its own h1. */
+  withHeader?: boolean
+  gridClassName?: string
 }) {
   return (
     <section className="container mx-auto max-w-7xl px-4 py-12">
-      <SectionHeader
-        title="Categorias populares"
-        subtitle="Navegue pelas ofertas por tipo de produto"
-        href="/busca"
-      />
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-8">
+      {withHeader && (
+        <SectionHeader
+          title="Categorias populares"
+          subtitle="Navegue pelas ofertas por tipo de produto"
+          href="/categorias"
+          linkLabel="Ver todas as categorias"
+        />
+      )}
+      <div className={`grid gap-4 ${gridClassName}`}>
         {categories.map((category, index) => (
           <motion.div
             key={category.slug}

@@ -25,24 +25,41 @@ import {
   type ProductFilters,
 } from "@/lib/search"
 import type { CategoryCount } from "@/lib/deals"
+import { STORES } from "@/lib/mock-data"
 import type { Product, SortOption, StoreSource } from "@/lib/types"
 
-export function SearchResults({
-  products,
-  categories,
-  categorySlug,
-  categoryName,
-}: {
+interface SearchResultsProps {
   products: Product[]
   categories: CategoryCount[]
   categorySlug?: string
   categoryName?: string
-}) {
+}
+
+/**
+ * `?loja=` (store cards on the home page) preselects a store. Keyed by it, so
+ * following another store link starts from that store's filters again.
+ */
+export function SearchResults(props: SearchResultsProps) {
+  const loja = useSearchParams().get("loja") ?? ""
+  const initialStores = (Object.keys(STORES) as StoreSource[]).filter(
+    (id) => id === loja && id !== "telegram",
+  )
+  return <SearchResultsInner key={loja} {...props} initialStores={initialStores} />
+}
+
+function SearchResultsInner({
+  products,
+  categories,
+  categorySlug,
+  categoryName,
+  initialStores,
+}: SearchResultsProps & { initialStores: StoreSource[] }) {
   const searchParams = useSearchParams()
   const query = searchParams.get("q") ?? ""
 
   const [filters, setFilters] = useState<ProductFilters>({
     ...EMPTY_FILTERS,
+    stores: initialStores,
     category: categorySlug,
   })
   // ?ordenacao= sets the starting sort (menu links); picking one here overrides it

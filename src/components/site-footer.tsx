@@ -1,8 +1,18 @@
 import Link from "next/link"
 
-import { CATEGORIES, STORES } from "@/lib/mock-data"
+import { categoryCounts, countByStoreId } from "@/lib/deals"
+import { STORES } from "@/lib/mock-data"
+import { getCatalog } from "@/lib/offers"
 
-export function SiteFooter() {
+export async function SiteFooter() {
+  // Same real data as the menus: categories with offers, stores with offers.
+  const { products } = await getCatalog()
+  const categories = categoryCounts(products).slice(0, 5)
+  const storeCounts = countByStoreId(products)
+  const stores = Object.values(STORES).filter(
+    (store) => store.id !== "telegram" && storeCounts[store.id] > 0,
+  )
+
   return (
     <footer id="sobre" className="border-t border-border bg-surface">
       <div className="container mx-auto max-w-7xl px-4 py-12">
@@ -22,7 +32,7 @@ export function SiteFooter() {
               Categorias
             </h3>
             <ul className="flex flex-col gap-2 text-sm text-muted-foreground">
-              {CATEGORIES.slice(0, 5).map((category) => (
+              {categories.map((category) => (
                 <li key={category.slug}>
                   <Link
                     href={`/categoria/${category.slug}`}
@@ -32,6 +42,14 @@ export function SiteFooter() {
                   </Link>
                 </li>
               ))}
+              <li>
+                <Link
+                  href="/categorias"
+                  className="font-medium text-brand transition-colors hover:underline"
+                >
+                  Todas as categorias
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -40,11 +58,9 @@ export function SiteFooter() {
               Lojas parceiras
             </h3>
             <ul className="flex flex-col gap-2 text-sm text-muted-foreground">
-              {Object.values(STORES)
-                .filter((store) => store.id !== "telegram")
-                .map((store) => (
-                  <li key={store.id}>{store.name}</li>
-                ))}
+              {stores.map((store) => (
+                <li key={store.id}>{store.name}</li>
+              ))}
             </ul>
           </div>
 

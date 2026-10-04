@@ -22,9 +22,20 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "HibridLink — Hub de ofertas",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://hibridlink-promos.vercel.app",
+  ),
+  title: {
+    default: "HibridLink — Hub de ofertas",
+    template: "%s — HibridLink",
+  },
   description:
     "Hub de ofertas que reúne os melhores preços do Mercado Livre, Shopee e Amazon num só lugar.",
+  openGraph: {
+    siteName: "HibridLink",
+    locale: "pt_BR",
+    type: "website",
+  },
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {

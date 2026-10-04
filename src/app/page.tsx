@@ -4,6 +4,7 @@ import { CategoryGrid } from "@/components/category-grid"
 import { DealsCarousel } from "@/components/deals-carousel"
 import { ProductGrid } from "@/components/product-grid"
 import { SiteFooter } from "@/components/site-footer"
+import { StoresSection } from "@/components/stores-section"
 import { CommerceHero } from "@/components/ui/commerce-hero"
 import { byDiscount, byRecent, categoryCounts, countByStoreId } from "@/lib/deals"
 import { STORES } from "@/lib/mock-data"
@@ -60,6 +61,7 @@ export default async function Home() {
       {recent.length > 0 && (
         <DealsCarousel products={recent} />
       )}
+      <StoresSection counts={storeCounts} />
       <SiteFooter />
     </main>
   )

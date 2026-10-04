@@ -109,7 +109,7 @@ export function SiteHeader({
                 })}
               </div>
               <div className="mt-2 border-t border-border pt-2">
-                <MenuLink href="/busca" className="text-brand">
+                <MenuLink href="/categorias" className="text-brand">
                   Ver todas as categorias
                   <ArrowRight className="h-4 w-4" aria-hidden />
                 </MenuLink>

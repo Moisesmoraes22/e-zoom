@@ -6,7 +6,9 @@ import { categoryCounts } from "@/lib/deals"
 import { getCatalog } from "@/lib/offers"
 
 export const metadata = {
-  title: "Buscar ofertas — HibridLink",
+  title: "Buscar ofertas",
+  description:
+    "Pesquise ofertas do Mercado Livre e da Amazon, filtre por categoria, loja, preço e desconto.",
 }
 
 export const revalidate = 300
