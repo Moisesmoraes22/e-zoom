@@ -36,9 +36,11 @@ The session cookie is set by `@supabase/ssr`; the browser client must be able to
 - **E-mail provider**: currently Supabase's built-in sender; **TBD** when custom SMTP is configured.
 - **Mercado Livre / Amazon / Shopee**: receive the visitor only when they click "Ver oferta" (affiliate links).
 
-## Not implemented today
+## Analytics and tracking
 
-No analytics, advertising or click-tracking scripts; `OfferLink` has no tracking. If any is added, this inventory and the
+Vercel Web Analytics (`<Analytics />` in `src/app/layout.tsx`) is the only analytics: cookieless, aggregated
+page views, referrers, device and browser; no custom events. No advertising or click-tracking scripts; `OfferLink`
+has no tracking. If any is added, this inventory and the
 policy must be updated first.
 
 ## Deletion

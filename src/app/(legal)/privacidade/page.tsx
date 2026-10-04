@@ -38,10 +38,18 @@ export default function PrivacyPage() {
       </ul>
       <p>
         Você pode apagar esses dados a qualquer momento limpando os dados do site no navegador. Não usamos
-        ferramentas de análise, publicidade nem rastreamento de cliques.
+        publicidade nem rastreamento de cliques.
       </p>
 
-      <h2>4. Criando uma conta (opcional)</h2>
+      <h2>4. Estatísticas de visitas</h2>
+      <p>
+        Medimos quantas pessoas visitam o site, quais páginas são mais vistas, de onde vêm (por exemplo, Google ou
+        redes sociais), o tipo de aparelho e o navegador, para melhorar o site. Usamos o Vercel Web Analytics, que
+        funciona <strong>sem cookies</strong> e sem identificar você: os dados são agregados e não incluem seu nome,
+        e-mail nem o conteúdo dos seus favoritos. Base legal: legítimo interesse.
+      </p>
+
+      <h2>5. Criando uma conta (opcional)</h2>
       <p>A conta serve apenas para manter seus favoritos iguais em todos os aparelhos. Ao se cadastrar, tratamos:</p>
       <ul>
         <li>
@@ -61,7 +69,7 @@ export default function PrivacyPage() {
       </ul>
       <p>Não coletamos telefone, endereço, data de nascimento, CPF, dados de pagamento ou foto.</p>
 
-      <h2>5. Para que usamos e em que base legal</h2>
+      <h2>6. Para que usamos e em que base legal</h2>
       <ul>
         <li>Criar e manter sua conta, confirmar seu e-mail e recuperar sua senha: execução do serviço que você solicitou.</li>
         <li>Sincronizar seus favoritos: execução do serviço que você solicitou.</li>
@@ -69,13 +77,13 @@ export default function PrivacyPage() {
       </ul>
       <p>Não vendemos nem compartilhamos seus dados para publicidade.</p>
 
-      <h2>6. Com quem os dados passam</h2>
+      <h2>7. Com quem os dados passam</h2>
       <ul>
         <li>
           <strong>Supabase</strong>: autenticação e banco de dados da conta.
         </li>
         <li>
-          <strong>Vercel</strong>: hospedagem do site e registros técnicos de acesso.
+          <strong>Vercel</strong>: hospedagem do site, registros técnicos de acesso e estatísticas de visitas.
         </li>
         <li>
           <strong>Lojas parceiras</strong> (Amazon, Mercado Livre, Shopee): recebem você apenas quando clica em uma
@@ -87,19 +95,19 @@ export default function PrivacyPage() {
         prestar o serviço e com as garantias exigidas pela LGPD.
       </p>
 
-      <h2>7. Cookies e armazenamento local</h2>
+      <h2>8. Cookies e armazenamento local</h2>
       <p>
         Usamos apenas o necessário: um cookie de sessão (quando você entra na conta) e o armazenamento local do
-        navegador descrito acima. Não usamos cookies de publicidade ou de análise.
+        navegador descrito acima. Não usamos cookies de publicidade nem de análise.
       </p>
 
-      <h2>8. Por quanto tempo guardamos</h2>
+      <h2>9. Por quanto tempo guardamos</h2>
       <p>
         Mantemos os dados da conta enquanto ela existir. Ao excluir a conta, o e-mail, o nome e os favoritos são
         removidos. Registros técnicos de segurança podem ser mantidos pelos provedores pelo prazo que eles definem.
       </p>
 
-      <h2>9. Seus direitos</h2>
+      <h2>10. Seus direitos</h2>
       <p>
         Você pode pedir confirmação de que tratamos seus dados, acesso, correção, exclusão, portabilidade e
         informações sobre o compartilhamento, além de revogar consentimentos. Para qualquer pedido, escreva para{" "}
@@ -110,16 +118,16 @@ export default function PrivacyPage() {
         removeremos sua conta e seus favoritos em até 15 dias.
       </p>
 
-      <h2>10. Crianças</h2>
+      <h2>11. Crianças</h2>
       <p>O site não é direcionado a menores de 13 anos, e não pedimos dados de crianças.</p>
 
-      <h2>11. Mudanças nesta política</h2>
+      <h2>12. Mudanças nesta política</h2>
       <p>
         Podemos atualizar esta política. A data no topo mostra a última versão, e mudanças relevantes serão avisadas
         no site.
       </p>
 
-      <h2>12. Reclamações</h2>
+      <h2>13. Reclamações</h2>
       <p>
         Se achar que seus dados foram tratados de forma inadequada, fale conosco primeiro. Você também pode recorrer
         à Autoridade Nacional de Proteção de Dados (ANPD).

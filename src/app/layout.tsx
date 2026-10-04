@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import { MotionConfig } from "framer-motion";
 import Script from "next/script";
 import "./globals.css";
@@ -70,6 +71,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
             </MotionConfig>
           </AuthProvider>
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
