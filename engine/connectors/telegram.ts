@@ -105,7 +105,7 @@ export function createTelegramConnector(env: NodeJS.ProcessEnv): Connector {
 
       const offers = new Map<string, OfferRow>()
       try {
-        for (const channel of channels) {
+        const readChannel = async (channel: string) => {
           console.log(`[telegram] lendo ${channel}...`)
           const messages = await client.getMessages(channel, { limit })
           console.log(`[telegram] ${channel}: ${messages.length} mensagens`)
@@ -163,6 +163,11 @@ export function createTelegramConnector(env: NodeJS.ProcessEnv): Connector {
               source: "telegram",
             })
           }
+        }
+        // Channels are independent and mostly wait on the network: 3 at a time cuts
+        // the run time roughly threefold without hammering Telegram.
+        for (let i = 0; i < channels.length; i += 3) {
+          await Promise.all(channels.slice(i, i + 3).map(readChannel))
         }
       } finally {
         await client.disconnect()
