@@ -1,54 +1,64 @@
+import { Flame, TrendingDown } from "lucide-react"
+
 import { CategoryGrid } from "@/components/category-grid"
 import { DealsCarousel } from "@/components/deals-carousel"
-import { FeaturedDeal } from "@/components/featured-deal"
 import { ProductGrid } from "@/components/product-grid"
 import { SiteFooter } from "@/components/site-footer"
 import { CommerceHero } from "@/components/ui/commerce-hero"
-import {
-  CATEGORIES,
-  DEALS,
-  FEATURED_PRODUCTS,
-  PRICE_DROP_PRODUCTS,
-} from "@/lib/mock-data"
+import { byDiscount, byRecent, categoryCounts, countByStoreId } from "@/lib/deals"
+import { STORES } from "@/lib/mock-data"
 import { getCatalog } from "@/lib/offers"
-import { calculateDiscountPercent } from "@/lib/utils"
+import type { Product } from "@/lib/types"
 
 export const revalidate = 300
 
+const SECTION_SIZE = 8
+
 export default async function Home() {
   const { products, live } = await getCatalog()
-  const deals = live ? products.slice(0, 8) : DEALS
-  const popular = live ? products.slice(8, 32) : FEATURED_PRODUCTS
-  const priceDrops = live
-    ? products.filter((p) => p.isPriceDrop)
-    : PRICE_DROP_PRODUCTS
-  const featured = [...products]
-    .sort(
-      (a, b) =>
-        (calculateDiscountPercent(b.price, b.originalPrice) ?? 0) -
-        (calculateDiscountPercent(a.price, a.originalPrice) ?? 0),
-    )
-    .slice(0, 5)
+
+  // Each product appears in one section only. Nothing is padded: a section with
+  // no real data behind it simply disappears.
+  const used = new Set<string>()
+  const take = (list: Product[]) => {
+    const picked = list.filter((p) => !used.has(p.id)).slice(0, SECTION_SIZE)
+    picked.forEach((p) => used.add(p.id))
+    return picked
+  }
+  const featured = take(byDiscount(products))
+  const priceDrops = take(products.filter((p) => p.isPriceDrop))
+  const recent = take(byRecent(products))
+
+  const storeCounts = countByStoreId(products)
+  const storeNames = (["mercado_livre", "shopee", "amazon"] as const)
+    .filter((id) => storeCounts[id])
+    .map((id) => STORES[id].name)
 
   return (
-    <main className="bg-background">
-      <CommerceHero />
-      <CategoryGrid categories={CATEGORIES} />
-      <FeaturedDeal products={featured} />
-      <DealsCarousel products={deals} />
-      {priceDrops.length > 0 && (
+    <main id="conteudo" className="bg-background">
+      <CommerceHero storeNames={storeNames} />
+      {featured.length > 0 && (
         <ProductGrid
-          title="📉 O preço caiu"
-          subtitle="Produtos que ficaram mais baratos recentemente"
-          products={priceDrops}
+          icon={<Flame className="h-5 w-5" />}
+          title="Ofertas em destaque"
+          subtitle="Algumas das melhores oportunidades encontradas recentemente."
+          products={featured}
+          href="/busca?ordenacao=desconto"
+          linkLabel="Ver todas as ofertas"
         />
       )}
-      {popular.length > 0 && (
+      {priceDrops.length > 0 && (
         <ProductGrid
-          title="Produtos populares"
-          subtitle="Descobertas de quem já está comparando ofertas"
-          products={popular}
+          icon={<TrendingDown className="h-5 w-5" />}
+          title="O preço caiu"
+          subtitle="Produtos que ficaram mais baratos desde que começamos a acompanhar."
+          products={priceDrops}
+          href="/busca"
         />
+      )}
+      <CategoryGrid categories={categoryCounts(products).slice(0, 8)} showCounts={live} />
+      {recent.length > 0 && (
+        <DealsCarousel products={recent} />
       )}
       <SiteFooter />
     </main>

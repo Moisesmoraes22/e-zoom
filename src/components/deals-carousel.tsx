@@ -1,7 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Flame, type LucideIcon } from "lucide-react"
+import { Clock, type LucideIcon } from "lucide-react"
 
 import { ProductCard } from "@/components/product-card"
 import {
@@ -15,9 +15,9 @@ import type { Product } from "@/lib/types"
 
 export function DealsCarousel({
   products,
-  title = "Ofertas em alta",
-  subtitle = "As ofertas mais buscadas agora nas lojas parceiras",
-  icon: Icon = Flame,
+  title = "Ofertas recentes",
+  subtitle = "Adicionadas há pouco às lojas parceiras",
+  icon: Icon = Clock,
 }: {
   products: Product[]
   title?: string
@@ -25,17 +25,17 @@ export function DealsCarousel({
   icon?: LucideIcon
 }) {
   return (
-    <section className="bg-foreground py-12">
+    <section className="bg-band py-12">
       <div className="container mx-auto max-w-7xl px-4">
         <div className="mb-6 flex items-center gap-2">
           <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground">
-            <Icon className="h-5 w-5 fill-current" />
+            <Icon className="h-5 w-5" aria-hidden />
           </span>
           <div>
-            <h2 className="text-2xl font-bold text-background sm:text-3xl">
+            <h2 className="text-2xl font-bold text-band-foreground sm:text-3xl">
               {title}
             </h2>
-            <p className="text-sm text-background/60">{subtitle}</p>
+            <p className="text-sm text-band-foreground/70">{subtitle}</p>
           </div>
         </div>
 

@@ -29,6 +29,17 @@ export function formatSeenAt(iso: string) {
   }).format(new Date(iso))
 }
 
+/** "há 8 min" · "há 3 h" · "há 2 dias". Time-dependent: render it on the client only. */
+export function formatTimeAgo(iso: string, now = Date.now()) {
+  const minutes = Math.max(0, Math.floor((now - new Date(iso).getTime()) / 60_000))
+  if (minutes < 1) return "agora"
+  if (minutes < 60) return `há ${minutes} min`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `há ${hours} h`
+  const days = Math.floor(hours / 24)
+  return `há ${days} ${days === 1 ? "dia" : "dias"}`
+}
+
 export function calculateDiscountPercent(price: number, originalPrice?: number) {
   if (!originalPrice || originalPrice <= price) return null
   return Math.round(((originalPrice - price) / originalPrice) * 100)

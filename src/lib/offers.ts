@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js"
+import { cache } from "react"
 
 import { ALL_PRODUCTS } from "@/lib/mock-data"
 import type { Product, StoreSource } from "@/lib/types"
@@ -14,14 +15,16 @@ interface OfferRow {
   affiliate_url: string
   is_free_shipping: boolean
   last_seen_at: string
+  created_at: string
 }
 
 /**
  * Live offers from Supabase (public read via RLS). Only offers with OUR
  * affiliate link and an image are shown. Falls back to the mock catalog
  * while the database is empty or unreachable, so the site never goes blank.
+ * Memoised per request, so the layout and the page share one query.
  */
-export async function getCatalog(): Promise<{ products: Product[]; live: boolean }> {
+export const getCatalog = cache(async (): Promise<{ products: Product[]; live: boolean }> => {
   const { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } = process.env
   if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) return mockCatalog()
 
@@ -31,7 +34,7 @@ export async function getCatalog(): Promise<{ products: Product[]; live: boolean
   const { data, error } = await supabase
     .from("offers")
     .select(
-      "id, store_id, title, image, category_slug, price, original_price, affiliate_url, is_free_shipping, last_seen_at",
+      "id, store_id, title, image, category_slug, price, original_price, affiliate_url, is_free_shipping, last_seen_at, created_at",
     )
     .eq("is_active", true)
     .not("affiliate_url", "is", null)
@@ -69,13 +72,14 @@ export async function getCatalog(): Promise<{ products: Product[]; live: boolean
       affiliateUrl: row.affiliate_url,
       isFreeShipping: row.is_free_shipping,
       seenAt: row.last_seen_at,
+      createdAt: row.created_at,
       priceHistory: hasHistory ? prices : undefined,
       // A real drop: at least 3% below the previous recorded price (ignores cent-level noise).
       isPriceDrop: hasHistory && prices.at(-1)! < prices.at(-2)! * 0.97,
     }
   })
   return { products, live: true }
-}
+})
 
 function mockCatalog() {
   return { products: ALL_PRODUCTS, live: false }

@@ -91,7 +91,7 @@ export function FavoritesSheet() {
               >
                 <Heart className="h-9 w-9 text-primary-foreground" />
               </motion.span>
-              <Sparkles className="absolute -right-1 -top-1 h-6 w-6 text-primary" />
+              <Sparkles className="absolute -right-1 -top-1 h-6 w-6 text-brand" />
             </div>
 
             <div className="flex flex-col gap-1.5">
@@ -162,7 +162,7 @@ export function FavoritesSheet() {
                           <p className="line-clamp-2 text-sm font-medium text-foreground">
                             {item.title}
                           </p>
-                          <span className="text-sm font-bold text-primary">
+                          <span className="text-sm font-bold text-brand">
                             {formatCurrency(item.price)}
                           </span>
                         </div>

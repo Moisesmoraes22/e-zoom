@@ -11,15 +11,25 @@ export function ProductGrid({
   subtitle,
   products,
   href = "/busca",
+  linkLabel,
+  icon,
 }: {
   title: string
   subtitle?: string
   products: Product[]
   href?: string
+  linkLabel?: string
+  icon?: React.ReactNode
 }) {
   return (
     <section className="container mx-auto max-w-7xl px-4 py-12">
-      <SectionHeader title={title} subtitle={subtitle} href={href} />
+      <SectionHeader
+        title={title}
+        subtitle={subtitle}
+        href={href}
+        linkLabel={linkLabel}
+        icon={icon}
+      />
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
         {products.map((product, index) => (
           <motion.div

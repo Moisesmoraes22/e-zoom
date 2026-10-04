@@ -3,12 +3,14 @@
 import { AnimatePresence, motion } from "framer-motion"
 import { useRef } from "react"
 import Link from "next/link"
-import { ArrowRight, Heart, Star, Truck } from "lucide-react"
+import { ArrowRight, Heart, Star, TrendingDown, Truck } from "lucide-react"
 
 import { OfferLink } from "@/components/offer-link"
 import { PriceSparkline } from "@/components/price-sparkline"
 import { StoreBadge } from "@/components/store-badge"
+import { TimeAgo } from "@/components/time-ago"
 import { Badge } from "@/components/ui/badge"
+import { discountOf, savingsOf } from "@/lib/deals"
 import { useFavorites } from "@/lib/favorites-context"
 import type { Product } from "@/lib/types"
 import {
@@ -16,7 +18,6 @@ import {
   cn,
   formatCurrency,
   formatReviewCount,
-  formatSeenAt,
 } from "@/lib/utils"
 
 export function ProductCard({
@@ -29,6 +30,8 @@ export function ProductCard({
   const { toggleFavorite, isFavorite, launchFlight } = useFavorites()
   const favorited = isFavorite(product.id)
   const buttonRef = useRef<HTMLButtonElement>(null)
+  const discount = discountOf(product)
+  const savings = savingsOf(product)
 
   const handleToggle = (event: React.MouseEvent) => {
     event.preventDefault()
@@ -42,7 +45,7 @@ export function ProductCard({
   return (
     <div
       className={cn(
-        "group relative flex h-full flex-col overflow-hidden rounded-2xl border bg-card transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10",
+        "group relative flex h-full flex-col overflow-hidden rounded-2xl border bg-card transition-all duration-300 motion-safe:hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10",
         favorited
           ? "border-primary ring-2 ring-primary/40 ring-offset-2 ring-offset-background"
           : "border-border",
@@ -55,16 +58,17 @@ export function ProductCard({
           className="flex flex-1 flex-col active:scale-[0.98] transition-transform duration-150"
         >
           <div className="relative aspect-square w-full overflow-hidden bg-muted">
-            {product.discountLabel && (
+            {discount && (
               <Badge className="absolute left-2 top-2 z-10 bg-primary text-primary-foreground">
-                {product.discountLabel}
+                -{discount}%
               </Badge>
             )}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={product.image}
               alt={product.title}
-              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              loading="lazy"
+              className="h-full w-full object-cover transition-transform duration-500 motion-safe:group-hover:scale-105"
             />
           </div>
 
@@ -87,24 +91,27 @@ export function ProductCard({
               </div>
             )}
 
-            <div className="flex flex-col gap-0.5">
-              <span className="text-xl font-bold text-primary">
-                {formatCurrency(product.price)}
-              </span>
-              {product.originalPrice && (
-                <span className="text-xs text-muted-foreground line-through">
-                  {formatCurrency(product.originalPrice)}
+            <div className="flex flex-col gap-1">
+              <div className="flex flex-wrap items-baseline gap-x-2">
+                <span className="text-xl font-bold tabular-nums text-brand">
+                  {formatCurrency(product.price)}
                 </span>
-              )}
-              {product.seenAt && (
-                <span className="text-[11px] text-muted-foreground">
-                  Preço visto em {formatSeenAt(product.seenAt)}
+                {product.originalPrice && discount && (
+                  <span className="text-xs tabular-nums text-muted-foreground line-through">
+                    {formatCurrency(product.originalPrice)}
+                  </span>
+                )}
+              </div>
+              {savings && (
+                <span className="flex items-center gap-1 text-xs font-medium text-brand">
+                  <TrendingDown className="h-3.5 w-3.5" aria-hidden />
+                  Economize {formatCurrency(savings)}
                 </span>
               )}
               {product.isPriceDrop && product.priceHistory && (
-                <span className="mt-1 flex items-center gap-2 text-xs font-medium text-primary">
-                  <PriceSparkline values={product.priceHistory} />
-                  caiu {calculateDiscountPercent(product.price, Math.max(...product.priceHistory))}%
+                <span className="flex items-center gap-2 text-xs font-medium text-brand">
+                  <PriceSparkline values={product.priceHistory} className="h-5 w-14" />
+                  Preço caiu {calculateDiscountPercent(product.price, Math.max(...product.priceHistory))}%
                 </span>
               )}
               {product.installments && (
@@ -115,12 +122,19 @@ export function ProductCard({
               )}
             </div>
 
-            <div className="mt-auto flex items-center justify-between gap-2">
-              <StoreBadge store={product.store} variant="minimal" />
-              {product.isFreeShipping && (
-                <span className="flex items-center gap-1 text-xs font-medium text-primary">
-                  <Truck className="h-3.5 w-3.5" />
-                  Grátis
+            <div className="mt-auto flex flex-col gap-1 pt-1">
+              <div className="flex items-center justify-between gap-2">
+                <StoreBadge store={product.store} variant="minimal" />
+                {product.isFreeShipping && (
+                  <span className="flex items-center gap-1 text-xs font-medium text-brand">
+                    <Truck className="h-3.5 w-3.5" aria-hidden />
+                    Frete grátis
+                  </span>
+                )}
+              </div>
+              {product.seenAt && (
+                <span className="text-[11px] text-muted-foreground">
+                  Preço visto <TimeAgo iso={product.seenAt} />
                 </span>
               )}
             </div>
@@ -132,10 +146,10 @@ export function ProductCard({
             product={product}
             store={product.store}
             affiliateUrl={product.affiliateUrl}
-            className="flex items-center justify-center gap-1.5 rounded-lg border border-primary/40 py-2 text-sm font-semibold text-primary transition-colors duration-200 group-hover:bg-primary group-hover:text-primary-foreground"
+            className="flex min-h-11 items-center justify-center gap-1.5 rounded-lg bg-primary py-2 text-sm font-semibold text-primary-foreground transition-colors duration-200 hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             Ver oferta
-            <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
+            <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" aria-hidden />
           </OfferLink>
         </div>
       </div>

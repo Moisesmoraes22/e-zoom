@@ -4,28 +4,38 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+  color-scheme: light;
   --radius: 0.75rem;
 
   /* Base neutrals */
   --background: #ffffff;
-  --foreground: #0a0f0c;
+  --foreground: #111111;
 
   --card: #ffffff;
-  --card-foreground: #0a0f0c;
+  --card-foreground: #111111;
 
   --popover: #ffffff;
-  --popover-foreground: #0a0f0c;
+  --popover-foreground: #111111;
 
-  /* Brand green */
+  /* Brand green. `--brand` is the darker green used for small green TEXT on light
+     surfaces (the fill green is only 3.3:1 on white; this one is 5:1). */
   --primary: #16a34a;
   --primary-foreground: #ffffff;
+  --brand: #15803d;
 
   /* Soft sage for secondary surfaces */
   --secondary: #f0fdf4;
   --secondary-foreground: #14532d;
 
-  --muted: #f4f5f4;
-  --muted-foreground: #5b625d;
+  --muted: #f1f4f2;
+  --muted-foreground: #5f6661;
+
+  /* Page-level section tint (footer, empty states) */
+  --surface: #f8faf9;
+
+  /* Dark band behind the "recent offers" carousel */
+  --band: #111111;
+  --band-foreground: #ffffff;
 
   --accent: #dcfce7;
   --accent-foreground: #14532d;
@@ -33,68 +43,76 @@
   --destructive: #dc2626;
   --destructive-foreground: #ffffff;
 
-  --border: #e5e7e5;
-  --input: #e5e7e5;
+  --border: #e5e7eb;
+  --input: #e5e7eb;
   --ring: #16a34a;
 
   --chart-1: #16a34a;
-  --chart-2: #0a0f0c;
+  --chart-2: #111111;
   --chart-3: #4ade80;
   --chart-4: #14532d;
   --chart-5: #86efac;
 
   --sidebar: #ffffff;
-  --sidebar-foreground: #0a0f0c;
+  --sidebar-foreground: #111111;
   --sidebar-primary: #16a34a;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #dcfce7;
   --sidebar-accent-foreground: #14532d;
-  --sidebar-border: #e5e7e5;
+  --sidebar-border: #e5e7eb;
   --sidebar-ring: #16a34a;
 }
 
 .dark {
-  --background: #0a0f0c;
-  --foreground: #f5f7f5;
+  color-scheme: dark;
+  --background: #0b0f0d;
+  --foreground: #f5f7f6;
 
-  --card: #101512;
-  --card-foreground: #f5f7f5;
+  --card: #111714;
+  --card-foreground: #f5f7f6;
 
-  --popover: #101512;
-  --popover-foreground: #f5f7f5;
+  /* elevated surface: menus, dropdowns, sheets */
+  --popover: #171d19;
+  --popover-foreground: #f5f7f6;
 
   --primary: #22c55e;
   --primary-foreground: #04140a;
+  --brand: #22c55e;
 
-  --secondary: #131c17;
+  --secondary: #14201a;
   --secondary-foreground: #d1fae5;
 
-  --muted: #16201a;
-  --muted-foreground: #a1aca4;
+  --muted: #171d19;
+  --muted-foreground: #a7b0aa;
+
+  --surface: #0e1310;
+
+  --band: #111714;
+  --band-foreground: #f5f7f6;
 
   --accent: #16281d;
   --accent-foreground: #bbf7d0;
 
   --destructive: #ef4444;
-  --destructive-foreground: #f5f7f5;
+  --destructive-foreground: #f5f7f6;
 
-  --border: #22302a;
-  --input: #22302a;
+  --border: #252d28;
+  --input: #252d28;
   --ring: #22c55e;
 
   --chart-1: #22c55e;
-  --chart-2: #f5f7f5;
+  --chart-2: #f5f7f6;
   --chart-3: #4ade80;
   --chart-4: #86efac;
-  --chart-5: #14532d;
+  --chart-5: #16a34a;
 
-  --sidebar: #101512;
-  --sidebar-foreground: #f5f7f5;
+  --sidebar: #111714;
+  --sidebar-foreground: #f5f7f6;
   --sidebar-primary: #22c55e;
   --sidebar-primary-foreground: #04140a;
   --sidebar-accent: #16281d;
   --sidebar-accent-foreground: #bbf7d0;
-  --sidebar-border: #22302a;
+  --sidebar-border: #252d28;
   --sidebar-ring: #22c55e;
 }
 
@@ -109,10 +127,14 @@
 
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-brand: var(--brand);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
+  --color-surface: var(--surface);
+  --color-band: var(--band);
+  --color-band-foreground: var(--band-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
@@ -152,5 +174,29 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* Added for ~300ms by ThemeProvider when the user switches theme: one global
+   colour crossfade instead of animating components one by one. */
+html.theme-transition,
+html.theme-transition *,
+html.theme-transition *::before,
+html.theme-transition *::after {
+  transition:
+    background-color 250ms ease,
+    color 250ms ease,
+    border-color 250ms ease,
+    fill 250ms ease,
+    stroke 250ms ease,
+    box-shadow 250ms ease !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.theme-transition,
+  html.theme-transition *,
+  html.theme-transition *::before,
+  html.theme-transition *::after {
+    transition: none !important;
   }
 }

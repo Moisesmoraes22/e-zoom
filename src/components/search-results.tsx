@@ -20,6 +20,7 @@ import {
   countByStore,
   EMPTY_FILTERS,
   filterProducts,
+  SORT_PARAMS,
   sortProducts,
   type ProductFilters,
 } from "@/lib/search"
@@ -41,7 +42,12 @@ export function SearchResults({
     ...EMPTY_FILTERS,
     category: categorySlug,
   })
-  const [sort, setSort] = useState<SortOption>("relevance")
+  // ?ordenacao= sets the starting sort (menu links); picking one here overrides it
+  // until the URL's value changes.
+  const urlSort = SORT_PARAMS[searchParams.get("ordenacao") ?? ""] ?? "relevance"
+  const [picked, setPicked] = useState<{ url: SortOption; value: SortOption } | null>(null)
+  const sort = picked && picked.url === urlSort ? picked.value : urlSort
+  const setSort = (value: SortOption) => setPicked({ url: urlSort, value })
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [sortOpen, setSortOpen] = useState(false)
 
@@ -180,10 +186,9 @@ export function SearchResults({
           <div className="flex flex-col gap-1">
             {(
               [
-                ["relevance", "Mais relevantes"],
-                ["price_asc", "Menor preço"],
+                ["relevance", "Relevância"],
                 ["discount_desc", "Maior desconto"],
-                ["rating_desc", "Melhor avaliação"],
+                ["price_asc", "Menor preço"],
                 ["recent", "Mais recentes"],
               ] as [SortOption, string][]
             ).map(([value, label]) => (
@@ -196,7 +201,7 @@ export function SearchResults({
                 }}
                 className={`rounded-lg px-3 py-2.5 text-left text-sm font-medium transition-colors active:scale-[0.98] ${
                   sort === value
-                    ? "bg-primary/10 text-primary"
+                    ? "bg-primary/10 text-brand"
                     : "text-foreground hover:bg-accent/40"
                 }`}
               >

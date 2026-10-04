@@ -30,6 +30,8 @@ export interface Product {
   priceHistory?: number[]
   /** ISO time the offer was last seen by the collector; shown next to the price. */
   seenAt?: string
+  /** ISO time the offer first entered the catalog ("recent offers" ordering). */
+  createdAt?: string
 }
 
 export interface ProductOffer {
@@ -40,12 +42,7 @@ export interface ProductOffer {
   isFreeShipping?: boolean
 }
 
-export type SortOption =
-  | "relevance"
-  | "price_asc"
-  | "discount_desc"
-  | "rating_desc"
-  | "recent"
+export type SortOption = "relevance" | "price_asc" | "discount_desc" | "recent"
 
 export interface Category {
   slug: string

@@ -67,25 +67,33 @@ export function filterProducts(
   })
 }
 
+/** Real discount only: products without a recorded previous price count as 0. */
+const discountOf = (p: Product) =>
+  calculateDiscountPercent(p.price, p.originalPrice) ?? 0
+
 export function sortProducts(products: Product[], sort: SortOption) {
   const sorted = [...products]
   switch (sort) {
     case "price_asc":
       return sorted.sort((a, b) => a.price - b.price)
     case "discount_desc":
-      return sorted.sort(
-        (a, b) =>
-          (calculateDiscountPercent(b.price, b.originalPrice) ?? 0) -
-          (calculateDiscountPercent(a.price, a.originalPrice) ?? 0),
-      )
-    case "rating_desc":
-      return sorted.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0))
+      return sorted.sort((a, b) => discountOf(b) - discountOf(a))
     case "recent":
-      return sorted.reverse()
+      // Newest in the catalog first; items without a date keep their order.
+      return sorted.sort((a, b) => (b.createdAt ?? "").localeCompare(a.createdAt ?? ""))
     case "relevance":
     default:
-      return sorted
+      // Offers with a real discount first (biggest first); the rest keep catalog order.
+      return sorted.sort((a, b) => discountOf(b) - discountOf(a))
   }
+}
+
+/** URL values for `?ordenacao=` (Portuguese, stable, so they can become pages later). */
+export const SORT_PARAMS: Record<string, SortOption> = {
+  relevancia: "relevance",
+  desconto: "discount_desc",
+  preco: "price_asc",
+  recente: "recent",
 }
 
 export function countByStore(products: Product[]) {

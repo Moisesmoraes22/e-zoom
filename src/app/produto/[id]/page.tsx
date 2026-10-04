@@ -2,7 +2,6 @@ import { notFound } from "next/navigation"
 
 import { ProductDetail } from "@/components/product-detail"
 import { SiteFooter } from "@/components/site-footer"
-import { SiteHeader } from "@/components/site-header"
 import { ALL_PRODUCTS, getProductOffers } from "@/lib/mock-data"
 import { getCatalog } from "@/lib/offers"
 
@@ -40,8 +39,7 @@ export default async function ProdutoPage({
       : getProductOffers(product)
 
   return (
-    <main className="min-h-screen bg-background">
-      <SiteHeader />
+    <main id="conteudo" className="min-h-screen bg-background">
       <ProductDetail product={product} offers={offers} />
       <SiteFooter />
     </main>

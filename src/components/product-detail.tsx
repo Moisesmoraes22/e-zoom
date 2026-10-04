@@ -84,7 +84,7 @@ export function ProductDetail({
 
           {product.rating && (
             <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-              <Star className="h-4 w-4 fill-primary text-primary" />
+              <Star className="h-4 w-4 fill-primary text-brand" />
               <span className="font-semibold text-foreground">
                 {product.rating.toFixed(1)}
               </span>
@@ -100,7 +100,7 @@ export function ProductDetail({
             <p className="text-xs font-medium text-muted-foreground">
               Melhor oferta encontrada
             </p>
-            <p className="text-3xl font-bold text-primary">
+            <p className="text-3xl font-bold text-brand">
               {formatCurrency(bestOffer.price)}
             </p>
             <p className="mt-0.5 text-xs text-muted-foreground">
@@ -121,7 +121,7 @@ export function ProductDetail({
               </p>
               <PriceSparkline
                 values={product.priceHistory}
-                className="mt-2 h-12 w-full text-primary"
+                className="mt-2 h-12 w-full text-brand"
               />
               <p className="mt-2 text-xs text-muted-foreground">
                 Menor {formatCurrency(Math.min(...product.priceHistory))} · maior{" "}
@@ -164,7 +164,7 @@ export function ProductDetail({
                 <div className="flex items-center gap-3">
                   <StoreBadge store={offer.store} />
                   {offer.isFreeShipping && (
-                    <span className="flex items-center gap-1 text-xs font-medium text-primary">
+                    <span className="flex items-center gap-1 text-xs font-medium text-brand">
                       <Truck className="h-3.5 w-3.5" />
                       Frete grátis
                     </span>
@@ -182,7 +182,7 @@ export function ProductDetail({
                       {formatCurrency(offer.price)}
                     </p>
                     {discount && (
-                      <p className="text-xs font-semibold text-primary">
+                      <p className="text-xs font-semibold text-brand">
                         -{discount}%
                       </p>
                     )}

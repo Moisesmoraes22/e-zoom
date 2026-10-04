@@ -84,7 +84,7 @@ export function AppliedFilterChips({
       <button
         type="button"
         onClick={() => onChange(EMPTY_FILTERS)}
-        className="text-xs font-medium text-muted-foreground underline-offset-2 hover:text-primary hover:underline"
+        className="text-xs font-medium text-muted-foreground underline-offset-2 hover:text-brand hover:underline"
       >
         Limpar tudo
       </button>

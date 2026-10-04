@@ -3,10 +3,9 @@
 import type { SortOption } from "@/lib/types"
 
 const OPTIONS: { value: SortOption; label: string }[] = [
-  { value: "relevance", label: "Mais relevantes" },
-  { value: "price_asc", label: "Menor preço" },
+  { value: "relevance", label: "Relevância" },
   { value: "discount_desc", label: "Maior desconto" },
-  { value: "rating_desc", label: "Melhor avaliação" },
+  { value: "price_asc", label: "Menor preço" },
   { value: "recent", label: "Mais recentes" },
 ]
 

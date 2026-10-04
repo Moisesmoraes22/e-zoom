@@ -29,16 +29,18 @@ export function SearchBar({
     <form
       onSubmit={handleSubmit}
       className={cn(
-        "flex w-full items-center gap-2 rounded-full border border-border bg-background shadow-lg shadow-black/5 transition-colors focus-within:border-primary/50",
+        "flex w-full items-center gap-2 rounded-full border border-border bg-background shadow-lg shadow-foreground/5 transition-colors focus-within:border-primary focus-within:ring-2 focus-within:ring-ring/30",
         size === "lg" ? "p-1.5 sm:p-2" : "p-1",
         className,
       )}
     >
-      <Search className="ml-3 h-5 w-5 shrink-0 text-muted-foreground" />
+      <Search className="ml-3 h-5 w-5 shrink-0 text-muted-foreground" aria-hidden />
       <input
         value={value}
         onChange={(event) => setValue(event.target.value)}
-        type="text"
+        type="search"
+        aria-label="O que você está procurando?"
+        enterKeyHint="search"
         placeholder="O que você está procurando?"
         className={cn(
           "w-full bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none",
