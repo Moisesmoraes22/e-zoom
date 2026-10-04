@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowRight, ChevronLeft, ChevronRight, TrendingDown } from "lucide-react";
+import { ArrowRight, TrendingDown } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState, useSyncExternalStore } from "react";
 
@@ -141,14 +141,6 @@ export function CommerceHero({
 
               {count > 1 && (
                 <>
-                  <div className="pointer-events-none absolute inset-x-0 top-0 flex aspect-[4/3] items-center justify-between px-2">
-                    <ArrowButton label="Oferta anterior" onClick={() => go(index - 1)}>
-                      <ChevronLeft className="h-5 w-5" aria-hidden />
-                    </ArrowButton>
-                    <ArrowButton label="Próxima oferta" onClick={() => go(index + 1)}>
-                      <ChevronRight className="h-5 w-5" aria-hidden />
-                    </ArrowButton>
-                  </div>
                   <div
                     role="group"
                     aria-label="Escolher oferta do Hero"
@@ -179,28 +171,6 @@ export function CommerceHero({
         </div>
       </section>
     </div>
-  );
-}
-
-/** Shown on hover or keyboard focus; the dots stay visible for everyone else. */
-function ArrowButton({
-  label,
-  onClick,
-  children,
-}: {
-  label: string;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      aria-label={label}
-      onClick={onClick}
-      className="pointer-events-auto flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-border bg-background/90 text-foreground opacity-0 shadow-md transition-opacity hover:bg-background focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring group-hover/slides:opacity-100"
-    >
-      {children}
-    </button>
   );
 }
 
