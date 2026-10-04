@@ -75,10 +75,10 @@ No token, password or e-mail address is ever put in a URL by the app.
 Nothing below was done by the code; each box must be ticked by a person after doing it for real.
 
 ### Supabase Dashboard
-- [ ] Site URL configurada no Supabase (`https://hibridlink-promos.vercel.app`)
-- [ ] Redirect URLs configuradas (`https://hibridlink-promos.vercel.app/**` e `http://localhost:3000/**`)
-- [ ] confirmação de e-mail revisada ("Confirm email" ligado)
-- [ ] senha mínima definida (pelo menos 8; os formulários pedem 8 com letras e números, mas quem impõe é o servidor)
+- [x] Site URL configurada no Supabase (`https://hibridlink-promos.vercel.app`)
+- [x] Redirect URLs configuradas (`https://hibridlink-promos.vercel.app/**` e `http://localhost:3000/**`)
+- [x] confirmação de e-mail revisada ("Confirm email" ligado)
+- [x] senha mínima definida (pelo menos 8; os formulários pedem 8 com letras e números, mas quem impõe é o servidor)
 - [ ] Rate Limits revisados
 - [ ] Attack Protection revisado
 - [ ] CAPTCHA avaliado (ver "CAPTCHA")
@@ -92,15 +92,15 @@ Nothing below was done by the code; each box must be ticked by a person after do
 ### Jurídico e dados
 - [ ] Política de Privacidade publicada (base técnica: `docs/devel/personal-data-inventory.md`)
 - [ ] Termos de Uso publicados
-- [ ] exclusão de conta definida (ver "Exclusão de conta")
+- [x] exclusão de conta definida (manual, por e-mail, até 15 dias: já descrita na Política) (ver "Exclusão de conta")
 
 ### Testes reais (precisam de uma conta de verdade, feitos por uma pessoa)
-- [ ] teste real de cadastro
-- [ ] teste real de login
-- [ ] teste real de confirmação
-- [ ] teste real de recovery
-- [ ] teste real de logout (conferir também que `/conta` volta a pedir login e que os favoritos da conta saem da tela)
-- [ ] teste real de sincronização (dois navegadores, favoritos diferentes em cada um)
+- [x] teste real de cadastro
+- [x] teste real de login
+- [x] teste real de confirmação
+- [x] teste real de recovery
+- [x] teste real de logout (conferir também que `/conta` volta a pedir login e que os favoritos da conta saem da tela)
+- [x] teste real de sincronização (dois navegadores, favoritos diferentes em cada um)
 
 ## CAPTCHA
 
