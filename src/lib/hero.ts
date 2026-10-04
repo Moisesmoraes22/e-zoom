@@ -20,27 +20,6 @@ export interface HeroOffer {
   insight: string | null
 }
 
-/**
- * Picks the hero offer from the live catalog with plain ordering rules, no score:
- * a real discount first, then having recorded price history, then the bigger
- * discount. Without any discount it falls back to the newest offer with an image.
- */
-export function pickHeroOffer(products: Product[]): Product | null {
-  const withImage = products.filter((p) => p.image && p.price > 0)
-  if (withImage.length === 0) return null
-
-  const hasHistory = (p: Product) => (p.priceHistory?.length ?? 0) >= 2
-  const discounted = withImage.filter((p) => discountOf(p))
-  if (discounted.length > 0) {
-    return [...discounted].sort(
-      (a, b) =>
-        Number(hasHistory(b)) - Number(hasHistory(a)) ||
-        (discountOf(b) ?? 0) - (discountOf(a) ?? 0),
-    )[0]
-  }
-  return [...withImage].sort((a, b) => (b.createdAt ?? "").localeCompare(a.createdAt ?? ""))[0]
-}
-
 const DAY = 86_400_000
 
 /**

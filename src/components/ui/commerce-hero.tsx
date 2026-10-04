@@ -1,25 +1,86 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { ArrowRight, TrendingDown } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowRight, ChevronLeft, ChevronRight, TrendingDown } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState, useSyncExternalStore } from "react";
 
 import { PriceSparkline } from "@/components/price-sparkline";
 import { SearchBar } from "@/components/search-bar";
 import type { HeroOffer } from "@/lib/hero";
 import { cn, formatCurrency } from "@/lib/utils";
 
+/** Below this the hero is the compact text + search version: no offers, no timer. */
+const DESKTOP = "(min-width: 1024px)";
+const ROTATE_MS = 7000;
+
+const subscribeDesktop = (onChange: () => void) => {
+  const media = window.matchMedia(DESKTOP);
+  media.addEventListener("change", onChange);
+  return () => media.removeEventListener("change", onChange);
+};
+const useIsDesktop = () =>
+  useSyncExternalStore(
+    subscribeDesktop,
+    () => window.matchMedia(DESKTOP).matches,
+    () => false,
+  );
+
 export function CommerceHero({
   storeNames,
-  offer,
+  offers,
 }: {
   storeNames: string[];
-  /** A real offer to showcase. Without one the hero is text and search only. */
-  offer: HeroOffer | null;
+  /** Up to 4 real offers to rotate. Without any, the hero is text and search only. */
+  offers: HeroOffer[];
 }) {
+  const count = offers.length;
+  const [index, setIndex] = useState(0);
+  // False until the first slide change, so the first paint keeps its intro animation.
+  const [rotated, setRotated] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const isDesktop = useIsDesktop();
+  const active = count > 0 ? offers[index % count] : null;
+  const paused = hovered || focused;
+
+  // In-memory rotation only (no requests). The timer restarts on every slide
+  // change, so clicking an arrow or dot gives the new slide a full interval.
+  useEffect(() => {
+    if (!isDesktop || count < 2 || paused) return;
+    const timer = setTimeout(() => {
+      setRotated(true);
+      setIndex((i) => (i + 1) % count);
+    }, ROTATE_MS);
+    return () => clearTimeout(timer);
+  }, [index, paused, isDesktop, count]);
+
+  // Warm the other slides' photos so a swap never shows an empty frame.
+  useEffect(() => {
+    if (!isDesktop || count < 2) return;
+    offers.slice(1).forEach((offer) => {
+      new Image().src = offer.image;
+    });
+  }, [isDesktop, count, offers]);
+
+  const go = (next: number) => {
+    setRotated(true);
+    setIndex((next + count) % count);
+  };
+
   return (
     <div className="container relative mx-auto max-w-7xl px-2">
-      <section className="relative mt-3 rounded-3xl sm:mt-4 border border-border bg-accent/40">
+      <section
+        className="relative mt-3 rounded-3xl sm:mt-4 border border-border bg-accent/40"
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        // Pause for keyboard focus (arrows, dots, typing in the search), but not
+        // for the focus a mouse click leaves behind, or it would never resume.
+        onFocus={(event) => setFocused((event.target as HTMLElement).matches(":focus-visible"))}
+        onBlur={(event) => {
+          if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setFocused(false);
+        }}
+      >
         {/* Decoration only; clipped on its own so the search dropdown can overflow the hero. */}
         <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl">
           <div className="absolute -right-24 -top-24 h-96 w-96 rounded-full bg-primary/15 blur-3xl" />
@@ -29,11 +90,11 @@ export function CommerceHero({
         <div
           className={cn(
             "relative grid items-center gap-10 px-5 py-6 sm:px-10 sm:py-12 lg:py-14",
-            offer && "lg:grid-cols-[1.1fr_0.9fr] lg:gap-12",
+            active && "lg:grid-cols-[1.1fr_0.9fr] lg:gap-12",
           )}
         >
           <motion.div
-            className={cn(!offer && "mx-auto max-w-2xl text-center")}
+            className={cn(!active && "mx-auto max-w-2xl text-center")}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35, ease: "easeOut" }}
@@ -58,34 +119,99 @@ export function CommerceHero({
               <p
                 className={cn(
                   "mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs sm:mt-4 text-muted-foreground sm:text-sm",
-                  !offer && "justify-center",
+                  !active && "justify-center",
                 )}
               >
                 <span>Ofertas de</span>
-                {storeNames.map((name, index) => (
+                {storeNames.map((name, i) => (
                   <span key={name} className="flex items-center gap-2">
                     <span className="font-medium text-foreground">{name}</span>
-                    {index < storeNames.length - 1 && <span aria-hidden>·</span>}
+                    {i < storeNames.length - 1 && <span aria-hidden>·</span>}
                   </span>
                 ))}
               </p>
             )}
           </motion.div>
 
-          {offer && <HeroProduct offer={offer} />}
+          {active && (
+            <div className="group/slides relative mx-auto hidden w-full max-w-[26rem] lg:block">
+              <AnimatePresence mode="wait">
+                <HeroSlide key={active.id} offer={active} intro={!rotated} />
+              </AnimatePresence>
+
+              {count > 1 && (
+                <>
+                  <div className="pointer-events-none absolute inset-x-0 top-0 flex aspect-[4/3] items-center justify-between px-2">
+                    <ArrowButton label="Oferta anterior" onClick={() => go(index - 1)}>
+                      <ChevronLeft className="h-5 w-5" aria-hidden />
+                    </ArrowButton>
+                    <ArrowButton label="Próxima oferta" onClick={() => go(index + 1)}>
+                      <ChevronRight className="h-5 w-5" aria-hidden />
+                    </ArrowButton>
+                  </div>
+                  <div
+                    role="group"
+                    aria-label="Escolher oferta do Hero"
+                    className="absolute inset-x-0 -bottom-7 flex justify-center"
+                  >
+                    {offers.map((offer, i) => (
+                      <button
+                        key={offer.id}
+                        type="button"
+                        aria-label={`Mostrar oferta ${i + 1} de ${count}`}
+                        aria-current={i === index % count}
+                        onClick={() => go(i)}
+                        className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      >
+                        <span
+                          className={cn(
+                            "h-2 rounded-full transition-all duration-300",
+                            i === index % count ? "w-5 bg-primary" : "w-2 bg-foreground/25",
+                          )}
+                        />
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
         </div>
       </section>
     </div>
   );
 }
 
-function HeroProduct({ offer }: { offer: HeroOffer }) {
+/** Shown on hover or keyboard focus; the dots stay visible for everyone else. */
+function ArrowButton({
+  label,
+  onClick,
+  children,
+}: {
+  label: string;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      onClick={onClick}
+      className="pointer-events-auto flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-border bg-background/90 text-foreground opacity-0 shadow-md transition-opacity hover:bg-background focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring group-hover/slides:opacity-100"
+    >
+      {children}
+    </button>
+  );
+}
+
+function HeroSlide({ offer, intro }: { offer: HeroOffer; intro: boolean }) {
   return (
     <motion.div
-      className="relative mx-auto hidden w-full max-w-[26rem] lg:block"
+      className="relative"
       initial={{ opacity: 0, y: 16, scale: 0.97 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ duration: 0.5, delay: 0.15, ease: "easeOut" }}
+      exit={{ opacity: 0, transition: { duration: 0.2 } }}
+      transition={{ duration: intro ? 0.5 : 0.4, delay: intro ? 0.15 : 0, ease: "easeOut" }}
     >
       <Link
         href={`/produto/${offer.id}`}
@@ -104,7 +230,7 @@ function HeroProduct({ offer }: { offer: HeroOffer }) {
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.6 }}
+              transition={{ duration: 0.4, delay: intro ? 0.6 : 0.3 }}
               className="absolute bottom-3 left-3 flex items-center gap-2 rounded-2xl border border-border bg-card px-3 py-2 text-xs font-medium text-card-foreground shadow-lg shadow-foreground/10 sm:text-sm"
             >
               {offer.priceHistory && offer.priceHistory.length >= 2 ? (
@@ -156,7 +282,7 @@ function HeroProduct({ offer }: { offer: HeroOffer }) {
           aria-label={`${offer.discount}% de desconto`}
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ type: "spring", stiffness: 260, damping: 18, delay: 0.45 }}
+          transition={{ type: "spring", stiffness: 260, damping: 18, delay: intro ? 0.45 : 0.15 }}
           className="pointer-events-none absolute -right-2 -top-3 flex h-20 w-20 flex-col items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 sm:-right-4 sm:h-24 sm:w-24"
         >
           <span className="text-2xl font-extrabold leading-none sm:text-3xl">
