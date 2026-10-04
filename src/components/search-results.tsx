@@ -2,10 +2,11 @@
 
 import { ListFilter, SearchX, SlidersHorizontal } from "lucide-react"
 import { useSearchParams } from "next/navigation"
-import { useMemo, useState } from "react"
+import { useMemo, useRef, useState } from "react"
 
 import { AppliedFilterChips } from "@/components/applied-filter-chips"
 import { FilterPanel } from "@/components/filter-panel"
+import { Pagination } from "@/components/pagination"
 import { ProductCard } from "@/components/product-card"
 import { SearchBar } from "@/components/search-bar"
 import { SortSelect } from "@/components/sort-select"
@@ -29,6 +30,8 @@ import {
 import type { CategoryCount } from "@/lib/deals"
 import { STORES } from "@/lib/mock-data"
 import type { Product, SortOption, StoreSource } from "@/lib/types"
+
+const PAGE_SIZE = 24
 
 interface SearchResultsProps {
   products: Product[]
@@ -113,6 +116,17 @@ function SearchResultsInner({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [products, query, filters, sort],
   )
+  // Page resets to 1 whenever the query, filters or sort change (the key no longer matches).
+  const pageKey = `${query}|${sort}|${JSON.stringify(filters)}`
+  const [pageState, setPageState] = useState({ page: 1, key: pageKey })
+  const totalPages = Math.max(1, Math.ceil(results.length / PAGE_SIZE))
+  const page = Math.min(pageState.key === pageKey ? pageState.page : 1, totalPages)
+  const visible = results.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+  const gridRef = useRef<HTMLDivElement>(null)
+  const goToPage = (next: number) => {
+    setPageState({ page: next, key: pageKey })
+    gridRef.current?.scrollIntoView({ block: "start" })
+  }
   const hasFilters =
     filters.stores.length > 0 ||
     filters.priceRanges.length > 0 ||
@@ -137,6 +151,7 @@ function SearchResultsInner({
       </h1>
       <p className="mt-1 text-sm text-muted-foreground">
         {results.length} {results.length === 1 ? "oferta encontrada" : "ofertas encontradas"}
+        {totalPages > 1 && ` · página ${page} de ${totalPages}`}
       </p>
 
       <div className="mt-6 flex gap-8">
@@ -195,11 +210,17 @@ function SearchResultsInner({
               )}
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4">
-              {results.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
+            <>
+              <div
+                ref={gridRef}
+                className="grid scroll-mt-24 grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4"
+              >
+                {visible.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+              <Pagination page={page} totalPages={totalPages} onChange={goToPage} />
+            </>
           )}
         </div>
       </div>
