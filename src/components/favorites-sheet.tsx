@@ -76,7 +76,7 @@ export function FavoritesSheet() {
               </span>
               <span className="block text-xs font-normal text-muted-foreground">
                 {items.length > 0
-                  ? `${items.length} ${items.length === 1 ? "produto salvo" : "produtos salvos"}`
+                  ? `${items.length} ${items.length === 1 ? "oferta salva" : "ofertas salvas"}`
                   : "Sua lista de desejos"}
               </span>
             </span>

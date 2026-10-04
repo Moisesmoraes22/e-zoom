@@ -3,7 +3,7 @@
 import { ArrowRight, Clock, Loader2, Search, TriangleAlert, X } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useId, useMemo, useRef, useState } from "react"
+import { useEffect, useId, useMemo, useRef, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { categoryIcon } from "@/lib/category-icons"
@@ -14,6 +14,8 @@ import { cn, formatCurrency } from "@/lib/utils"
 
 const RECENT_KEY = "hl-recent-searches"
 const MAX_RECENT = 5
+/** Rows shown before the user types: keeps the panel from covering the page. */
+const MAX_IDLE_ROWS = 4
 
 function readRecent(): string[] {
   try {
@@ -106,6 +108,7 @@ export function SearchBar({
           .slice(0, 6)
           .forEach((c) => rows.push(categoryRow(c.slug, c.name)))
       }
+      rows.splice(MAX_IDLE_ROWS)
     } else if (index.status === "ready") {
       const tokens = normalized.split(/\s+/)
       index.items
@@ -174,6 +177,13 @@ export function SearchBar({
       setActive((i) => (i === -1 ? (down ? 0 : rows.length - 1) : (i + (down ? 1 : -1) + rows.length) % rows.length))
     }
   }
+
+  // Keep the arrow-key selection visible inside the scrollable list.
+  useEffect(() => {
+    if (active >= 0) {
+      document.getElementById(`${listId}-${active}`)?.scrollIntoView({ block: "nearest" })
+    }
+  }, [active, listId])
 
   const showPanel = open && (rows.length > 0 || message !== null)
   const activeId = active >= 0 && rows[active] ? `${listId}-${active}` : undefined
@@ -265,9 +275,18 @@ export function SearchBar({
               {heading}
             </p>
           )}
-          <ul id={listId} role="listbox" aria-label="Sugestões de busca">
+          <ul
+            id={listId}
+            role="listbox"
+            aria-label="Sugestões de busca"
+            className="max-h-64 overflow-y-auto overscroll-contain"
+          >
             {rows.map((row, i) => (
-              <li key={row.key} role="presentation">
+              <li
+                key={row.key}
+                role="presentation"
+                className={cn(row.key === "all" && "sticky bottom-0 mt-1 border-t border-border bg-popover pt-1")}
+              >
                 <Link
                   id={`${listId}-${i}`}
                   role="option"
