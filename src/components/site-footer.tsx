@@ -80,8 +80,27 @@ export async function SiteFooter() {
                 </Link>
               </li>
               <li>
-                <Link href="#" className="transition-colors hover:text-brand">
+                <a
+                  href="mailto:aflservicos2026@gmail.com"
+                  className="transition-colors hover:text-brand"
+                >
                   Contato
+                </a>
+              </li>
+              <li>
+                <Link
+                  href="/privacidade"
+                  className="transition-colors hover:text-brand"
+                >
+                  Política de Privacidade
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/termos"
+                  className="transition-colors hover:text-brand"
+                >
+                  Termos de Uso
                 </Link>
               </li>
             </ul>
