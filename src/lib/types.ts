@@ -28,6 +28,8 @@ export interface Product {
   isPriceDrop?: boolean
   /** Last few recorded prices, oldest first. Optional — only for products with tracked history. */
   priceHistory?: number[]
+  /** ISO time the offer was last seen by the collector; shown next to the price. */
+  seenAt?: string
 }
 
 export interface ProductOffer {

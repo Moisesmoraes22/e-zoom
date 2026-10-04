@@ -13,6 +13,7 @@ interface OfferRow {
   original_price: number | null
   affiliate_url: string
   is_free_shipping: boolean
+  last_seen_at: string
 }
 
 /**
@@ -30,7 +31,7 @@ export async function getCatalog(): Promise<{ products: Product[]; live: boolean
   const { data, error } = await supabase
     .from("offers")
     .select(
-      "id, store_id, title, image, category_slug, price, original_price, affiliate_url, is_free_shipping",
+      "id, store_id, title, image, category_slug, price, original_price, affiliate_url, is_free_shipping, last_seen_at",
     )
     .eq("is_active", true)
     .not("affiliate_url", "is", null)
@@ -67,6 +68,7 @@ export async function getCatalog(): Promise<{ products: Product[]; live: boolean
       category: row.category_slug ?? "outros",
       affiliateUrl: row.affiliate_url,
       isFreeShipping: row.is_free_shipping,
+      seenAt: row.last_seen_at,
       priceHistory: hasHistory ? prices : undefined,
       // A real drop: at least 3% below the previous recorded price (ignores cent-level noise).
       isPriceDrop: hasHistory && prices.at(-1)! < prices.at(-2)! * 0.97,

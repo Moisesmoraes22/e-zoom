@@ -79,6 +79,13 @@ export function SiteFooter() {
             oferta&quot;, você é redirecionado para finalizar a compra por lá.
           </p>
           <p className="mt-2">
+            Como Associado da Amazon, o HibridLink ganha com compras
+            qualificadas. Também participamos do programa de afiliados do
+            Mercado Livre e podemos receber comissão pelas compras feitas
+            pelos nossos links, sem custo extra para você. Preços e
+            disponibilidade podem mudar a qualquer momento.
+          </p>
+          <p className="mt-2">
             © {new Date().getFullYear()} HibridLink. Todos os direitos
             reservados.
           </p>

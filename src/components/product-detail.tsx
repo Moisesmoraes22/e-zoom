@@ -15,6 +15,7 @@ import {
   calculateDiscountPercent,
   formatCurrency,
   formatReviewCount,
+  formatSeenAt,
 } from "@/lib/utils"
 
 export function ProductDetail({
@@ -105,6 +106,12 @@ export function ProductDetail({
             <p className="mt-0.5 text-xs text-muted-foreground">
               em {STORES[bestOffer.store].name}
             </p>
+            {product.seenAt && (
+              <p className="mt-1 text-xs text-muted-foreground">
+                Preço visto em {formatSeenAt(product.seenAt)}. Preços e
+                disponibilidade podem mudar a qualquer momento.
+              </p>
+            )}
           </div>
 
           {product.priceHistory && (

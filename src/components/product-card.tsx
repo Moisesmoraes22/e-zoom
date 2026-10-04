@@ -16,6 +16,7 @@ import {
   cn,
   formatCurrency,
   formatReviewCount,
+  formatSeenAt,
 } from "@/lib/utils"
 
 export function ProductCard({
@@ -93,6 +94,11 @@ export function ProductCard({
               {product.originalPrice && (
                 <span className="text-xs text-muted-foreground line-through">
                   {formatCurrency(product.originalPrice)}
+                </span>
+              )}
+              {product.seenAt && (
+                <span className="text-[11px] text-muted-foreground">
+                  Preço visto em {formatSeenAt(product.seenAt)}
                 </span>
               )}
               {product.isPriceDrop && product.priceHistory && (
