@@ -1,6 +1,10 @@
 import type { Product, SortOption, StoreSource } from "@/lib/types"
 import { calculateDiscountPercent } from "@/lib/utils"
 
+/** Lowercase without accents, so "relogio" finds "Relógio". */
+export const normalizeText = (text: string) =>
+  text.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase()
+
 export type PriceRange = "0-500" | "500-1000" | "1000-2000" | "2000+"
 
 export interface ProductFilters {
@@ -9,15 +13,14 @@ export interface ProductFilters {
   stores: StoreSource[]
   priceRanges: PriceRange[]
   minDiscount: number | null
-  minRating: number | null
   freeShippingOnly: boolean
 }
 
 export const EMPTY_FILTERS: ProductFilters = {
+  category: undefined,
   stores: [],
   priceRanges: [],
   minDiscount: null,
-  minRating: null,
   freeShippingOnly: false,
 }
 
@@ -38,10 +41,13 @@ export function filterProducts(
   products: Product[],
   filters: ProductFilters,
 ): Product[] {
-  const query = filters.query?.trim().toLowerCase()
+  const tokens = normalizeText(filters.query ?? "").split(/\s+/).filter(Boolean)
 
   return products.filter((product) => {
-    if (query && !product.title.toLowerCase().includes(query)) return false
+    if (tokens.length) {
+      const title = normalizeText(product.title)
+      if (!tokens.every((token) => title.includes(token))) return false
+    }
     if (filters.category && product.category !== filters.category)
       return false
     if (filters.stores.length && !filters.stores.includes(product.store))
@@ -60,8 +66,6 @@ export function filterProducts(
       )
       if (!discount || discount < filters.minDiscount) return false
     }
-    if (filters.minRating && (product.rating ?? 0) < filters.minRating)
-      return false
     if (filters.freeShippingOnly && !product.isFreeShipping) return false
     return true
   })

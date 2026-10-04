@@ -1,6 +1,6 @@
 "use client"
 
-import { ListFilter, SlidersHorizontal } from "lucide-react"
+import { ListFilter, SearchX, SlidersHorizontal } from "lucide-react"
 import { useSearchParams } from "next/navigation"
 import { useMemo, useState } from "react"
 
@@ -24,14 +24,17 @@ import {
   sortProducts,
   type ProductFilters,
 } from "@/lib/search"
-import type { Product, SortOption } from "@/lib/types"
+import type { CategoryCount } from "@/lib/deals"
+import type { Product, SortOption, StoreSource } from "@/lib/types"
 
 export function SearchResults({
   products,
+  categories,
   categorySlug,
   categoryName,
 }: {
   products: Product[]
+  categories: CategoryCount[]
   categorySlug?: string
   categoryName?: string
 }) {
@@ -51,25 +54,37 @@ export function SearchResults({
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [sortOpen, setSortOpen] = useState(false)
 
+  // On a category page the category is fixed; on /busca it is a regular filter.
   const handleFilterChange = (patch: Partial<ProductFilters>) =>
-    setFilters((prev) => ({ ...prev, ...patch, category: categorySlug }))
+    setFilters((prev) => ({
+      ...prev,
+      ...patch,
+      category: categorySlug ?? ("category" in patch ? patch.category : prev.category),
+    }))
+  const categoryFilter = categorySlug ? undefined : categories
 
   const baseFilters: ProductFilters = { ...filters, query }
 
-  const storeCounts = useMemo(
-    () =>
-      countByStore(
-        filterProducts(products, { ...baseFilters, stores: [] }),
-      ),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [query, filters.category, filters.priceRanges, filters.minDiscount, filters.minRating, filters.freeShippingOnly],
+  const availableStores = useMemo(
+    () => Object.keys(countByStore(products)) as StoreSource[],
+    [products],
   )
-
+  const storeCounts = useMemo(
+    () => countByStore(filterProducts(products, { ...baseFilters, stores: [] })),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [products, query, filters],
+  )
   const results = useMemo(
     () => sortProducts(filterProducts(products, baseFilters), sort),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [query, filters, sort],
+    [products, query, filters, sort],
   )
+  const hasFilters =
+    filters.stores.length > 0 ||
+    filters.priceRanges.length > 0 ||
+    filters.minDiscount !== null ||
+    filters.freeShippingOnly ||
+    (!categorySlug && !!filters.category)
 
   const title = query
     ? `Ofertas para "${query}"`
@@ -97,6 +112,8 @@ export function SearchResults({
               filters={filters}
               onChange={handleFilterChange}
               storeCounts={storeCounts}
+              availableStores={availableStores}
+              categories={categoryFilter}
             />
           </div>
         </aside>
@@ -106,6 +123,7 @@ export function SearchResults({
             <AppliedFilterChips
               filters={filters}
               onChange={handleFilterChange}
+              categories={categoryFilter}
             />
             <SortSelect value={sort} onChange={setSort} />
           </div>
@@ -114,17 +132,33 @@ export function SearchResults({
             <AppliedFilterChips
               filters={filters}
               onChange={handleFilterChange}
+              categories={categoryFilter}
             />
           </div>
 
           {results.length === 0 ? (
-            <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-border py-16 text-center">
+            <div
+              role="status"
+              className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border py-16 text-center"
+            >
+              <SearchX className="h-8 w-8 text-muted-foreground" aria-hidden />
               <p className="text-base font-medium text-foreground">
                 Nenhuma oferta encontrada
               </p>
               <p className="max-w-sm text-sm text-muted-foreground">
-                Tente ajustar os filtros ou pesquisar por outro termo.
+                {hasFilters
+                  ? "Nenhuma oferta combina com esses filtros."
+                  : "Tente pesquisar por outro termo."}
               </p>
+              {hasFilters && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => handleFilterChange(EMPTY_FILTERS)}
+                >
+                  Limpar filtros
+                </Button>
+              )}
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4">
@@ -144,7 +178,7 @@ export function SearchResults({
           className="flex-1 gap-2 active:scale-95"
           onClick={() => setFiltersOpen(true)}
         >
-          <SlidersHorizontal className="h-4 w-4" />
+          <SlidersHorizontal className="h-4 w-4" aria-hidden />
           Filtrar
         </Button>
         <Button
@@ -153,7 +187,7 @@ export function SearchResults({
           className="flex-1 gap-2 active:scale-95"
           onClick={() => setSortOpen(true)}
         >
-          <ListFilter className="h-4 w-4" />
+          <ListFilter className="h-4 w-4" aria-hidden />
           Ordenar
         </Button>
       </div>
@@ -167,6 +201,8 @@ export function SearchResults({
             filters={filters}
             onChange={handleFilterChange}
             storeCounts={storeCounts}
+            availableStores={availableStores}
+            categories={categoryFilter}
           />
           <Button
             className="mt-6 w-full active:scale-95"

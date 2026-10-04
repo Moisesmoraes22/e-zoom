@@ -1,6 +1,9 @@
 "use client"
 
+import { useId } from "react"
+
 import { Button } from "@/components/ui/button"
+import type { CategoryCount } from "@/lib/deals"
 import { STORES } from "@/lib/mock-data"
 import { EMPTY_FILTERS, type PriceRange, type ProductFilters } from "@/lib/search"
 import type { StoreSource } from "@/lib/types"
@@ -14,19 +17,29 @@ const PRICE_RANGES: { value: PriceRange; label: string }[] = [
 ]
 
 const DISCOUNTS = [10, 20, 30, 50]
-const RATINGS = [4, 4.5]
+
+const legend = "mb-1 text-sm font-medium text-foreground"
+const option =
+  "flex min-h-8 cursor-pointer items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
 
 export function FilterPanel({
   filters,
   onChange,
   storeCounts,
-  hideStoreFilter = false,
+  availableStores,
+  categories,
 }: {
   filters: ProductFilters
   onChange: (patch: Partial<ProductFilters>) => void
+  /** Matches per store under the other active filters. */
   storeCounts: Partial<Record<StoreSource, number>>
-  hideStoreFilter?: boolean
+  /** Stores that have at least one offer in the catalog (others are not listed). */
+  availableStores: StoreSource[]
+  /** Pass to show the category filter (omit on a category page, where it is fixed). */
+  categories?: CategoryCount[]
 }) {
+  // The desktop panel and the mobile sheet can both be mounted: keep their radio groups apart.
+  const groupName = useId()
   const toggleStore = (store: StoreSource) => {
     const exists = filters.stores.includes(store)
     onChange({
@@ -59,44 +72,65 @@ export function FilterPanel({
         </Button>
       </div>
 
-      {!hideStoreFilter && (
-        <fieldset className="flex flex-col gap-2.5">
-          <legend className="mb-1 text-sm font-medium text-foreground">
-            Loja
-          </legend>
-          {(Object.values(STORES) as typeof STORES.amazon[])
-            .filter((store) => store.id !== "telegram")
-            .map((store) => (
-              <label
-                key={store.id}
-                className="flex cursor-pointer items-center justify-between text-sm text-muted-foreground"
-              >
-                <span className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={filters.stores.includes(store.id)}
-                    onChange={() => toggleStore(store.id)}
-                    className="h-4 w-4 rounded accent-primary"
-                  />
-                  {store.name}
-                </span>
-                <span className="text-xs text-muted-foreground/70">
-                  {storeCounts[store.id] ?? 0}
-                </span>
-              </label>
-            ))}
+      {categories && categories.length > 0 && (
+        <fieldset className="flex flex-col gap-1">
+          <legend className={legend}>Categoria</legend>
+          <label className={option}>
+            <input
+              type="radio"
+              name={groupName}
+              checked={!filters.category}
+              onChange={() => onChange({ category: undefined })}
+              className="h-4 w-4 accent-primary"
+            />
+            Todas
+          </label>
+          {categories.map((category) => (
+            <label key={category.slug} className={cn(option, "justify-between")}>
+              <span className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name={groupName}
+                  checked={filters.category === category.slug}
+                  onChange={() => onChange({ category: category.slug })}
+                  className="h-4 w-4 accent-primary"
+                />
+                {category.name}
+              </span>
+              <span className="text-xs tabular-nums text-muted-foreground/80">
+                {category.count}
+              </span>
+            </label>
+          ))}
         </fieldset>
       )}
 
-      <fieldset className="flex flex-col gap-2.5">
-        <legend className="mb-1 text-sm font-medium text-foreground">
-          Preço
-        </legend>
+      {availableStores.length > 0 && (
+        <fieldset className="flex flex-col gap-1">
+          <legend className={legend}>Loja</legend>
+          {availableStores.map((id) => (
+            <label key={id} className={cn(option, "justify-between")}>
+              <span className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={filters.stores.includes(id)}
+                  onChange={() => toggleStore(id)}
+                  className="h-4 w-4 rounded accent-primary"
+                />
+                {STORES[id].name}
+              </span>
+              <span className="text-xs tabular-nums text-muted-foreground/80">
+                {storeCounts[id] ?? 0}
+              </span>
+            </label>
+          ))}
+        </fieldset>
+      )}
+
+      <fieldset className="flex flex-col gap-1">
+        <legend className={legend}>Preço</legend>
         {PRICE_RANGES.map((range) => (
-          <label
-            key={range.value}
-            className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground"
-          >
+          <label key={range.value} className={option}>
             <input
               type="checkbox"
               checked={filters.priceRanges.includes(range.value)}
@@ -109,66 +143,35 @@ export function FilterPanel({
       </fieldset>
 
       <fieldset className="flex flex-col gap-2">
-        <legend className="mb-1 text-sm font-medium text-foreground">
-          Desconto
-        </legend>
+        <legend className={legend}>Desconto</legend>
         <div className="flex flex-wrap gap-2">
-          {DISCOUNTS.map((value) => (
-            <button
-              key={value}
-              type="button"
-              onClick={() =>
-                onChange({
-                  minDiscount: filters.minDiscount === value ? null : value,
-                })
-              }
-              className={cn(
-                "rounded-full border px-3 py-1 text-xs font-medium transition-colors active:scale-95",
-                filters.minDiscount === value
-                  ? "border-primary bg-primary text-primary-foreground"
-                  : "border-border text-muted-foreground hover:border-primary/40",
-              )}
-            >
-              {value}%+
-            </button>
-          ))}
+          {DISCOUNTS.map((value) => {
+            const selected = filters.minDiscount === value
+            return (
+              <button
+                key={value}
+                type="button"
+                aria-pressed={selected}
+                onClick={() => onChange({ minDiscount: selected ? null : value })}
+                className={cn(
+                  "min-h-8 cursor-pointer rounded-full border px-3 py-1 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95",
+                  selected
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground",
+                )}
+              >
+                {value}%+
+              </button>
+            )
+          })}
         </div>
       </fieldset>
 
-      <fieldset className="flex flex-col gap-2">
-        <legend className="mb-1 text-sm font-medium text-foreground">
-          Avaliação
-        </legend>
-        <div className="flex flex-wrap gap-2">
-          {RATINGS.map((value) => (
-            <button
-              key={value}
-              type="button"
-              onClick={() =>
-                onChange({
-                  minRating: filters.minRating === value ? null : value,
-                })
-              }
-              className={cn(
-                "rounded-full border px-3 py-1 text-xs font-medium transition-colors active:scale-95",
-                filters.minRating === value
-                  ? "border-primary bg-primary text-primary-foreground"
-                  : "border-border text-muted-foreground hover:border-primary/40",
-              )}
-            >
-              {value}+
-            </button>
-          ))}
-        </div>
-      </fieldset>
-
-      <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
+      <label className={option}>
         <input
           type="checkbox"
           checked={filters.freeShippingOnly}
-          onChange={(event) =>
-            onChange({ freeShippingOnly: event.target.checked })
-          }
+          onChange={(event) => onChange({ freeShippingOnly: event.target.checked })}
           className="h-4 w-4 rounded accent-primary"
         />
         Frete grátis

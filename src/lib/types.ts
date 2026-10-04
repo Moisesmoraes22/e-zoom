@@ -50,3 +50,14 @@ export interface Category {
   icon: string
   image?: string
 }
+
+/** Every recorded price of one offer, oldest first. Recorded by the DB only when the price changes. */
+export interface PriceStats {
+  points: { price: number; at: string }[]
+  min: number
+  max: number
+  /** Time-weighted: each price counts for as long as it was the current one. */
+  average: number
+  /** ISO time of the first record, i.e. when we started tracking this offer. */
+  since: string
+}

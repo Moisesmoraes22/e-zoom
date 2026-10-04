@@ -3,6 +3,7 @@
 import { X } from "lucide-react"
 
 import { STORES } from "@/lib/mock-data"
+import type { CategoryCount } from "@/lib/deals"
 import { EMPTY_FILTERS, type PriceRange, type ProductFilters } from "@/lib/search"
 import type { StoreSource } from "@/lib/types"
 
@@ -16,11 +17,23 @@ const PRICE_LABELS: Record<PriceRange, string> = {
 export function AppliedFilterChips({
   filters,
   onChange,
+  categories,
 }: {
   filters: ProductFilters
   onChange: (patch: Partial<ProductFilters>) => void
+  /** Pass to show the category chip (omit on a category page, where it is fixed). */
+  categories?: CategoryCount[]
 }) {
   const chips: { key: string; label: string; onRemove: () => void }[] = []
+
+  const category = categories?.find((c) => c.slug === filters.category)
+  if (category) {
+    chips.push({
+      key: "category",
+      label: category.name,
+      onRemove: () => onChange({ category: undefined }),
+    })
+  }
 
   filters.stores.forEach((store: StoreSource) => {
     chips.push({
@@ -50,14 +63,6 @@ export function AppliedFilterChips({
     })
   }
 
-  if (filters.minRating) {
-    chips.push({
-      key: "rating",
-      label: `${filters.minRating}+ estrelas`,
-      onRemove: () => onChange({ minRating: null }),
-    })
-  }
-
   if (filters.freeShippingOnly) {
     chips.push({
       key: "shipping",
@@ -75,10 +80,11 @@ export function AppliedFilterChips({
           key={chip.key}
           type="button"
           onClick={chip.onRemove}
+          aria-label={`Remover filtro ${chip.label}`}
           className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:border-destructive/40 hover:text-destructive active:scale-95"
         >
           {chip.label}
-          <X className="h-3 w-3" />
+          <X className="h-3 w-3" aria-hidden />
         </button>
       ))}
       <button

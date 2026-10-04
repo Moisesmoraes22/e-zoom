@@ -29,6 +29,15 @@ export function formatSeenAt(iso: string) {
   }).format(new Date(iso))
 }
 
+/** "2026-10-04T03:12:00Z" -> "04/10" */
+export function formatDay(iso: string) {
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    timeZone: "America/Sao_Paulo",
+  }).format(new Date(iso))
+}
+
 /** "há 8 min" · "há 3 h" · "há 2 dias". Time-dependent: render it on the client only. */
 export function formatTimeAgo(iso: string, now = Date.now()) {
   const minutes = Math.max(0, Math.floor((now - new Date(iso).getTime()) / 60_000))

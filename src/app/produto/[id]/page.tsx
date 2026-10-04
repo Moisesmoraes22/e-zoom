@@ -1,15 +1,33 @@
+import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
 import { ProductDetail } from "@/components/product-detail"
 import { SiteFooter } from "@/components/site-footer"
-import { ALL_PRODUCTS, getProductOffers } from "@/lib/mock-data"
-import { getCatalog } from "@/lib/offers"
+import { ALL_PRODUCTS, getProductOffers, STORES } from "@/lib/mock-data"
+import { formatCurrency } from "@/lib/utils"
+import { getCatalog, getPriceStats } from "@/lib/offers"
 
 export const revalidate = 300
 
 export async function generateStaticParams() {
   const { products } = await getCatalog()
   return products.map((product) => ({ id: product.id }))
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}): Promise<Metadata> {
+  const { id } = await params
+  const { products } = await getCatalog()
+  const product = products.find((p) => p.id === id) ?? ALL_PRODUCTS.find((p) => p.id === id)
+  if (!product) return { title: "Oferta não encontrada — HibridLink" }
+  return {
+    title: `${product.title} — HibridLink`,
+    description: `${product.title} por ${formatCurrency(product.price)} em ${STORES[product.store].name}. Veja o histórico de preço e vá direto para a loja.`,
+    openGraph: { images: [product.image] },
+  }
 }
 
 export default async function ProdutoPage({
@@ -25,8 +43,10 @@ export default async function ProdutoPage({
   if (!product) notFound()
 
   // Live products have a single real offer; the cross-store comparison is mock-only.
+  const isLive = live && products.includes(product)
+  const stats = isLive ? await getPriceStats(product.id) : null
   const offers =
-    live && products.includes(product)
+    isLive
       ? [
           {
             store: product.store,
@@ -40,7 +60,7 @@ export default async function ProdutoPage({
 
   return (
     <main id="conteudo" className="min-h-screen bg-background">
-      <ProductDetail product={product} offers={offers} />
+      <ProductDetail product={product} offers={offers} stats={stats} />
       <SiteFooter />
     </main>
   )

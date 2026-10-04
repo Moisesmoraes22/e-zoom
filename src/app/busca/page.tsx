@@ -2,6 +2,7 @@ import { Suspense } from "react"
 
 import { SearchResults } from "@/components/search-results"
 import { SiteFooter } from "@/components/site-footer"
+import { categoryCounts } from "@/lib/deals"
 import { getCatalog } from "@/lib/offers"
 
 export const metadata = {
@@ -15,7 +16,7 @@ export default async function BuscaPage() {
   return (
     <main id="conteudo" className="min-h-screen bg-background">
       <Suspense fallback={null}>
-        <SearchResults products={products} />
+        <SearchResults products={products} categories={categoryCounts(products)} />
       </Suspense>
       <SiteFooter />
     </main>

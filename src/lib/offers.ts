@@ -2,7 +2,7 @@ import { createClient } from "@supabase/supabase-js"
 import { cache } from "react"
 
 import { ALL_PRODUCTS } from "@/lib/mock-data"
-import type { Product, StoreSource } from "@/lib/types"
+import type { PriceStats, Product, StoreSource } from "@/lib/types"
 
 interface OfferRow {
   id: string
@@ -84,3 +84,42 @@ export const getCatalog = cache(async (): Promise<{ products: Product[]; live: b
 function mockCatalog() {
   return { products: ALL_PRODUCTS, live: false }
 }
+
+/**
+ * Full recorded price history of one offer (product page only; the catalog just
+ * carries the last few prices). Null when nothing was recorded yet.
+ */
+export const getPriceStats = cache(async (offerId: string): Promise<PriceStats | null> => {
+  const { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } = process.env
+  if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) return null
+
+  const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+    auth: { persistSession: false },
+  })
+  const { data } = await supabase
+    .from("price_history")
+    .select("price, recorded_at")
+    .eq("offer_id", offerId)
+    .order("recorded_at", { ascending: true })
+    .limit(1000)
+  if (!data?.length) return null
+
+  const points = data.map((row) => ({ price: Number(row.price), at: row.recorded_at as string }))
+  const now = Date.now()
+  let weighted = 0
+  let span = 0
+  points.forEach((point, i) => {
+    const end = i + 1 < points.length ? new Date(points[i + 1].at).getTime() : now
+    const duration = Math.max(0, end - new Date(point.at).getTime())
+    weighted += point.price * duration
+    span += duration
+  })
+  const prices = points.map((p) => p.price)
+  return {
+    points,
+    min: Math.min(...prices),
+    max: Math.max(...prices),
+    average: span > 0 ? weighted / span : prices.reduce((a, b) => a + b, 0) / prices.length,
+    since: points[0].at,
+  }
+})

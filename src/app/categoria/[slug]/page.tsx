@@ -4,6 +4,7 @@ import { Suspense } from "react"
 import { SearchResults } from "@/components/search-results"
 import { SiteFooter } from "@/components/site-footer"
 import { CATEGORIES } from "@/lib/mock-data"
+import { categoryCounts } from "@/lib/deals"
 import { getCatalog } from "@/lib/offers"
 
 export const revalidate = 300
@@ -26,6 +27,7 @@ export default async function CategoriaPage({
     <main id="conteudo" className="min-h-screen bg-background">
       <Suspense fallback={null}>
         <SearchResults
+          categories={categoryCounts(products)}
           products={products}
           categorySlug={category.slug}
           categoryName={category.name}
