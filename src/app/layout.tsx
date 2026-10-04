@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { MotionConfig } from "framer-motion";
 import Script from "next/script";
 import "./globals.css";
+import { AuthProvider } from "@/components/auth-provider";
 import { FavoritesFlightLayer } from "@/components/favorites-flight-layer";
 import { FavoritesSheet } from "@/components/favorites-sheet";
 import { SiteHeader } from "@/components/site-header";
@@ -58,14 +59,16 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           Pular para o conteúdo
         </a>
         <ThemeProvider>
-          <MotionConfig reducedMotion="user">
-            <FavoritesProvider>
-              <SiteHeader categories={categoryCounts(products)} showCounts={live} />
-              {children}
-              <FavoritesSheet />
-              <FavoritesFlightLayer />
-            </FavoritesProvider>
-          </MotionConfig>
+          <AuthProvider>
+            <MotionConfig reducedMotion="user">
+              <FavoritesProvider>
+                <SiteHeader categories={categoryCounts(products)} showCounts={live} />
+                {children}
+                <FavoritesSheet />
+                <FavoritesFlightLayer />
+              </FavoritesProvider>
+            </MotionConfig>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

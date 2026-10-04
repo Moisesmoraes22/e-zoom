@@ -1,9 +1,10 @@
 "use client"
 
 import { Check, Monitor, Moon, Sun, SunMoon, type LucideIcon } from "lucide-react"
-import { useEffect, useRef, useState } from "react"
+import { useRef, useState } from "react"
 
 import { useTheme, type Theme } from "@/components/theme-provider"
+import { useDismiss } from "@/lib/use-dismiss"
 import { cn } from "@/lib/utils"
 
 const OPTIONS: { value: Theme; label: string; icon: LucideIcon }[] = [
@@ -18,23 +19,7 @@ export function ThemeMenu({ className }: { className?: string }) {
   const [open, setOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
-    if (!open) return
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key !== "Escape") return
-      setOpen(false)
-      rootRef.current?.querySelector<HTMLElement>("[aria-haspopup]")?.focus()
-    }
-    const onPointer = (event: PointerEvent) => {
-      if (!rootRef.current?.contains(event.target as Node)) setOpen(false)
-    }
-    document.addEventListener("keydown", onKey)
-    document.addEventListener("pointerdown", onPointer)
-    return () => {
-      document.removeEventListener("keydown", onKey)
-      document.removeEventListener("pointerdown", onPointer)
-    }
-  }, [open])
+  useDismiss(rootRef, open, () => setOpen(false))
 
   const moveFocus = (event: React.KeyboardEvent) => {
     const step = event.key === "ArrowDown" ? 1 : event.key === "ArrowUp" ? -1 : 0

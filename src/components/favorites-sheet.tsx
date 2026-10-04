@@ -1,7 +1,16 @@
 "use client"
 
 import { AnimatePresence, motion } from "framer-motion"
-import { ExternalLink, Heart, TrendingDown, TrendingUp, Trash2 } from "lucide-react"
+import {
+  Cloud,
+  ExternalLink,
+  Heart,
+  Loader2,
+  TrendingDown,
+  TrendingUp,
+  Trash2,
+  TriangleAlert,
+} from "lucide-react"
 import Link from "next/link"
 import { useEffect, useRef, useState } from "react"
 
@@ -23,8 +32,17 @@ const ITEM_STAGGER = 0.07
 const ITEM_SUCK_DURATION = 0.35
 
 export function FavoritesSheet() {
-  const { items, isOpen, setOpen, removeFavorite, clear, closeFavorites } =
-    useFavorites()
+  const {
+    items,
+    isOpen,
+    setOpen,
+    removeFavorite,
+    clear,
+    closeFavorites,
+    signedIn,
+    syncState,
+    retrySync,
+  } = useFavorites()
   const [isClearing, setIsClearing] = useState(false)
   const clearTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const catalog = useSearchIndex()
@@ -221,10 +239,57 @@ export function FavoritesSheet() {
             </ul>
 
             <div className="flex flex-col gap-3 border-t border-border p-5">
+              {signedIn ? (
+                syncState === "error" ? (
+                  <div
+                    role="alert"
+                    className="flex flex-col items-start gap-2 rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-xs text-destructive"
+                  >
+                    <p className="flex items-start gap-1.5 font-medium">
+                      <TriangleAlert className="mt-px h-3.5 w-3.5 shrink-0" aria-hidden />
+                      Não conseguimos sincronizar seus favoritos agora. Eles continuam
+                      salvos neste dispositivo.
+                    </p>
+                    <Button type="button" size="sm" variant="outline" onClick={retrySync} className="h-8 bg-background text-foreground">
+                      Tentar novamente
+                    </Button>
+                  </div>
+                ) : (
+                  <p role="status" className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    {syncState === "synced" ? (
+                      <>
+                        <Cloud className="h-3.5 w-3.5 text-brand" aria-hidden />
+                        Seus favoritos estão sincronizados.
+                      </>
+                    ) : (
+                      <>
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
+                        Sincronizando seus favoritos…
+                      </>
+                    )}
+                  </p>
+                )
+              ) : (
+                <div className="rounded-lg bg-muted p-3 text-xs text-muted-foreground">
+                  <p>Seus favoritos ficam salvos neste dispositivo.</p>
+                  <p className="mt-1.5">
+                    <span className="font-medium text-foreground">
+                      Quer acessar seus favoritos em outros dispositivos?
+                    </span>{" "}
+                    <Link href="/login" onClick={closeFavorites} className="font-semibold text-brand hover:underline">
+                      Entre
+                    </Link>{" "}
+                    ou{" "}
+                    <Link href="/cadastro" onClick={closeFavorites} className="font-semibold text-brand hover:underline">
+                      crie uma conta
+                    </Link>{" "}
+                    para sincronizar.
+                  </p>
+                </div>
+              )}
               <p className="text-xs text-muted-foreground">
-                Seus favoritos ficam salvos neste dispositivo. Cada produto é
-                vendido e entregue pela loja de origem; ao tocar em “Ver
-                oferta” você vai finalizar a compra por lá.
+                Cada produto é vendido e entregue pela loja de origem; ao tocar
+                em “Ver oferta” você vai finalizar a compra por lá.
               </p>
               <Button
                 type="button"

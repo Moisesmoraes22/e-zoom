@@ -2,22 +2,8 @@ import { createClient } from "@supabase/supabase-js"
 import { cache } from "react"
 
 import { ALL_PRODUCTS } from "@/lib/mock-data"
-import type { PriceStats, Product, StoreSource } from "@/lib/types"
-
-interface OfferRow {
-  id: string
-  store_id: StoreSource
-  title: string
-  image: string
-  category_slug: string | null
-  price: number
-  original_price: number | null
-  affiliate_url: string
-  is_free_shipping: boolean
-  last_seen_at: string
-  created_at: string
-  product_id: string | null
-}
+import { OFFER_COLUMNS, rowToProduct, type OfferRow } from "@/lib/offer-row"
+import type { PriceStats, Product } from "@/lib/types"
 
 /**
  * Live offers from Supabase (public read via RLS). Only offers with OUR
@@ -34,9 +20,7 @@ export const getCatalog = cache(async (): Promise<{ products: Product[]; live: b
   })
   const { data, error } = await supabase
     .from("offers")
-    .select(
-      "id, store_id, title, image, category_slug, price, original_price, affiliate_url, is_free_shipping, last_seen_at, created_at, product_id",
-    )
+    .select(OFFER_COLUMNS)
     .eq("is_active", true)
     .not("affiliate_url", "is", null)
     .not("image", "is", null)
@@ -59,27 +43,9 @@ export const getCatalog = cache(async (): Promise<{ products: Product[]; live: b
     pricesByOffer.set(row.offer_id, list)
   }
 
-  const products = (data as OfferRow[]).map((row): Product => {
-    const prices = (pricesByOffer.get(row.id) ?? []).slice(-8)
-    const hasHistory = prices.length >= 2
-    return {
-      id: row.id,
-      title: row.title,
-      image: row.image,
-      price: Number(row.price),
-      originalPrice: row.original_price ? Number(row.original_price) : undefined,
-      store: row.store_id,
-      category: row.category_slug ?? "outros",
-      affiliateUrl: row.affiliate_url,
-      isFreeShipping: row.is_free_shipping,
-      seenAt: row.last_seen_at,
-      createdAt: row.created_at,
-      productId: row.product_id ?? undefined,
-      priceHistory: hasHistory ? prices : undefined,
-      // A real drop: at least 3% below the previous recorded price (ignores cent-level noise).
-      isPriceDrop: hasHistory && prices.at(-1)! < prices.at(-2)! * 0.97,
-    }
-  })
+  const products = (data as OfferRow[]).map((row) =>
+    rowToProduct(row, pricesByOffer.get(row.id)),
+  )
   return { products, live: true }
 })
 

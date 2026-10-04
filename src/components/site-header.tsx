@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 import { AnimatePresence, motion, useAnimationControls } from "framer-motion";
 
+import { AccountMenu } from "@/components/account-menu";
+import { useAuth } from "@/components/auth-provider";
 import { SearchBar } from "@/components/search-bar";
 import { ThemeMenu } from "@/components/theme-menu";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -53,6 +55,7 @@ export function SiteHeader({
   showCounts: boolean;
 }) {
   const { count, openFavorites, favoritesIconRef, bumpSignal } = useFavorites();
+  const { status, user, signOut } = useAuth();
   const favoritesControls = useAnimationControls();
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -154,6 +157,7 @@ export function SiteHeader({
           </Link>
 
           <ThemeMenu className="hidden lg:block" />
+          <AccountMenu className="hidden lg:flex" />
 
           <motion.button
             ref={favoritesIconRef}
@@ -255,7 +259,44 @@ export function SiteHeader({
                   Sobre
                 </MenuLink>
               </nav>
-              <div className="mt-auto border-t border-border p-5">
+              <div className="mt-auto border-t border-border p-5 pb-0">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Conta
+                </p>
+                {status === "authenticated" ? (
+                  <div className="-mx-3 flex flex-col gap-1" onClick={(event) => {
+                    if ((event.target as HTMLElement).closest("a")) setMobileOpen(false);
+                  }}>
+                    <p className="truncate px-3 text-xs text-muted-foreground">{user.email}</p>
+                    <MenuLink href="/conta" className="min-h-11">
+                      Minha conta
+                    </MenuLink>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        setMobileOpen(false);
+                        await signOut();
+                      }}
+                      className="flex min-h-11 w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    >
+                      Sair
+                    </button>
+                  </div>
+                ) : status === "anonymous" ? (
+                  <div
+                    className="-mx-3 flex flex-col gap-1"
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    <MenuLink href="/login" className="min-h-11">
+                      Entrar
+                    </MenuLink>
+                    <MenuLink href="/cadastro" className="min-h-11">
+                      Criar conta
+                    </MenuLink>
+                  </div>
+                ) : null}
+              </div>
+              <div className="border-t border-border p-5 mt-4">
                 <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Aparência
                 </p>
