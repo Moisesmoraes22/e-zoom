@@ -32,6 +32,11 @@ export interface Product {
   seenAt?: string
   /** ISO time the offer first entered the catalog ("recent offers" ordering). */
   createdAt?: string
+  /**
+   * Shared by offers of the SAME product in different stores (offers.product_id).
+   * Empty today: no collector has a reliable cross-store identifier yet.
+   */
+  productId?: string
 }
 
 export interface ProductOffer {

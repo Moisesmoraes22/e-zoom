@@ -4,6 +4,7 @@ import { notFound } from "next/navigation"
 import { ProductDetail } from "@/components/product-detail"
 import { SiteFooter } from "@/components/site-footer"
 import { ALL_PRODUCTS, getProductOffers, STORES } from "@/lib/mock-data"
+import type { Product } from "@/lib/types"
 import { formatCurrency } from "@/lib/utils"
 import { getCatalog, getPriceStats } from "@/lib/offers"
 
@@ -42,21 +43,26 @@ export default async function ProdutoPage({
     products.find((p) => p.id === id) ?? ALL_PRODUCTS.find((p) => p.id === id)
   if (!product) notFound()
 
-  // Live products have a single real offer; the cross-store comparison is mock-only.
   const isLive = live && products.includes(product)
   const stats = isLive ? await getPriceStats(product.id) : null
-  const offers =
-    isLive
-      ? [
-          {
-            store: product.store,
-            price: product.price,
-            originalPrice: product.originalPrice,
-            affiliateUrl: product.affiliateUrl,
-            isFreeShipping: product.isFreeShipping,
-          },
-        ]
-      : getProductOffers(product)
+  const toOffer = (p: Product) => ({
+    store: p.store,
+    price: p.price,
+    originalPrice: p.originalPrice,
+    affiliateUrl: p.affiliateUrl,
+    isFreeShipping: p.isFreeShipping,
+  })
+  // Other stores' offers count only when the database says it is the SAME product
+  // (a shared product_id). Similar titles are never enough. Today nothing shares
+  // an id, so live pages show one offer; the "Onde comprar" table appears by itself
+  // once the collectors fill product_id.
+  const siblings =
+    isLive && product.productId
+      ? products
+          .filter((p) => p.productId === product.productId && p.store !== product.store)
+          .sort((a, b) => a.price - b.price)
+      : []
+  const offers = isLive ? [product, ...siblings].map(toOffer) : getProductOffers(product)
 
   return (
     <main id="conteudo" className="min-h-screen bg-background">
