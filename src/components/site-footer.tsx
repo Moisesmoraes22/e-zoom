@@ -70,12 +70,18 @@ export async function SiteFooter() {
             </h3>
             <ul className="flex flex-col gap-2 text-sm text-muted-foreground">
               <li>
-                <Link href="#" className="transition-colors hover:text-brand">
+                <Link
+                  href="/como-funciona"
+                  className="transition-colors hover:text-brand"
+                >
                   Como funciona
                 </Link>
               </li>
               <li>
-                <Link href="#" className="transition-colors hover:text-brand">
+                <Link
+                  href="/perguntas-frequentes"
+                  className="transition-colors hover:text-brand"
+                >
                   Perguntas frequentes
                 </Link>
               </li>
