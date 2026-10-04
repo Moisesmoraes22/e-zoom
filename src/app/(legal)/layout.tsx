@@ -1,11 +1,4 @@
-import type { Metadata } from "next"
-
 import { SiteFooter } from "@/components/site-footer"
-
-// Drafts until reviewed by the owner (and ideally a lawyer): kept out of search engines.
-export const metadata: Metadata = {
-  robots: { index: false, follow: false },
-}
 
 export default function LegalLayout({ children }: { children: React.ReactNode }) {
   return (

@@ -90,8 +90,8 @@ Nothing below was done by the code; each box must be ticked by a person after do
 - [ ] DMARC configurado
 
 ### Jurídico e dados
-- [ ] Política de Privacidade publicada (base técnica: `docs/devel/personal-data-inventory.md`)
-- [ ] Termos de Uso publicados
+- [x] Política de Privacidade publicada (base técnica: `docs/devel/personal-data-inventory.md`)
+- [x] Termos de Uso publicados
 - [x] exclusão de conta definida (manual, por e-mail, até 15 dias: já descrita na Política) (ver "Exclusão de conta")
 
 ### Testes reais (precisam de uma conta de verdade, feitos por uma pessoa)
