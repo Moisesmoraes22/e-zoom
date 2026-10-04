@@ -4,6 +4,7 @@ import { CategoryGrid } from "@/components/category-grid"
 import { DealsCarousel } from "@/components/deals-carousel"
 import { ProductGrid } from "@/components/product-grid"
 import { SiteFooter } from "@/components/site-footer"
+import { PriceRangesSection } from "@/components/price-ranges-section"
 import { StoresSection } from "@/components/stores-section"
 import { CommerceHero } from "@/components/ui/commerce-hero"
 import { byDiscount, byRecent, categoryCounts, countByStoreId } from "@/lib/deals"
@@ -16,6 +17,8 @@ import type { Product } from "@/lib/types"
 export const revalidate = 300
 
 const SECTION_SIZE = 8
+/** A section with fewer cards than this looks broken, so it is left out. */
+const MIN_SECTION = 3
 
 export default async function Home() {
   const { products, live } = await getCatalog()
@@ -32,6 +35,7 @@ export default async function Home() {
   const used = new Set<string>(heroProducts.map((p) => p.id))
   const take = (list: Product[]) => {
     const picked = list.filter((p) => !used.has(p.id)).slice(0, SECTION_SIZE)
+    if (picked.length < MIN_SECTION) return [] // not shown, so its products stay available
     picked.forEach((p) => used.add(p.id))
     return picked
   }
@@ -67,6 +71,7 @@ export default async function Home() {
         />
       )}
       <CategoryGrid categories={categoryCounts(products).slice(0, 8)} showCounts={live} />
+      <PriceRangesSection products={products} />
       {recent.length > 0 && (
         <DealsCarousel products={recent} />
       )}

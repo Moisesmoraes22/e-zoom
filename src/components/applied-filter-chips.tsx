@@ -4,15 +4,8 @@ import { X } from "lucide-react"
 
 import { STORES } from "@/lib/mock-data"
 import type { CategoryCount } from "@/lib/deals"
-import { EMPTY_FILTERS, type PriceRange, type ProductFilters } from "@/lib/search"
+import { EMPTY_FILTERS, PRICE_RANGES, type ProductFilters } from "@/lib/search"
 import type { StoreSource } from "@/lib/types"
-
-const PRICE_LABELS: Record<PriceRange, string> = {
-  "0-500": "Até R$ 500",
-  "500-1000": "R$ 500 - R$ 1.000",
-  "1000-2000": "R$ 1.000 - R$ 2.000",
-  "2000+": "Acima de R$ 2.000",
-}
 
 export function AppliedFilterChips({
   filters,
@@ -47,7 +40,7 @@ export function AppliedFilterChips({
   filters.priceRanges.forEach((range) => {
     chips.push({
       key: `price-${range}`,
-      label: PRICE_LABELS[range],
+      label: PRICE_RANGES.find((r) => r.value === range)!.label,
       onRemove: () =>
         onChange({
           priceRanges: filters.priceRanges.filter((r) => r !== range),

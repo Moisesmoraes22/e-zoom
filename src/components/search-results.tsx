@@ -19,6 +19,8 @@ import {
 import {
   countByStore,
   EMPTY_FILTERS,
+  isPriceRange,
+  type PriceRange,
   filterProducts,
   SORT_PARAMS,
   sortProducts,
@@ -36,15 +38,25 @@ interface SearchResultsProps {
 }
 
 /**
- * `?loja=` (store cards on the home page) preselects a store. Keyed by it, so
- * following another store link starts from that store's filters again.
+ * `?loja=` and `?preco=` (cards on the home page) preselect a store / price
+ * range. Keyed by them, so following another link starts from its filters again.
  */
 export function SearchResults(props: SearchResultsProps) {
-  const loja = useSearchParams().get("loja") ?? ""
+  const params = useSearchParams()
+  const loja = params.get("loja") ?? ""
+  const preco = params.get("preco") ?? ""
   const initialStores = (Object.keys(STORES) as StoreSource[]).filter(
     (id) => id === loja && id !== "telegram",
   )
-  return <SearchResultsInner key={loja} {...props} initialStores={initialStores} />
+  const initialPriceRanges = isPriceRange(preco) ? [preco] : []
+  return (
+    <SearchResultsInner
+      key={`${loja}|${preco}`}
+      {...props}
+      initialStores={initialStores}
+      initialPriceRanges={initialPriceRanges}
+    />
+  )
 }
 
 function SearchResultsInner({
@@ -53,13 +65,18 @@ function SearchResultsInner({
   categorySlug,
   categoryName,
   initialStores,
-}: SearchResultsProps & { initialStores: StoreSource[] }) {
+  initialPriceRanges,
+}: SearchResultsProps & {
+  initialStores: StoreSource[]
+  initialPriceRanges: PriceRange[]
+}) {
   const searchParams = useSearchParams()
   const query = searchParams.get("q") ?? ""
 
   const [filters, setFilters] = useState<ProductFilters>({
     ...EMPTY_FILTERS,
     stores: initialStores,
+    priceRanges: initialPriceRanges,
     category: categorySlug,
   })
   // ?ordenacao= sets the starting sort (menu links); picking one here overrides it

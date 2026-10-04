@@ -5,7 +5,19 @@ import { calculateDiscountPercent } from "@/lib/utils"
 export const normalizeText = (text: string) =>
   text.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase()
 
-export type PriceRange = "0-500" | "500-1000" | "1000-2000" | "2000+"
+/** Price buckets shared by the filter panel, the filter chips and the home section. */
+export const PRICE_RANGES = [
+  { value: "0-50", label: "Até R$ 50", min: 0, max: 50 },
+  { value: "50-100", label: "R$ 50 a R$ 100", min: 50, max: 100 },
+  { value: "100-300", label: "R$ 100 a R$ 300", min: 100, max: 300 },
+  { value: "300-1000", label: "R$ 300 a R$ 1.000", min: 300, max: 1000 },
+  { value: "1000+", label: "Acima de R$ 1.000", min: 1000, max: Infinity },
+] as const
+
+export type PriceRange = (typeof PRICE_RANGES)[number]["value"]
+
+export const isPriceRange = (value: string): value is PriceRange =>
+  PRICE_RANGES.some((range) => range.value === value)
 
 export interface ProductFilters {
   query?: string
@@ -24,17 +36,9 @@ export const EMPTY_FILTERS: ProductFilters = {
   freeShippingOnly: false,
 }
 
-function matchesPriceRange(price: number, range: PriceRange) {
-  switch (range) {
-    case "0-500":
-      return price <= 500
-    case "500-1000":
-      return price > 500 && price <= 1000
-    case "1000-2000":
-      return price > 1000 && price <= 2000
-    case "2000+":
-      return price > 2000
-  }
+function matchesPriceRange(price: number, value: PriceRange) {
+  const range = PRICE_RANGES.find((r) => r.value === value)!
+  return price > range.min && price <= range.max
 }
 
 export function filterProducts(
@@ -108,4 +112,12 @@ export function countByStore(products: Product[]) {
     },
     {} as Record<StoreSource, number>,
   )
+}
+
+/** How many offers fall in each price bucket (all of them, regardless of other filters). */
+export function countByPriceRange(products: Product[]) {
+  return PRICE_RANGES.map((range) => ({
+    ...range,
+    count: products.filter((p) => matchesPriceRange(p.price, range.value)).length,
+  }))
 }

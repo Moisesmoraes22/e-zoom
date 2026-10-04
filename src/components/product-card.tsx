@@ -8,7 +8,7 @@ import { ArrowRight, Heart, Star, TrendingDown, Truck } from "lucide-react"
 import { OfferLink } from "@/components/offer-link"
 import { PriceSparkline } from "@/components/price-sparkline"
 import { StoreBadge } from "@/components/store-badge"
-import { TimeAgo } from "@/components/time-ago"
+import { AgeDot, TimeAgo } from "@/components/time-ago"
 import { Badge } from "@/components/ui/badge"
 import { discountOf, savingsOf } from "@/lib/deals"
 import { useFavorites } from "@/lib/favorites-context"
@@ -72,7 +72,7 @@ export function ProductCard({
             />
           </div>
 
-          <div className="flex flex-1 flex-col gap-2 p-4 pb-3">
+          <div className="flex flex-1 flex-col gap-3 p-5 pb-3">
             <h3 className="line-clamp-2 min-h-[2.5rem] text-sm font-medium text-foreground">
               {product.title}
             </h3>
@@ -122,7 +122,7 @@ export function ProductCard({
               )}
             </div>
 
-            <div className="mt-auto flex flex-col gap-1 pt-1">
+            <div className="mt-auto flex flex-col gap-1.5 pt-2">
               <div className="flex items-center justify-between gap-2">
                 <StoreBadge store={product.store} variant="minimal" />
                 {product.isFreeShipping && (
@@ -133,15 +133,18 @@ export function ProductCard({
                 )}
               </div>
               {product.seenAt && (
-                <span className="text-[11px] text-muted-foreground">
-                  Preço visto <TimeAgo iso={product.seenAt} />
+                <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground/80">
+                  <AgeDot iso={product.seenAt} />
+                  <span>
+                    Preço visto <TimeAgo iso={product.seenAt} />
+                  </span>
                 </span>
               )}
             </div>
           </div>
         </Link>
 
-        <div className="px-4 pb-4">
+        <div className="px-5 pb-5">
           <OfferLink
             product={product}
             store={product.store}

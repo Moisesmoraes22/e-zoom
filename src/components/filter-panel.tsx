@@ -5,16 +5,14 @@ import { useId } from "react"
 import { Button } from "@/components/ui/button"
 import type { CategoryCount } from "@/lib/deals"
 import { STORES } from "@/lib/mock-data"
-import { EMPTY_FILTERS, type PriceRange, type ProductFilters } from "@/lib/search"
+import {
+  EMPTY_FILTERS,
+  PRICE_RANGES,
+  type PriceRange,
+  type ProductFilters,
+} from "@/lib/search"
 import type { StoreSource } from "@/lib/types"
 import { cn } from "@/lib/utils"
-
-const PRICE_RANGES: { value: PriceRange; label: string }[] = [
-  { value: "0-500", label: "Até R$ 500" },
-  { value: "500-1000", label: "R$ 500 - R$ 1.000" },
-  { value: "1000-2000", label: "R$ 1.000 - R$ 2.000" },
-  { value: "2000+", label: "Acima de R$ 2.000" },
-]
 
 const DISCOUNTS = [10, 20, 30, 50]
 

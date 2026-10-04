@@ -15,8 +15,8 @@ import type { Product } from "@/lib/types"
 
 export function DealsCarousel({
   products,
-  title = "Ofertas recentes",
-  subtitle = "Adicionadas há pouco às lojas parceiras",
+  title = "Ofertas recém-encontradas",
+  subtitle = "Encontradas há pouco pelo HibridLink nas lojas parceiras.",
   icon: Icon = Clock,
 }: {
   products: Product[]

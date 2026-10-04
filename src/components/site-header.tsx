@@ -17,6 +17,7 @@ import {
 import { AnimatePresence, motion, useAnimationControls } from "framer-motion";
 
 import { SearchBar } from "@/components/search-bar";
+import { ThemeMenu } from "@/components/theme-menu";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Menu, MenuItem, MenuLink } from "@/components/ui/navbar-menu";
@@ -40,7 +41,7 @@ const OFFER_VIEWS: { label: string; href: string; icon: LucideIcon; hint: string
   { label: "Melhores ofertas", href: "/busca?ordenacao=relevancia", icon: Flame, hint: "Com desconto real primeiro" },
   { label: "Maiores descontos", href: "/busca?ordenacao=desconto", icon: TrendingDown, hint: "Ordenadas pelo desconto" },
   { label: "Menor preço", href: "/busca?ordenacao=preco", icon: Tag, hint: "Do mais barato ao mais caro" },
-  { label: "Ofertas recentes", href: "/busca?ordenacao=recente", icon: Clock, hint: "Adicionadas há pouco" },
+  { label: "Recém-encontradas", href: "/busca?ordenacao=recente", icon: Clock, hint: "Encontradas há pouco" },
 ];
 
 export function SiteHeader({
@@ -152,7 +153,7 @@ export function SiteHeader({
             <Search className="h-5 w-5" aria-hidden />
           </Link>
 
-          <ThemeToggle className="hidden lg:inline-flex" />
+          <ThemeMenu className="hidden lg:block" />
 
           <motion.button
             ref={favoritesIconRef}
