@@ -1,7 +1,8 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Clock, type LucideIcon } from "lucide-react"
+import { Clock } from "lucide-react"
+import type { ReactNode } from "react"
 
 import { ProductCard } from "@/components/product-card"
 import {
@@ -17,19 +18,19 @@ export function DealsCarousel({
   products,
   title = "Ofertas recém-encontradas",
   subtitle = "Encontradas há pouco pelo HibridLink nas lojas parceiras.",
-  icon: Icon = Clock,
+  icon = <Clock className="h-5 w-5" aria-hidden />,
 }: {
   products: Product[]
   title?: string
   subtitle?: string
-  icon?: LucideIcon
+  icon?: ReactNode
 }) {
   return (
     <section className="bg-band py-12">
       <div className="container mx-auto max-w-7xl px-4">
         <div className="mb-6 flex items-center gap-2">
           <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground">
-            <Icon className="h-5 w-5" aria-hidden />
+            {icon}
           </span>
           <div>
             <h2 className="text-2xl font-bold text-band-foreground sm:text-3xl">

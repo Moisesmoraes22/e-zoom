@@ -1,8 +1,11 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
+import { Flame, Tags } from "lucide-react"
 
+import { DealsCarousel } from "@/components/deals-carousel"
 import { ProductDetail } from "@/components/product-detail"
 import { SiteFooter } from "@/components/site-footer"
+import { byDiscount, sameCategory } from "@/lib/deals"
 import { ALL_PRODUCTS, getProductOffers, STORES } from "@/lib/mock-data"
 import type { Product } from "@/lib/types"
 import { formatCurrency } from "@/lib/utils"
@@ -64,9 +67,30 @@ export default async function ProdutoPage({
       : []
   const offers = isLive ? [product, ...siblings].map(toOffer) : getProductOffers(product)
 
+  // Suggestions use real offers only (never the sample data) and hide below 3 cards.
+  const similar = isLive ? sameCategory(product, products) : []
+  const shown = new Set([product.id, ...similar.map((p) => p.id)])
+  const more = isLive ? byDiscount(products.filter((p) => !shown.has(p.id))).slice(0, 8) : []
+
   return (
     <main id="conteudo" className="min-h-screen bg-background">
       <ProductDetail product={product} offers={offers} stats={stats} />
+      {similar.length >= 3 && (
+        <DealsCarousel
+          products={similar}
+          title="Ofertas parecidas"
+          subtitle="Da mesma categoria, com preço próximo ao deste produto."
+          icon={<Tags className="h-5 w-5" aria-hidden />}
+        />
+      )}
+      {more.length >= 3 && (
+        <DealsCarousel
+          products={more}
+          title="Mais ofertas com desconto"
+          subtitle="Outras ofertas com queda de preço registrada."
+          icon={<Flame className="h-5 w-5" aria-hidden />}
+        />
+      )}
       <SiteFooter />
     </main>
   )

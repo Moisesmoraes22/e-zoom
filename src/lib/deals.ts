@@ -43,3 +43,12 @@ export function countByStoreId(products: Product[]) {
   for (const p of products) counts[p.store] = (counts[p.store] ?? 0) + 1
   return counts
 }
+
+/** Same-category offers, closest in price first (what someone viewing this product would compare). */
+export function sameCategory(product: Product, products: Product[], limit = 8) {
+  const gap = (p: Product) => Math.abs(Math.log(p.price / product.price))
+  return products
+    .filter((p) => p.id !== product.id && p.category === product.category)
+    .sort((a, b) => gap(a) - gap(b))
+    .slice(0, limit)
+}
