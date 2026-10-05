@@ -29,7 +29,7 @@ export async function generateMetadata({
     description:
       live && count > 0
         ? `${count} ${count === 1 ? "oferta" : "ofertas"} de ${category.name} do Mercado Livre e da Amazon, com preço, desconto e histórico.`
-        : `Ofertas de ${category.name} nas lojas parceiras do HibridLink.`,
+        : `Ofertas de ${category.name} nas lojas parceiras do E-Zoom.`,
   }
 }
 

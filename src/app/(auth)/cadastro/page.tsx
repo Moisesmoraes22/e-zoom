@@ -16,7 +16,7 @@ export default async function CadastroPage() {
   return (
     <AuthCard
       title="Crie sua conta"
-      description="Opcional: você pode usar o HibridLink e favoritar sem conta."
+      description="Opcional: você pode usar o E-Zoom e favoritar sem conta."
       footer={
         <>
           Já tenho uma conta{" "}

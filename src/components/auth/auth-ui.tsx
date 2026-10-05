@@ -131,7 +131,7 @@ export function AuthCard({
     <div className="mx-auto w-full max-w-md px-4 py-10 sm:py-16">
       <div className="rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8">
         <p className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-lg font-semibold text-transparent">
-          HibridLink
+          E-Zoom
         </p>
         <h1 className="mt-4 text-2xl font-bold tracking-tight text-foreground">{title}</h1>
         {description && <p className="mt-1.5 text-sm text-muted-foreground">{description}</p>}

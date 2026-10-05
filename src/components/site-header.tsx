@@ -78,7 +78,7 @@ export function SiteHeader({
           href="/"
           className="rounded-md bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-xl font-semibold text-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
-          HibridLink
+          E-Zoom
         </Link>
 
         <div className="ml-6 hidden items-center gap-7 lg:flex">
@@ -203,7 +203,7 @@ export function SiteHeader({
             >
               <SheetHeader className="border-b border-border p-5 text-left">
                 <SheetTitle className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-xl font-semibold text-transparent">
-                  HibridLink
+                  E-Zoom
                 </SheetTitle>
               </SheetHeader>
               <div className="p-5 pb-0">

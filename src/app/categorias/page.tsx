@@ -10,7 +10,7 @@ export const revalidate = 300
 export const metadata: Metadata = {
   title: "Categorias de ofertas",
   description:
-    "Navegue pelas ofertas do HibridLink por tipo de produto: eletrônicos, casa, games, beleza e mais.",
+    "Navegue pelas ofertas do E-Zoom por tipo de produto: eletrônicos, casa, games, beleza e mais.",
 }
 
 export default async function CategoriasPage() {

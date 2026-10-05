@@ -3,7 +3,7 @@ import Link from "next/link"
 
 export const metadata: Metadata = {
   title: "Como funciona",
-  description: "Entenda como o HibridLink encontra ofertas e como você compra nas lojas parceiras.",
+  description: "Entenda como o E-Zoom encontra ofertas e como você compra nas lojas parceiras.",
 }
 
 export default function HowItWorksPage() {
@@ -11,7 +11,7 @@ export default function HowItWorksPage() {
     <>
       <h1>Como funciona</h1>
       <p>
-        O HibridLink é um hub de ofertas: reunimos promoções de lojas como Mercado Livre e Amazon em um só lugar para
+        O E-Zoom é um hub de ofertas: reunimos promoções de lojas como Mercado Livre e Amazon em um só lugar para
         você comparar e escolher onde comprar. Não somos uma loja.
       </p>
 
@@ -34,9 +34,9 @@ export default function HowItWorksPage() {
         troca e garantia são da loja. Nós não temos carrinho nem processamos pagamentos.
       </p>
 
-      <h2>4. Como o HibridLink ganha</h2>
+      <h2>4. Como o E-Zoom ganha</h2>
       <p>
-        Usamos links de afiliado. Se você comprar depois de clicar, a loja pode pagar uma comissão ao HibridLink,{" "}
+        Usamos links de afiliado. Se você comprar depois de clicar, a loja pode pagar uma comissão ao E-Zoom,{" "}
         <strong>sem custo extra para você</strong>. É assim que o site se mantém, e não influencia o preço que você
         paga.
       </p>

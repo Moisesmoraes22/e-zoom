@@ -28,13 +28,13 @@ export const metadata: Metadata = {
     process.env.NEXT_PUBLIC_SITE_URL ?? "https://hibridlink-promos.vercel.app",
   ),
   title: {
-    default: "HibridLink — Hub de ofertas",
-    template: "%s — HibridLink",
+    default: "E-Zoom — Hub de ofertas",
+    template: "%s — E-Zoom",
   },
   description:
     "Hub de ofertas que reúne os melhores preços do Mercado Livre, Shopee e Amazon num só lugar.",
   openGraph: {
-    siteName: "HibridLink",
+    siteName: "E-Zoom",
     locale: "pt_BR",
     type: "website",
   },

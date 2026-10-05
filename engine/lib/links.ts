@@ -31,7 +31,7 @@ export async function resolveShortLink(url: string): Promise<string> {
     const response = await fetch(url, {
       redirect: "follow",
       signal: AbortSignal.timeout(8000),
-      headers: { "user-agent": "Mozilla/5.0 (compatible; HibridLinkBot/1.0)" },
+      headers: { "user-agent": "Mozilla/5.0 (compatible; EZoomBot/1.0)" },
     })
     await response.body?.cancel()
     return response.url || url

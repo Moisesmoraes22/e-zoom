@@ -272,7 +272,7 @@ export function ProductDetail({
                 <p className="mt-3 text-xs text-muted-foreground">
                   Acompanhamos este preço desde {formatDay(tracked.since)} ·{" "}
                   {tracked.points.length} registros. Só aparecem preços que o
-                  HibridLink viu; não há dados de antes disso.
+                  E-Zoom viu; não há dados de antes disso.
                 </p>
               </>
             ) : (

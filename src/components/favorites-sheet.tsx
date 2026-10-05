@@ -187,7 +187,7 @@ export function FavoritesSheet() {
                         </Link>
                         {gone ? (
                           <p className="text-xs text-muted-foreground">
-                            Esta oferta não está mais disponível no HibridLink.
+                            Esta oferta não está mais disponível no E-Zoom.
                           </p>
                         ) : (
                           <>

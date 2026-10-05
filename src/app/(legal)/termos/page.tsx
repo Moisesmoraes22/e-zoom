@@ -10,11 +10,11 @@ export default function TermsPage() {
     <>
       <h1>Termos de Uso</h1>
       <p>Última atualização: 4 de outubro de 2026.</p>
-      <p>Ao usar o HibridLink você concorda com estes termos. Se não concordar, não utilize o site.</p>
+      <p>Ao usar o E-Zoom você concorda com estes termos. Se não concordar, não utilize o site.</p>
 
-      <h2>1. O que é o HibridLink</h2>
+      <h2>1. O que é o E-Zoom</h2>
       <p>
-        O HibridLink é um hub que reúne ofertas de lojas parceiras (Amazon, Mercado Livre e Shopee). Não somos
+        O E-Zoom é um hub que reúne ofertas de lojas parceiras (Amazon, Mercado Livre e Shopee). Não somos
         loja: não vendemos, não entregamos e não processamos pagamentos.
       </p>
 
@@ -26,7 +26,7 @@ export default function TermsPage() {
 
       <h2>3. Links de afiliado</h2>
       <p>
-        Como Associado da Amazon, o HibridLink ganha com compras qualificadas. Também participamos do programa de
+        Como Associado da Amazon, o E-Zoom ganha com compras qualificadas. Também participamos do programa de
         afiliados do Mercado Livre e podemos receber comissão pelas compras feitas pelos nossos links, sem custo
         extra para você.
       </p>
@@ -35,7 +35,7 @@ export default function TermsPage() {
       <p>
         Os preços e as informações exibidos são coletados das lojas e podem mudar a qualquer momento, ficando
         desatualizados ou indisponíveis. O valor válido é sempre o exibido na página da loja no momento da compra.
-        Informações como &quot;menor preço registrado&quot; referem-se apenas ao histórico que o HibridLink conseguiu
+        Informações como &quot;menor preço registrado&quot; referem-se apenas ao histórico que o E-Zoom conseguiu
         registrar.
       </p>
 
@@ -56,7 +56,7 @@ export default function TermsPage() {
 
       <h2>7. Propriedade intelectual</h2>
       <p>
-        O código, o design e a marca HibridLink pertencem aos seus titulares. Nomes, imagens e marcas de produtos e
+        O código, o design e a marca E-Zoom pertencem aos seus titulares. Nomes, imagens e marcas de produtos e
         lojas pertencem aos respectivos donos e são exibidos apenas para identificar as ofertas.
       </p>
 

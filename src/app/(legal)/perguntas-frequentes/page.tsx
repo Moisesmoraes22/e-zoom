@@ -3,19 +3,19 @@ import Link from "next/link"
 
 export const metadata: Metadata = {
   title: "Perguntas frequentes",
-  description: "Respostas rápidas sobre preços, compras, favoritos e conta no HibridLink.",
+  description: "Respostas rápidas sobre preços, compras, favoritos e conta no E-Zoom.",
 }
 
 const EMAIL = "aflservicos2026@gmail.com"
 
 const FAQ: { q: string; a: React.ReactNode }[] = [
   {
-    q: "O HibridLink vende produtos?",
+    q: "O E-Zoom vende produtos?",
     a: "Não. Reunimos ofertas de lojas parceiras. A compra, o pagamento e a entrega acontecem no site da loja.",
   },
   {
-    q: "Pago algo a mais por comprar pelo HibridLink?",
-    a: "Não. O preço é o mesmo da loja. Se você comprar pelo nosso link, a loja pode pagar uma comissão ao HibridLink, sem custo extra para você.",
+    q: "Pago algo a mais por comprar pelo E-Zoom?",
+    a: "Não. O preço é o mesmo da loja. Se você comprar pelo nosso link, a loja pode pagar uma comissão ao E-Zoom, sem custo extra para você.",
   },
   {
     q: "O preço da loja pode ser diferente do que aparece aqui?",
@@ -23,7 +23,7 @@ const FAQ: { q: string; a: React.ReactNode }[] = [
   },
   {
     q: "O que significa \"menor preço que registramos\"?",
-    a: "É o menor valor que o HibridLink observou para aquele produto desde que começou a acompanhá-lo. Só aparece quando temos dados para afirmar isso, e não é uma garantia de que é o menor preço da internet.",
+    a: "É o menor valor que o E-Zoom observou para aquele produto desde que começou a acompanhá-lo. Só aparece quando temos dados para afirmar isso, e não é uma garantia de que é o menor preço da internet.",
   },
   {
     q: "Preciso criar conta?",

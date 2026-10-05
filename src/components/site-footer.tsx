@@ -19,7 +19,7 @@ export async function SiteFooter() {
         <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
           <div className="col-span-2 sm:col-span-1">
             <span className="text-lg font-semibold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-              HibridLink
+              E-Zoom
             </span>
             <p className="mt-2 text-sm text-muted-foreground">
               Um hub que reúne ofertas do Mercado Livre, Shopee e Amazon para
@@ -115,19 +115,19 @@ export async function SiteFooter() {
 
         <div className="mt-10 border-t border-border pt-6 text-xs text-muted-foreground">
           <p>
-            HibridLink é um hub de ofertas. Os produtos são vendidos e
+            E-Zoom é um hub de ofertas. Os produtos são vendidos e
             entregues pelas lojas parceiras — ao clicar em &quot;Ver
             oferta&quot;, você é redirecionado para finalizar a compra por lá.
           </p>
           <p className="mt-2">
-            Como Associado da Amazon, o HibridLink ganha com compras
+            Como Associado da Amazon, o E-Zoom ganha com compras
             qualificadas. Também participamos do programa de afiliados do
             Mercado Livre e podemos receber comissão pelas compras feitas
             pelos nossos links, sem custo extra para você. Preços e
             disponibilidade podem mudar a qualquer momento.
           </p>
           <p className="mt-2">
-            © {new Date().getFullYear()} HibridLink. Todos os direitos
+            © {new Date().getFullYear()} E-Zoom. Todos os direitos
             reservados.
           </p>
         </div>

@@ -21,7 +21,7 @@ async function fetchPreviewImage(url: string): Promise<string | null> {
   try {
     const response = await fetch(url, {
       signal: AbortSignal.timeout(8000),
-      headers: { "user-agent": "Mozilla/5.0 (compatible; HibridLinkBot/1.0)" },
+      headers: { "user-agent": "Mozilla/5.0 (compatible; EZoomBot/1.0)" },
     })
     if (!response.ok) return null
     const html = (await response.text()).slice(0, 200_000)
