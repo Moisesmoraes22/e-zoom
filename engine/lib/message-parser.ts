@@ -5,6 +5,22 @@ export function extractUrls(text: string): string[] {
   return [...new Set((text.match(URL_PATTERN) ?? []).map((u) => u.replace(/[.,!?]+$/, "")))]
 }
 
+/**
+ * A post with several products ("Item A - R$ 9 / link / Item B - R$ 14 / link") must
+ * not mix prices: each chunk ends at its link. Single-link posts stay whole.
+ */
+export function splitByLinks(text: string): string[] {
+  const matches = [...text.matchAll(URL_PATTERN)]
+  if (matches.length < 2) return [text]
+  let start = 0
+  return matches.map((m) => {
+    const end = m.index + m[0].length
+    const chunk = text.slice(start, end)
+    start = end
+    return chunk
+  })
+}
+
 function toNumber(raw: string) {
   return Number(raw.replace(/\./g, "").replace(",", "."))
 }
@@ -16,9 +32,20 @@ function toNumber(raw: string) {
  * keeps `source = 'telegram'` so these can be re-checked against the store.
  */
 export function parsePrices(text: string) {
+  // The real price is only known at checkout: whatever is shown is a placeholder.
+  if (/(valor|pre[cç]o)\s+(final\s+)?(na|no|ao)\s+(finaliza|carrinho|checkout)/i.test(text)) return null
   const values = [...text.matchAll(PRICE_PATTERN)]
+    // Coupon / cashback / installment amounts are not the product price.
+    .filter((m) => {
+      const before = text.slice(Math.max(0, m.index - 24), m.index)
+      const after = text.slice(m.index + m[0].length, m.index + m[0].length + 14)
+      return (
+        !/(cupom|cashback|desconto|economize|ganhe|volta|\d\s?x\s*(de)?)\s*[^\nR]{0,14}$/i.test(before) &&
+        !/^\s*(off|de\s+(desconto|cashback)|em\s+cashback)/i.test(after)
+      )
+    })
     .map((m) => toNumber(m[1]))
-    .filter((n) => Number.isFinite(n) && n > 0)
+    .filter((n) => Number.isFinite(n) && n >= 1)
   if (values.length === 0) return null
   const unique = [...new Set(values)].sort((a, b) => a - b)
   const price = unique[0]

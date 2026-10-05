@@ -12,6 +12,7 @@ import {
   extractUrls,
   guessCategory,
   parsePrices,
+  splitByLinks,
 } from "../lib/message-parser.ts"
 import type { Connector, OfferRow } from "../types.ts"
 
@@ -111,57 +112,59 @@ export function createTelegramConnector(env: NodeJS.ProcessEnv): Connector {
           console.log(`[telegram] ${channel}: ${messages.length} mensagens`)
           // Newest first: the first sighting of a product wins.
           for (const message of messages) {
-            const text = message.message
-            if (!text) continue
+            if (!message.message) continue
 
             const hiddenLinks = (message.entities ?? [])
               .filter((e): e is Api.MessageEntityTextUrl => e instanceof Api.MessageEntityTextUrl)
               .map((e) => e.url)
-            let canonical = null
-            for (const raw of [...extractUrls(text), ...hiddenLinks]) {
-              // Channels use their own shorteners (e.g. aoferta.net): any link we can't
-              // read directly gets its redirects followed.
-              canonical = canonicalize(raw) ?? canonicalize(await resolveShortLink(raw))
-              if (canonical) break
-            }
-            if (!canonical) continue
-
-            const key = `${canonical.store_id}:${canonical.external_id}`
-            if (offers.has(key)) continue
-
-            const prices = parsePrices(text)
-            const title = extractTitle(text)
-            if (!prices || !title) continue
-
-            let image =
-              canonical.store_id === "amazon"
-                ? await fetchAmazonImage(canonical.external_id)
-                : await fetchPreviewImage(canonical.url)
-            if (!image && uploadPhoto && message.photo) {
-              try {
-                const photo = await client.downloadMedia(message)
-                if (Buffer.isBuffer(photo)) {
-                  image = await uploadPhoto(`${canonical.store_id}/${canonical.external_id}.jpg`, photo)
-                }
-              } catch {
-                // photo is optional; the offer just stays hidden without one
+            // One offer per chunk: a post listing several products keeps each price with its link.
+            for (const text of splitByLinks(message.message)) {
+              let canonical = null
+              for (const raw of [...extractUrls(text), ...(text === message.message ? hiddenLinks : [])]) {
+                // Channels use their own shorteners (e.g. aoferta.net): any link we can't
+                // read directly gets its redirects followed.
+                canonical = canonicalize(raw) ?? canonicalize(await resolveShortLink(raw))
+                if (canonical) break
               }
-            }
+              if (!canonical) continue
 
-            console.log(`[telegram] + ${canonical.store_id} ${canonical.external_id} R$ ${prices.price}`)
-            offers.set(key, {
-              store_id: canonical.store_id,
-              external_id: canonical.external_id,
-              title,
-              image,
-              category_slug: guessCategory(title),
-              price: prices.price,
-              original_price: prices.original,
-              url: canonical.url,
-              affiliate_url: buildAffiliateUrl(canonical, env),
-              is_free_shipping: /frete\s+gr[aá]tis/i.test(text),
-              source: "telegram",
-            })
+              const key = `${canonical.store_id}:${canonical.external_id}`
+              if (offers.has(key)) continue
+
+              const prices = parsePrices(text)
+              const title = extractTitle(text)
+              if (!prices || !title) continue
+
+              let image =
+                canonical.store_id === "amazon"
+                  ? await fetchAmazonImage(canonical.external_id)
+                  : await fetchPreviewImage(canonical.url)
+              if (!image && uploadPhoto && message.photo) {
+                try {
+                  const photo = await client.downloadMedia(message)
+                  if (Buffer.isBuffer(photo)) {
+                    image = await uploadPhoto(`${canonical.store_id}/${canonical.external_id}.jpg`, photo)
+                  }
+                } catch {
+                  // photo is optional; the offer just stays hidden without one
+                }
+              }
+
+              console.log(`[telegram] + ${canonical.store_id} ${canonical.external_id} R$ ${prices.price}`)
+              offers.set(key, {
+                store_id: canonical.store_id,
+                external_id: canonical.external_id,
+                title,
+                image,
+                category_slug: guessCategory(title),
+                price: prices.price,
+                original_price: prices.original,
+                url: canonical.url,
+                affiliate_url: buildAffiliateUrl(canonical, env),
+                is_free_shipping: /frete\s+gr[aá]tis/i.test(text),
+                source: "telegram",
+              })
+            }
           }
         }
         // Channels are independent and mostly wait on the network: 3 at a time cuts
