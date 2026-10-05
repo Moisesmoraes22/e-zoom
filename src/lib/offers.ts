@@ -5,6 +5,9 @@ import { ALL_PRODUCTS } from "@/lib/mock-data"
 import { OFFER_COLUMNS, rowToProduct, type OfferRow } from "@/lib/offer-row"
 import type { PriceStats, Product } from "@/lib/types"
 
+/** Safety ceiling for the public catalog (the engine keeps ~1,300 offers live). */
+const MAX_OFFERS = 3000
+
 /**
  * Live offers from Supabase (public read via RLS). Only offers with OUR
  * affiliate link and an image are shown. Falls back to the mock catalog
@@ -18,16 +21,24 @@ export const getCatalog = cache(async (): Promise<{ products: Product[]; live: b
   const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
     auth: { persistSession: false },
   })
-  const { data, error } = await supabase
-    .from("offers")
-    .select(OFFER_COLUMNS)
-    .eq("is_active", true)
-    .not("affiliate_url", "is", null)
-    .not("image", "is", null)
-    .order("last_seen_at", { ascending: false })
-    .limit(500)
+  // PostgREST returns at most 1000 rows per request: read pages until the end.
+  const data: unknown[] = []
+  for (let from = 0; from < MAX_OFFERS; from += 1000) {
+    const { data: page, error } = await supabase
+      .from("offers")
+      .select(OFFER_COLUMNS)
+      .eq("is_active", true)
+      .not("affiliate_url", "is", null)
+      .not("image", "is", null)
+      .order("last_seen_at", { ascending: false })
+      .order("id")
+      .range(from, from + 999)
+    if (error) return mockCatalog()
+    data.push(...page)
+    if (page.length < 1000) break
+  }
 
-  if (error || !data?.length) return mockCatalog()
+  if (!data.length) return mockCatalog()
 
   // The DB trigger only records a row when the price changes. Newest 1000 rows
   // (PostgREST's page cap), re-ordered oldest-first per offer below.
