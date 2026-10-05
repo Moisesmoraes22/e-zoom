@@ -1,11 +1,13 @@
 import { createClient } from "@supabase/supabase-js"
 
 import { createMercadoLivreConnector } from "./connectors/mercadolivre.ts"
+import { createShopeeConnector } from "./connectors/shopee.ts"
 import { createTelegramConnector } from "./connectors/telegram.ts"
 import type { Connector } from "./types.ts"
 
 const CONNECTORS: Record<string, (env: NodeJS.ProcessEnv) => Connector> = {
   mercadolivre: createMercadoLivreConnector,
+  shopee: createShopeeConnector,
   telegram: createTelegramConnector,
 }
 
