@@ -145,7 +145,12 @@ async function main() {
   if (!process.env.SUPABASE_URL || !key) throw new Error("Missing SUPABASE_URL / SUPABASE_SECRET_KEY")
   const supabase = createClient(process.env.SUPABASE_URL, key, { auth: { persistSession: false } })
 
-  const startedAt = new Date().toISOString()
+  // The site shows "preço visto há X" from last_seen_at: use when the feed was generated
+  // (file name ..._20261005T050915_1.csv, read as UTC = earliest plausible), not the import time.
+  const stamp = path.match(/_(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})/)
+  const startedAt = stamp
+    ? new Date(Date.UTC(+stamp[1], +stamp[2] - 1, +stamp[3], +stamp[4], +stamp[5], +stamp[6])).toISOString()
+    : new Date().toISOString()
   for (let i = 0; i < picked.length; i += 100) {
     const chunk = picked.slice(i, i + 100).map((o) => ({ ...o, is_active: true, last_seen_at: startedAt }))
     const { error } = await supabase.from("offers").upsert(chunk, { onConflict: "store_id,external_id" })
