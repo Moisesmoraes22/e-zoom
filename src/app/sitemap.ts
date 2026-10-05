@@ -6,7 +6,7 @@ import { getCatalog } from "@/lib/offers"
 export const revalidate = 3600
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const site = process.env.NEXT_PUBLIC_SITE_URL ?? "https://hibridlink-promos.vercel.app"
+  const site = process.env.NEXT_PUBLIC_SITE_URL ?? "https://e-zoom.vercel.app"
   const { products, live } = await getCatalog()
 
   const pages: MetadataRoute.Sitemap = [

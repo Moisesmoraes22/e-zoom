@@ -75,8 +75,8 @@ No token, password or e-mail address is ever put in a URL by the app.
 Nothing below was done by the code; each box must be ticked by a person after doing it for real.
 
 ### Supabase Dashboard
-- [x] Site URL configurada no Supabase (`https://hibridlink-promos.vercel.app`)
-- [x] Redirect URLs configuradas (`https://hibridlink-promos.vercel.app/**` e `http://localhost:3000/**`)
+- [x] Site URL configurada no Supabase (`https://e-zoom.vercel.app`)
+- [x] Redirect URLs configuradas (`https://e-zoom.vercel.app/**` e `http://localhost:3000/**`)
 - [x] confirmação de e-mail revisada ("Confirm email" ligado)
 - [x] senha mínima definida (pelo menos 8; os formulários pedem 8 com letras e números, mas quem impõe é o servidor)
 - [ ] Rate Limits revisados
