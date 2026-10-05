@@ -2,6 +2,9 @@ import type { Connector, OfferRow } from "../types.ts"
 
 const API = "https://api.mercadolibre.com"
 const PER_CATEGORY = 15
+// Wide mode (ML_WIDE=1): also read the best sellers of every sub-category, a few per node.
+const PER_NODE = 6
+const WIDE_MAX = 1200
 
 /**
  * Our category slug -> Mercado Livre category ids. We read each category's
@@ -101,21 +104,40 @@ export function createMercadoLivreConnector(env: NodeJS.ProcessEnv): Connector {
         })
       }
 
+      const wide = env.ML_WIDE === "1"
+      const nodesOf = async (mlId: string) => {
+        if (!wide) return [mlId]
+        const { children_categories = [] } = await get<{ children_categories?: { id: string }[] }>(
+          `/categories/${mlId}`,
+        )
+        return [mlId, ...children_categories.map((c) => c.id)]
+      }
+
+      const full = () => wide && offers.size >= WIDE_MAX
       for (const [category, mlIds] of Object.entries(CATEGORIES)) {
-        for (const mlId of mlIds) {
-          const { content } = await get<{ content: { id: string; type: string }[] }>(
-            `/highlights/MLB/category/${mlId}`,
-          )
-          const ids = content
-            .filter((entry) => entry.type === "PRODUCT" && !offers.has(entry.id))
-            .slice(0, PER_CATEGORY)
-          // Small batches keep us well under the API rate limit.
-          for (let i = 0; i < ids.length; i += 5) {
-            await Promise.allSettled(
-              ids.slice(i, i + 5).map((entry) => buildOffer(entry.id, category)),
-            )
+        for (const top of mlIds) {
+          if (full()) break
+          for (const mlId of await nodesOf(top)) {
+            if (full()) break
+            const limit = wide && mlId !== top ? PER_NODE : PER_CATEGORY
+            // Some sub-categories have no highlights (404): skip them in wide mode.
+            const { content } = await get<{ content: { id: string; type: string }[] }>(
+              `/highlights/MLB/category/${mlId}`,
+            ).catch((error) => {
+              if (wide) return { content: [] }
+              throw error
+            })
+            const ids = content
+              .filter((entry) => entry.type === "PRODUCT" && !offers.has(entry.id))
+              .slice(0, limit)
+            // Small batches keep us well under the API rate limit.
+            for (let i = 0; i < ids.length; i += 5) {
+              await Promise.allSettled(
+                ids.slice(i, i + 5).map((entry) => buildOffer(entry.id, category)),
+              )
+            }
+            console.log(`[mercadolivre] ${category}/${mlId}: ${offers.size} ofertas até agora`)
           }
-          console.log(`[mercadolivre] ${category}/${mlId}: ${offers.size} ofertas até agora`)
         }
       }
       return [...offers.values()]
