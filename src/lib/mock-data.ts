@@ -51,6 +51,13 @@ export const CATEGORIES: Category[] = [
       "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=300&auto=format&fit=crop",
   },
   {
+    slug: "suplementos",
+    name: "Suplementos",
+    icon: "Pill",
+    image:
+      "https://images.unsplash.com/photo-1593095948071-474c5cc2989d?q=80&w=300&auto=format&fit=crop",
+  },
+  {
     slug: "games",
     name: "Games",
     icon: "Gamepad2",

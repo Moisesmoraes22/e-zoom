@@ -1,10 +1,19 @@
+import { isSupplement } from "../lib/supplements.ts"
 import type { Connector, OfferRow } from "../types.ts"
 
 const API = "https://api.mercadolibre.com"
 const PER_CATEGORY = 15
 // Wide mode (ML_WIDE=1): also read the best sellers of every sub-category, a few per node.
 const PER_NODE = 6
-const WIDE_MAX = 1200
+const WIDE_MAX = 1700
+
+/** Supplement niche: catalog search (not best sellers), so we get far more than 20 per node. */
+const SUPPLEMENT_TERMS = [
+  "whey protein", "whey isolado", "creatina", "bcaa", "glutamina", "pré treino", "hipercalórico",
+  "albumina", "caseína", "colágeno", "multivitamínico", "ômega 3", "termogênico", "beta alanina",
+  "vitamina d", "magnésio", "pasta de amendoim", "barra de proteína", "coqueteleira",
+]
+const PER_TERM = 30
 
 /**
  * Our category slug -> Mercado Livre category ids. We read each category's
@@ -71,7 +80,7 @@ export function createMercadoLivreConnector(env: NodeJS.ProcessEnv): Connector {
 
       const offers = new Map<string, OfferRow>()
 
-      const buildOffer = async (id: string, category: string) => {
+      const buildOffer = async (id: string, categoryIn: string, onlySupplements = false) => {
         const [product, { results }] = await Promise.all([
           get<MlProduct>(`/products/${id}`),
           get<{ results: MlProductItem[] }>(`/products/${id}/items?limit=10`),
@@ -82,6 +91,9 @@ export function createMercadoLivreConnector(env: NodeJS.ProcessEnv): Connector {
           .filter((item) => item.condition === "new" && item.price > 0)
           .sort((a, b) => a.price - b.price)[0]
         if (!best || !image || !product.name) return
+        const supplement = isSupplement(product.name)
+        if (onlySupplements && !supplement) return
+        const category = supplement ? "suplementos" : categoryIn
 
         const url = `https://www.mercadolivre.com.br/p/${id}`
         offers.set(id, {
@@ -111,6 +123,17 @@ export function createMercadoLivreConnector(env: NodeJS.ProcessEnv): Connector {
           `/categories/${mlId}`,
         )
         return [mlId, ...children_categories.map((c) => c.id)]
+      }
+
+      for (const term of SUPPLEMENT_TERMS) {
+        const { results = [] } = await get<{ results: { id: string }[] }>(
+          `/products/search?status=active&site_id=MLB&limit=${PER_TERM}&q=${encodeURIComponent(term)}`,
+        ).catch(() => ({ results: [] }))
+        const ids = results.map((r) => r.id).filter((id) => !offers.has(id))
+        for (let i = 0; i < ids.length; i += 5) {
+          await Promise.allSettled(ids.slice(i, i + 5).map((id) => buildOffer(id, "suplementos", true)))
+        }
+        console.log(`[mercadolivre] suplementos/${term}: ${offers.size} ofertas até agora`)
       }
 
       const full = () => wide && offers.size >= WIDE_MAX

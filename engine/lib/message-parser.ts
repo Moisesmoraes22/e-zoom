@@ -1,4 +1,6 @@
-const URL_PATTERN = /https?:\/\/[^\s<>"')\]]+/gi
+import { isSupplement } from "./supplements.ts"
+
+const URL_PATTERN =/https?:\/\/[^\s<>"')\]]+/gi
 const PRICE_PATTERN = /R\$\s?(\d{1,3}(?:\.\d{3})+(?:,\d{2})?|\d+(?:,\d{2})?)/gi
 
 export function extractUrls(text: string): string[] {
@@ -103,5 +105,6 @@ const CATEGORY_KEYWORDS: [string, RegExp][] = [
 ]
 
 export function guessCategory(title: string): string | null {
+  if (isSupplement(title)) return "suplementos"
   return CATEGORY_KEYWORDS.find(([, re]) => re.test(title))?.[0] ?? null
 }

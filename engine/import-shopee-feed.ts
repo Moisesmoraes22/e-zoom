@@ -11,9 +11,11 @@ import { createReadStream } from "node:fs"
 
 import { createClient } from "@supabase/supabase-js"
 
+import { isSupplement } from "./lib/supplements.ts"
 import type { OfferRow } from "./types.ts"
 
 const PER_CATEGORY = 130
+const PER_CATEGORY_MAX: Record<string, number> = { suplementos: 400 } // the niche we're growing
 const SUB_ID = "ezoom"
 
 /** Feed top-level category -> our slug. Anything not listed (car parts, books, food...) is skipped. */
@@ -68,7 +70,8 @@ async function* readCsv(path: string): AsyncGenerator<Row> {
 }
 
 function toOffer(r: Row, affiliateId: string): (OfferRow & { score: number }) | null {
-  const slug = CATEGORY[r.global_category1]
+  // Supplements are picked by title, whatever top-level category the feed files them under.
+  const slug = isSupplement(r.title) ? "suplementos" : CATEGORY[r.global_category1]
   const link = r.product_link.match(/shopee\.com\.br\/product\/(\d+)\/(\d+)/)
   const price = Number(r.sale_price)
   const rating = Number(r.item_rating)
@@ -124,7 +127,7 @@ async function main() {
         const key = o.title.toLowerCase().replace(/[^\p{L}\p{N}]/gu, "").slice(0, 28)
         return !seen.has(key) && !!seen.add(key)
       })
-      .slice(0, PER_CATEGORY)
+      .slice(0, PER_CATEGORY_MAX[slug] ?? PER_CATEGORY)
     console.log(`${slug.padEnd(12)} ${String(best.length).padStart(4)} escolhidas de ${list.length} que passaram no filtro`)
     picked.push(...best.map(({ score: _score, ...offer }) => offer))
   }

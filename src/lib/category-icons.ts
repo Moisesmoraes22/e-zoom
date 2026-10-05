@@ -3,6 +3,7 @@ import {
   Dumbbell,
   Footprints,
   Gamepad2,
+  Pill,
   type LucideIcon,
   Shapes,
   Shirt,
@@ -18,6 +19,7 @@ const ICONS: Record<string, LucideIcon> = {
   calcados: Footprints,
   beleza: Sparkles,
   esporte: Dumbbell,
+  suplementos: Pill,
   games: Gamepad2,
   infantil: Baby,
 }
