@@ -32,6 +32,7 @@ jobs:
           # Mega Oferta Prime (5-11/out): read more history per channel. Back to 50 after.
           TELEGRAM_MESSAGES_PER_CHANNEL: "120"
           AMAZON_ASSOCIATE_TAG: ${{ secrets.AMAZON_ASSOCIATE_TAG }}
+          SHOPEE_AFFILIATE_ID: "18346531289"
 
   mercadolivre:
     runs-on: ubuntu-latest

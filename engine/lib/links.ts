@@ -103,6 +103,10 @@ export function buildAffiliateUrl(
       ? `${link.url}?tag=${encodeURIComponent(env.AMAZON_ASSOCIATE_TAG)}`
       : null
   }
+  if (link.store_id === "shopee" && env.SHOPEE_AFFILIATE_ID) {
+    // Shopee custom link: the id is the number after "an_" in your affiliate links.
+    return `https://shope.ee/an_redir?origin_link=${encodeURIComponent(link.url)}&affiliate_id=${env.SHOPEE_AFFILIATE_ID}&sub_id=ezoom`
+  }
   const template =
     link.store_id === "mercado_livre"
       ? env.ML_AFFILIATE_URL_TEMPLATE
