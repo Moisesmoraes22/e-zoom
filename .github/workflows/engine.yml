@@ -1,13 +1,13 @@
 name: Coleta de ofertas
 
-# Never two collections at once (a slow run must not overlap the next hourly one).
+# Never two collections at once (a slow run must not overlap the next scheduled one).
 concurrency:
   group: coleta
   cancel-in-progress: false
 
 on:
   schedule:
-    - cron: "0 * * * *" # a cada hora
+    - cron: "*/30 * * * *" # a cada 30 minutos
   workflow_dispatch:
 
 jobs:
