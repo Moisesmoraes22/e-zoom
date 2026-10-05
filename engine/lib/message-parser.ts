@@ -28,8 +28,23 @@ export function parsePrices(text: string) {
   return { price, original }
 }
 
+// Hype/CTA words: lines made of these are slogans, not product names.
+const SLOGAN =
+  /\b(corre|corra|aproveit\w*|imperd[ií]vel|achadinho|baratinho|bomba|urgente|rel[aâ]mpago|r[aá]pido|link|clique|compre|garanta|estoque|cupom|resgate|desconto|oferta|promo[cç][aã]o|frete|parcel\w*|vista|dispon[ií]vel|canal|grupo|entre|participe)\b|[!?]|^#/i
+
+/** Higher = more likely a product name; <= 0 means "looks like a slogan". */
+function titleScore(line: string): number {
+  if (line.length < 8) return -1
+  const letters = line.replace(/[^\p{L}]/gu, "")
+  let score = Math.min(line.length, 60) / 10
+  if (/\d/.test(line)) score += 1 // model numbers, sizes, capacities
+  if (letters.length > 6 && letters === letters.toUpperCase()) score -= 2 // SHOUTING
+  if (SLOGAN.test(line)) score -= 4
+  return score
+}
+
 export function extractTitle(text: string): string | null {
-  const line = text
+  const lines = text
     .split("\n")
     .map((l) =>
       l
@@ -40,8 +55,13 @@ export function extractTitle(text: string): string | null {
         .replace(/\s+/g, " ")
         .trim(),
     )
-    .find((l) => l.length >= 8)
-  return line ? line.slice(0, 160) : null
+    .map((line) => ({ line, score: titleScore(line) }))
+  // Best score wins; ties go to the earlier line. Nothing above 0 -> no title (skip the offer).
+  const best = lines.reduce<{ line: string; score: number } | null>(
+    (top, l) => (l.score > (top?.score ?? 0) ? l : top),
+    null,
+  )
+  return best ? best.line.slice(0, 160) : null
 }
 
 const CATEGORY_KEYWORDS: [string, RegExp][] = [
