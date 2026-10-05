@@ -11,7 +11,7 @@ const WIDE_MAX = 1700
 const SUPPLEMENT_TERMS = [
   "whey protein", "whey isolado", "creatina", "bcaa", "glutamina", "pré treino", "hipercalórico",
   "albumina", "caseína", "colágeno", "multivitamínico", "ômega 3", "termogênico", "beta alanina",
-  "vitamina d", "magnésio", "pasta de amendoim", "barra de proteína", "coqueteleira",
+  "vitamina d", "magnésio", "pasta de amendoim", "barra de proteína",
 ]
 const PER_TERM = 25 // offers kept per term
 // Most catalog hits have no active seller (items -> 404), so we scan a few pages per term.
