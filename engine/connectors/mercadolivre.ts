@@ -13,7 +13,10 @@ const SUPPLEMENT_TERMS = [
   "albumina", "caseína", "colágeno", "multivitamínico", "ômega 3", "termogênico", "beta alanina",
   "vitamina d", "magnésio", "pasta de amendoim", "barra de proteína", "coqueteleira",
 ]
-const PER_TERM = 30
+const PER_TERM = 25 // offers kept per term
+// Most catalog hits have no active seller (items -> 404), so we scan a few pages per term.
+const SEARCH_PAGES = 3
+const SEARCH_PAGE_SIZE = 50
 
 /**
  * Our category slug -> Mercado Livre category ids. We read each category's
@@ -81,10 +84,9 @@ export function createMercadoLivreConnector(env: NodeJS.ProcessEnv): Connector {
       const offers = new Map<string, OfferRow>()
 
       const buildOffer = async (id: string, categoryIn: string, onlySupplements = false) => {
-        const [product, { results }] = await Promise.all([
-          get<MlProduct>(`/products/${id}`),
-          get<{ results: MlProductItem[] }>(`/products/${id}/items?limit=10`),
-        ])
+        // Supplement search hits are mostly sellerless: check listings first, skip the rest.
+        const { results } = await get<{ results: MlProductItem[] }>(`/products/${id}/items?limit=10`)
+        const product = await get<MlProduct>(`/products/${id}`)
         const image = product.pictures?.[0]?.url
         // Cheapest new listing of this catalog product.
         const best = results
@@ -126,12 +128,15 @@ export function createMercadoLivreConnector(env: NodeJS.ProcessEnv): Connector {
       }
 
       for (const term of SUPPLEMENT_TERMS) {
-        const { results = [] } = await get<{ results: { id: string }[] }>(
-          `/products/search?status=active&site_id=MLB&limit=${PER_TERM}&q=${encodeURIComponent(term)}`,
-        ).catch(() => ({ results: [] }))
-        const ids = results.map((r) => r.id).filter((id) => !offers.has(id))
-        for (let i = 0; i < ids.length; i += 5) {
-          await Promise.allSettled(ids.slice(i, i + 5).map((id) => buildOffer(id, "suplementos", true)))
+        const before = offers.size
+        for (let page = 0; page < SEARCH_PAGES && offers.size - before < PER_TERM; page++) {
+          const { results = [] } = await get<{ results: { id: string }[] }>(
+            `/products/search?status=active&site_id=MLB&limit=${SEARCH_PAGE_SIZE}&offset=${page * SEARCH_PAGE_SIZE}&q=${encodeURIComponent(term)}`,
+          ).catch(() => ({ results: [] }))
+          const ids = results.map((r) => r.id).filter((id) => !offers.has(id))
+          for (let i = 0; i < ids.length && offers.size - before < PER_TERM; i += 10) {
+            await Promise.allSettled(ids.slice(i, i + 10).map((id) => buildOffer(id, "suplementos", true)))
+          }
         }
         console.log(`[mercadolivre] suplementos/${term}: ${offers.size} ofertas até agora`)
       }
