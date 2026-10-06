@@ -11,6 +11,7 @@ import { createReadStream } from "node:fs"
 
 import { createClient } from "@supabase/supabase-js"
 
+import { refineCategory } from "./lib/categories.ts"
 import { isSupplement } from "./lib/supplements.ts"
 import type { OfferRow } from "./types.ts"
 
@@ -72,7 +73,7 @@ async function* readCsv(path: string): AsyncGenerator<Row> {
 
 function toOffer(r: Row, affiliateId: string): (OfferRow & { score: number; likes: number }) | null {
   // Supplements are picked by title, whatever top-level category the feed files them under.
-  const slug = isSupplement(r.title) ? "suplementos" : CATEGORY[r.global_category1]
+  const slug = isSupplement(r.title) ? "suplementos" : refineCategory(r.title, CATEGORY[r.global_category1])
   const link = r.product_link.match(/shopee\.com\.br\/product\/(\d+)\/(\d+)/)
   const price = Number(r.sale_price)
   const rating = Number(r.item_rating)

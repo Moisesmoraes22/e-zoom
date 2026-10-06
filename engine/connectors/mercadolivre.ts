@@ -1,3 +1,4 @@
+import { refineCategory } from "../lib/categories.ts"
 import { isSupplement } from "../lib/supplements.ts"
 import type { Connector, OfferRow } from "../types.ts"
 
@@ -99,7 +100,7 @@ export function createMercadoLivreConnector(env: NodeJS.ProcessEnv): Connector {
         if (!best || !image || !product.name) return
         const supplement = isSupplement(product.name)
         if (onlySupplements && !supplement) return
-        const category = supplement ? "suplementos" : categoryIn
+        const category = supplement ? "suplementos" : refineCategory(product.name, categoryIn)
 
         const url = `https://www.mercadolivre.com.br/p/${id}`
         offers.set(id, {

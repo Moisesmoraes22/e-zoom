@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto"
 
+import { refineCategory } from "../lib/categories.ts"
 import type { Connector, OfferRow } from "../types.ts"
 
 const ENDPOINT = "https://open-api.affiliate.shopee.com.br/graphql"
@@ -88,7 +89,7 @@ export function createShopeeConnector(env: NodeJS.ProcessEnv): Connector {
               external_id: externalId,
               title: node.productName.slice(0, 160),
               image: node.imageUrl,
-              category_slug: category,
+              category_slug: refineCategory(node.productName, category),
               price,
               // Only a real discount from the store; never invented.
               original_price: rate >= 5 && rate <= 50 ? Math.round((price / (1 - rate / 100)) * 100) / 100 : null,
