@@ -80,6 +80,7 @@ export default async function Home() {
       {hot.length > 0 && (
         <ProductRow
           icon={<Zap className="h-5 w-5" />}
+          iconTone="spark"
           title="Bombando agora"
           subtitle="As ofertas mais abertas pelos visitantes do E-Zoom nos últimos dias."
           products={hot}
@@ -89,6 +90,7 @@ export default async function Home() {
       {featured.length > 0 && (
         <ProductRow
           icon={<Flame className="h-5 w-5" />}
+          iconTone="fire"
           title="Ofertas que valem a pena hoje"
           subtitle="Selecionadas por desconto, histórico de preço, avaliação da loja e preço visto recentemente."
           products={featured}
@@ -99,6 +101,7 @@ export default async function Home() {
       {priceDrops.length > 0 && (
         <ProductRow
           icon={<TrendingDown className="h-5 w-5" />}
+          iconTone="drop"
           title="Preço caiu"
           subtitle="Produtos que ficaram mais baratos desde a última vez que vimos o preço."
           products={priceDrops}
@@ -108,6 +111,7 @@ export default async function Home() {
       {finds.length > 0 && (
         <ProductRow
           icon={<Sparkles className="h-5 w-5" />}
+          iconTone="spark"
           title="Achados E-Zoom"
           subtitle="Ofertas que merecem uma atenção especial: bem avaliadas e com bom desconto."
           products={finds}

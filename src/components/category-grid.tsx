@@ -44,7 +44,7 @@ export function CategoryGrid({
           >
             <Link
               href={`/categoria/${category.slug}`}
-              className="group flex h-full flex-col items-center gap-3 rounded-2xl border border-border bg-card p-4 text-center transition-colors duration-300 hover:border-primary/40 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95"
+              className="group flex h-full flex-col items-center gap-3 rounded-2xl border border-border bg-card p-4 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95"
             >
               <div className="h-16 w-16 overflow-hidden rounded-full bg-muted ring-2 ring-transparent transition-all duration-300 group-hover:ring-primary/50">
                 {/* eslint-disable-next-line @next/next/no-img-element */}

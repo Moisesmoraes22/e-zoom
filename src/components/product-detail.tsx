@@ -180,7 +180,7 @@ export function ProductDetail({
             )}
 
             <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-              <Button asChild size="lg" className="flex-1 gap-2 rounded-full bg-cta text-cta-foreground hover:bg-cta/90">
+              <Button asChild size="lg" className="flex-1 gap-2 rounded-full bg-cta text-cta-foreground hover:bg-cta-hover">
                 <OfferLink
                   product={product}
                   store={bestOffer.store}

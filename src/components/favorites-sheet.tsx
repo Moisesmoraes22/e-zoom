@@ -14,7 +14,7 @@ import {
 import Link from "next/link"
 import { useEffect, useRef, useState } from "react"
 
-import { OfferLink } from "@/components/offer-link"
+import { OfferLink, recordOfferClick } from "@/components/offer-link"
 import { StoreBadge } from "@/components/store-badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -44,6 +44,7 @@ export function FavoritesSheet() {
     retrySync,
   } = useFavorites()
   const [isClearing, setIsClearing] = useState(false)
+  const [blockedTabs, setBlockedTabs] = useState(0)
   const clearTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const catalog = useSearchIndex()
 
@@ -53,6 +54,17 @@ export function FavoritesSheet() {
     if (isOpen) loadSearchIndex()
   }, [isOpen])
   const current = new Map(catalog.items.map((item) => [item.id, item.price]))
+
+  // Opens every saved offer that is still in the catalog, one tab each (the browser may block extra tabs).
+  const handleOpenAll = () => {
+    const live = items.filter((item) => !(catalog.status === "ready" && !current.has(item.id)))
+    let blocked = 0
+    for (const item of live) {
+      recordOfferClick(item)
+      if (!window.open(item.affiliateUrl, "_blank", "noopener,noreferrer")) blocked++
+    }
+    setBlockedTabs(blocked)
+  }
 
   const handleClear = () => {
     if (isClearing || items.length === 0) return
@@ -102,6 +114,19 @@ export function FavoritesSheet() {
           <SheetDescription className="sr-only">
             Produtos que você salvou neste dispositivo.
           </SheetDescription>
+          {items.length > 0 && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              disabled={isClearing}
+              onClick={handleClear}
+              className="absolute right-12 top-4 h-8 gap-1.5 px-2 text-xs text-muted-foreground hover:text-destructive disabled:opacity-100"
+            >
+              <Trash2 className="h-3.5 w-3.5" aria-hidden />
+              {isClearing ? "Limpando…" : "Limpar"}
+            </Button>
+          )}
         </SheetHeader>
 
         {items.length === 0 ? (
@@ -214,7 +239,7 @@ export function FavoritesSheet() {
                               product={item}
                               store={item.store}
                               affiliateUrl={item.affiliateUrl}
-                              className="flex min-h-9 items-center gap-1.5 rounded-full bg-cta px-3.5 text-xs font-semibold text-cta-foreground transition-colors hover:bg-cta/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                              className="flex min-h-9 items-center gap-1.5 rounded-full bg-cta px-3.5 text-xs font-semibold text-cta-foreground transition-colors hover:bg-cta-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                             >
                               Ver oferta
                               <ExternalLink className="h-3.5 w-3.5" aria-hidden />
@@ -293,30 +318,19 @@ export function FavoritesSheet() {
               </p>
               <Button
                 type="button"
-                variant="outline"
                 disabled={isClearing}
-                className="relative w-full overflow-hidden active:scale-[0.98] disabled:opacity-100"
-                onClick={handleClear}
+                onClick={handleOpenAll}
+                className="w-full gap-2 bg-cta text-cta-foreground hover:bg-cta-hover active:scale-[0.98]"
               >
-                {isClearing && (
-                  <motion.span
-                    initial={{ width: "0%" }}
-                    animate={{ width: "100%" }}
-                    transition={{
-                      duration:
-                        (items.length - 1) * ITEM_STAGGER +
-                        ITEM_SUCK_DURATION +
-                        0.08,
-                      ease: "linear",
-                    }}
-                    className="absolute inset-y-0 left-0 bg-destructive/15"
-                  />
-                )}
-                <span className="relative flex items-center justify-center gap-2">
-                  <Trash2 className="h-4 w-4" aria-hidden />
-                  {isClearing ? "Limpando..." : "Limpar favoritos"}
-                </span>
+                Ver ofertas
+                <ExternalLink className="h-4 w-4" aria-hidden />
               </Button>
+              {blockedTabs > 0 && (
+                <p role="status" className="text-xs text-muted-foreground">
+                  O navegador bloqueou {blockedTabs} {blockedTabs === 1 ? "aba" : "abas"}. Permita pop-ups
+                  para o E-Zoom e toque de novo, ou use o “Ver oferta” de cada item.
+                </p>
+              )}
             </div>
           </>
         )}

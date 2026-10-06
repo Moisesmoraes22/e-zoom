@@ -53,7 +53,7 @@ export function ProductCard({
   return (
     <div
       className={cn(
-        "group relative flex h-full flex-col overflow-hidden rounded-2xl border bg-card transition-all duration-300 motion-safe:hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10",
+        "group relative flex h-full flex-col overflow-hidden rounded-2xl border bg-card",
         favorited
           ? "border-destructive ring-2 ring-destructive/40 ring-offset-2 ring-offset-background"
           : "border-border",
@@ -175,10 +175,10 @@ export function ProductCard({
             product={product}
             store={product.store}
             affiliateUrl={product.affiliateUrl}
-            className="flex min-h-11 items-center justify-center gap-1.5 rounded-lg bg-cta py-2 text-sm font-semibold text-cta-foreground transition-colors duration-200 hover:bg-cta/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            className="flex min-h-11 items-center justify-center gap-1.5 group/cta rounded-lg bg-cta py-2 text-sm font-semibold text-cta-foreground transition-all duration-200 hover:bg-cta-hover hover:shadow-md active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             Ver oferta
-            <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" aria-hidden />
+            <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover/cta:translate-x-1" aria-hidden />
           </OfferLink>
         </div>
       </div>

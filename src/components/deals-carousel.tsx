@@ -6,6 +6,7 @@ import Link from "next/link"
 import type { ReactNode } from "react"
 
 import { ProductCard } from "@/components/product-card"
+import { ICON_TONES, type IconTone } from "@/components/section-header"
 import {
   Carousel,
   CarouselContent,
@@ -22,6 +23,7 @@ export function DealsCarousel({
   icon = <Clock className="h-5 w-5" aria-hidden />,
   href,
   tone = "navy",
+  iconTone = "blue",
 }: {
   products: Product[]
   title?: string
@@ -31,13 +33,15 @@ export function DealsCarousel({
   href?: string
   /** "navy" is the dark highlight band; "light" sits on the page background. */
   tone?: "navy" | "light"
+  /** Colour of the icon circle on the light variant. */
+  iconTone?: IconTone
 }) {
   const navy = tone === "navy"
   return (
     <section className={navy ? "bg-band py-12" : "section-y"}>
       <div className="page-container">
         <div className="mb-6 flex items-center gap-2">
-          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground">
+          <span className={`flex h-9 w-9 items-center justify-center rounded-full ${navy ? "bg-band-foreground/15 text-band-foreground" : ICON_TONES[iconTone]}`}>
             {icon}
           </span>
           <div>
@@ -47,7 +51,7 @@ export function DealsCarousel({
             <p className={`text-sm ${navy ? "text-band-foreground/70" : "text-muted-foreground"}`}>{subtitle}</p>
           </div>
           {href && (
-            <Link href={href} className="ml-auto shrink-0 text-sm font-semibold text-brand hover:underline">
+            <Link href={href} className={`ml-auto shrink-0 text-sm font-semibold hover:underline ${navy ? "text-band-foreground" : "text-foreground"}`}>
               Ver todas
             </Link>
           )}
