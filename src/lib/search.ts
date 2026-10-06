@@ -188,3 +188,46 @@ export function countByPriceRange(products: Product[]) {
     count: products.filter((p) => matchesPriceRange(p.price, range.value)).length,
   }))
 }
+
+/** Edit distance counting a swap of two neighbouring letters as one change ("wehy" -> "whey"). */
+function editDistance(a: string, b: string) {
+  const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)])
+  for (let j = 1; j <= b.length; j++) d[0][j] = j
+  for (let i = 1; i <= a.length; i++) {
+    for (let j = 1; j <= b.length; j++) {
+      d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1))
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1)
+    }
+  }
+  return d[a.length][b.length]
+}
+
+/**
+ * For a search that found nothing: the same words with typos replaced by the closest
+ * (then most common) word that appears in the catalog's titles, or null when no word
+ * needed fixing or none is close enough. Words under 4 letters are left alone.
+ */
+export function correctQuery(query: string, products: Product[]): string | null {
+  const words = normalizeText(query).replace(/[^a-z0-9 ]+/g, " ").split(/\s+/).filter(Boolean)
+  const freq = new Map<string, number>()
+  for (const p of products) {
+    for (const w of new Set(normalizeText(p.title).split(/[^a-z0-9]+/))) {
+      if (w.length >= 3) freq.set(w, (freq.get(w) ?? 0) + 1)
+    }
+  }
+  let changed = false
+  const fixed = words.map((word) => {
+    if (word.length < 4 || [...freq.keys()].some((k) => k.includes(word))) return word
+    const limit = word.length >= 7 ? 2 : 1
+    let best: { w: string; dist: number; n: number } | null = null
+    for (const [w, n] of freq) {
+      if (Math.abs(w.length - word.length) > limit) continue
+      const dist = editDistance(word, w)
+      if (dist <= limit && (!best || dist < best.dist || (dist === best.dist && n > best.n))) best = { w, dist, n }
+    }
+    if (!best) return word
+    changed = true
+    return best.w
+  })
+  return changed ? fixed.join(" ") : null
+}

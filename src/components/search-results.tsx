@@ -18,6 +18,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet"
 import {
+  correctQuery,
   countByStore,
   EMPTY_FILTERS,
   isPriceRange,
@@ -75,7 +76,7 @@ function SearchResultsInner({
   initialPriceRanges: PriceRange[]
 }) {
   const searchParams = useSearchParams()
-  const query = searchParams.get("q") ?? ""
+  const rawQuery = searchParams.get("q") ?? ""
 
   const [filters, setFilters] = useState<ProductFilters>({
     ...EMPTY_FILTERS,
@@ -117,6 +118,15 @@ function SearchResultsInner({
     [products, kind],
   )
 
+  // A search with no match at all is retried with typos fixed ("wehy" -> "whey").
+  const corrected = useMemo(() => {
+    if (!rawQuery || filterProducts(baseProducts, { ...EMPTY_FILTERS, query: rawQuery }).length > 0) return null
+    const fixed = correctQuery(rawQuery, baseProducts)
+    // Only worth showing when the fixed words actually find something.
+    return fixed && filterProducts(baseProducts, { ...EMPTY_FILTERS, query: fixed }).length > 0 ? fixed : null
+  }, [rawQuery, baseProducts])
+  const query = corrected ?? rawQuery
+
   const baseFilters: ProductFilters = { ...filters, query }
 
   const availableStores = useMemo(
@@ -151,8 +161,8 @@ function SearchResultsInner({
     filters.freeShippingOnly ||
     (!categorySlug && !!filters.category)
 
-  const title = query
-    ? `Ofertas para "${query}"`
+  const title = rawQuery
+    ? `Ofertas para "${rawQuery}"`
     : categoryName
       ? `Ofertas em ${categoryName}`
       : "Todas as ofertas"
@@ -160,7 +170,7 @@ function SearchResultsInner({
   return (
     <div className="container mx-auto max-w-7xl px-4 py-8 pb-24 lg:pb-8">
       <div className="mb-6 lg:hidden">
-        <SearchBar defaultValue={query} size="sm" />
+        <SearchBar defaultValue={rawQuery} size="sm" />
       </div>
 
       <h1 className="text-2xl font-bold text-foreground sm:text-3xl">
@@ -170,6 +180,11 @@ function SearchResultsInner({
         {results.length} {results.length === 1 ? "oferta encontrada" : "ofertas encontradas"}
         {totalPages > 1 && ` · página ${page} de ${totalPages}`}
       </p>
+      {corrected && (
+        <p className="mt-1 text-sm text-foreground">
+          Nada encontrado para “{rawQuery}”. Mostrando resultados para <strong>“{corrected}”</strong>.
+        </p>
+      )}
 
       <div className="mt-6 flex gap-8">
         <aside className="hidden w-64 shrink-0 lg:block">
