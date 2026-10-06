@@ -10,25 +10,40 @@ interface OfferLinkProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
   affiliateUrl: string
 }
 
+/** Site area of the current page, as stored with each click. */
+const originOf = (pathname: string) => {
+  const area = pathname.split("/")[1] ?? ""
+  return area === "" ? "home" : ["busca", "categoria", "produto"].includes(area) ? area : "outro"
+}
+
 /**
- * Centralized affiliate CTA. Every "Ver oferta" click in the app should go
- * through here so click tracking (product, store, origin) can be wired up
- * in one place later, without touching every call site. Not implemented
- * yet — no fake analytics.
+ * Centralized affiliate CTA. Every "Ver oferta" click in the app goes through here,
+ * which records it (offer + site area, nothing about the visitor) for the popularity
+ * sections. sendBeacon survives the page being left for the store.
  */
 export function OfferLink({
-  product: _product,
+  product,
   store: _store,
   affiliateUrl,
   onClick,
+  onAuxClick,
   ...rest
 }: OfferLinkProps) {
+  void _store // part of the call sites' API; kept out of the <a> props
+  const record = () => {
+    const payload = JSON.stringify({ offerId: product.id, origin: originOf(window.location.pathname) })
+    if (!navigator.sendBeacon?.("/api/click", new Blob([payload], { type: "application/json" }))) {
+      void fetch("/api/click", { method: "POST", body: payload, keepalive: true }).catch(() => {})
+    }
+  }
   const handleClick: React.MouseEventHandler<HTMLAnchorElement> = (event) => {
-    // TODO: register { productId: _product.id, store: _store, origin } once
-    // an analytics/attribution backend exists.
-    void _product
-    void _store
+    record()
     onClick?.(event)
+  }
+  // Middle click (opens in a new tab) does not fire onClick.
+  const handleAuxClick: React.MouseEventHandler<HTMLAnchorElement> = (event) => {
+    if (event.button === 1) record()
+    onAuxClick?.(event)
   }
 
   return (
@@ -37,6 +52,7 @@ export function OfferLink({
       target="_blank"
       rel="noopener noreferrer sponsored"
       onClick={handleClick}
+      onAuxClick={handleAuxClick}
       {...rest}
     />
   )

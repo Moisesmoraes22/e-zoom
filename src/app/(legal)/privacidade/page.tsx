@@ -38,7 +38,7 @@ export default function PrivacyPage() {
       </ul>
       <p>
         Você pode apagar esses dados a qualquer momento limpando os dados do site no navegador. Não usamos
-        publicidade nem rastreamento de cliques.
+        publicidade.
       </p>
 
       <h2>4. Estatísticas de visitas</h2>
@@ -47,6 +47,11 @@ export default function PrivacyPage() {
         redes sociais), o tipo de aparelho e o navegador, para melhorar o site. Usamos o Vercel Web Analytics, que
         funciona <strong>sem cookies</strong> e sem identificar você: os dados são agregados e não incluem seu nome,
         e-mail nem o conteúdo dos seus favoritos. Base legal: legítimo interesse.
+      </p>
+      <p>
+        Também contamos quantas vezes cada oferta é aberta pelo botão “Ver oferta”, para mostrar quais ofertas estão
+        em alta. Cada contagem guarda apenas qual oferta foi aberta, em que parte do site e quando: não guardamos
+        seu endereço IP, seu aparelho, sua conta nem qualquer dado que identifique você.
       </p>
 
       <h2>5. Criando uma conta (opcional)</h2>
