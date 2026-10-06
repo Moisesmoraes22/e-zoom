@@ -1,7 +1,7 @@
 import assert from "node:assert/strict"
 import { test } from "node:test"
 
-import { extractTitle, guessCategory } from "../lib/message-parser.ts"
+import { extractTitle, guessCategory, isOutOfScope } from "../lib/message-parser.ts"
 import { isSupplement } from "../lib/supplements.ts"
 
 const nl = String.fromCharCode(10)
@@ -36,4 +36,29 @@ test("supplements are not cosmetics, pet food or shakers", () => {
   assert.equal(isSupplement("Shampoo Proteína Capilar"), false)
   assert.equal(isSupplement("Proteína Condicionante by Boca Rosa 200ml - Cadiveu"), false)
   assert.equal(isSupplement("Coqueteleira 600ml Adaptogen Preto"), false)
+})
+
+test("telegram guess knows beauty and household items it used to miss", () => {
+  assert.equal(guessCategory("Kit com 16 Cargas para Aparelho de Barbear Gillette Mach3 Sensitive"), "beleza")
+  assert.equal(guessCategory("- Tônico de Crescimento 250ml"), "beleza")
+  assert.equal(guessCategory("Argan Óleo Reparador 50ml Lola Cosmetics"), "beleza")
+  assert.equal(guessCategory("Vaporizador Portátil WAP 1250W 127V"), "casa")
+  assert.equal(guessCategory("Sabão Líquido Omo Ultra Power 1.8L"), "casa")
+})
+
+test("groceries, drinks and pet food are out of scope; supplements never are", () => {
+  for (const t of [
+    "Whisky Jack Daniel's Apple Tennessee 700ml",
+    "Vinho Concha y Toro Casillero Del Diablo",
+    "Isotônico Gatorade, Laranja, Garrafa 500ml",
+    "Heinz Ketchup Bacon & Cebola Caramelizada 397g",
+    "Pack Ração Úmida Whiskas Sachê Carne/Frango/Atum para Gatos",
+    "Cereais Sucrilhos Kellogg's Original 280g",
+    "Kit com 10 Cápsulas Nescafé Dolce Gusto",
+  ]) {
+    assert.equal(isOutOfScope(t), true, t)
+  }
+  for (const t of ["Whey Protein 900g Chocolate", "Pasta de Amendoim Integral 1kg", "Apple iPhone 17 de 256 GB", "Barra de Proteína Cereal Crisp 12un"]) {
+    assert.equal(isOutOfScope(t), false, t)
+  }
 })

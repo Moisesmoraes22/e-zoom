@@ -11,6 +11,7 @@ import {
   extractTitle,
   extractUrls,
   guessCategory,
+  isOutOfScope,
   parsePrices,
   splitByLinks,
 } from "../lib/message-parser.ts"
@@ -136,6 +137,7 @@ export function createTelegramConnector(env: NodeJS.ProcessEnv): Connector {
               const prices = parsePrices(text)
               const title = extractTitle(text)
               if (!prices || !title) continue
+              if (isOutOfScope(title)) continue // drinks, groceries, pet food: no category on the site
               // Sub-R$5 "prices" on Amazon were misread numbers (R$ 2 for 60 capsules), not offers.
               if (canonical.store_id === "amazon" && prices.price < MIN_AMAZON_PRICE) continue
 

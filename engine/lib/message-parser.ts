@@ -108,13 +108,25 @@ export function extractTitle(text: string): string | null {
 const CATEGORY_KEYWORDS: [string, RegExp][] = [
   ["games", /\b(ps5|ps4|playstation[0-9]?|xbox|nintendo|switch|gamer|controle|headset|console)\b/],
   ["infantil", /\b(infantil|bebe|crianca|brinquedo|boneca|lego|pokemon|hot wheels|transformers|figura|pelucia)\b/],
-  ["beleza", /\b(perfume|shampoo|condicionador|creme|maquiagem|skincare|secador|batom|serum|hidratante|aparador|barbeador|oneblade|caspa|elixir|bio oil|kerastase|armani|desodorante)\b/],
+  ["beleza", /\b(perfume|shampoo|condicionador|creme|maquiagem|skincare|secador|batom|serum|hidratante|aparador|barbeador|oneblade|caspa|elixir|bio oil|kerastase|armani|desodorante|gillette|barbear|tonico|argan|oleo (reparador|capilar)|cosmetics)\b/],
   ["calcados", /\b(tenis|sapat\w*|chinelo|sandalia|bota)\b/],
   ["moda", /\b(camisas?|camisetas?|bermudas?|polo|jaquetas?|calcas?|vestidos?|mochilas?|bolsas?|relogios?|oculos)\b/],
   ["esporte", /\b(bicicleta|esteira|halter|academia|fitness|garrafa termica|copo termico)\b/],
-  ["casa", /\b(air ?fryer|fritadeira|aspirador|cadeira|colchao|sofa|poltrona|mesa|escrivaninha|panela|frigideira|geladeira|microondas|micro-ondas|forno|cafeteira|sanduicheira|sorveteira|liquidificador|ventilador|ar-condicionado|ar condicionado|lampada|ferramentas|parafusadeira|furadeira)\b/],
+  ["casa", /\b(air ?fryer|fritadeira|aspirador|cadeira|colchao|sofa|poltrona|mesa|escrivaninha|panela|frigideira|geladeira|microondas|micro-ondas|forno|cafeteira|sanduicheira|sorveteira|liquidificador|ventilador|ar-condicionado|ar condicionado|lampada|ferramentas|parafusadeira|furadeira|vaporizador|sabao|detergente|amaciante|papel higienico|lava roupas|omo)\b/],
   ["eletronicos", /\b(fone|smartwatch|celular|smartphone|iphone|galaxy|kindle|echo|alexa|soundbar|notebook|tablet|tv|monitor|carregador|adaptador|cabo|bateria|ssd|camera|bluetooth|caixa de som|teclado|mouse|mousepad|microfone|processador|ryzen|placa mae|placa de video|placa grafica|placa principal|rtx|radeon|geforce|cooler|water cooler|ventoinhas?|fans?|fonte|gabinete|impressora|suporte articulado|suporte de mesa|suporte fixo)\b/],
 ]
+
+/**
+ * Groceries, drinks and pet food that channels post next to real offers: the site has no
+ * category for them, so they are not collected at all (nothing here is a supplement).
+ */
+const OUT_OF_SCOPE =
+  /\b(whisky|whiskey|vodka|vinho|cerveja|espumante|champagne|licor|cachaca|ketchup|maionese|isotonico|gatorade|red ?bull|cereal|cereais|sucrilhos|racao|whiskas|nescafe|dolce gusto|biscoito|bolacha|macarrao|azeite)\b/
+
+export function isOutOfScope(title: string): boolean {
+  if (isSupplement(title)) return false
+  return OUT_OF_SCOPE.test(title.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase())
+}
 
 export function guessCategory(title: string): string | null {
   if (isSupplement(title) || /\b(proteico|chocowhey\w*)/i.test(title)) return "suplementos"
