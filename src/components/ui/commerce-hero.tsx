@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "framer-motion";
 import { ArrowRight, TrendingDown } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState, useSyncExternalStore } from "react";
@@ -175,6 +175,17 @@ export function CommerceHero({
 }
 
 function HeroSlide({ offer, intro }: { offer: HeroOffer; intro: boolean }) {
+  const reduce = useReducedMotion();
+  // Where the pointer is over the photo stage, -0.5..0.5; smoothed by a spring so the tilt eases.
+  const px = useMotionValue(0);
+  const py = useMotionValue(0);
+  const sx = useSpring(px, { stiffness: 110, damping: 14 });
+  const sy = useSpring(py, { stiffness: 110, damping: 14 });
+  const rotateY = useTransform(sx, [-0.5, 0.5], [-7, 7]);
+  const rotateX = useTransform(sy, [-0.5, 0.5], [6, -6]);
+  const shiftX = useTransform(sx, [-0.5, 0.5], [-8, 8]);
+  const shiftY = useTransform(sy, [-0.5, 0.5], [-6, 6]);
+
   return (
     <motion.div
       className="relative"
@@ -189,13 +200,46 @@ function HeroSlide({ offer, intro }: { offer: HeroOffer; intro: boolean }) {
         className="group block rounded-3xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
       >
         {/* Product photos sit on white, so the stage stays white in both themes. */}
-        <div className="relative aspect-[4/3] overflow-hidden rounded-3xl bg-white shadow-xl shadow-foreground/10 ring-1 ring-border">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={offer.image}
-            alt={offer.title}
-            className="h-full w-full object-contain p-5 transition-transform duration-500 motion-safe:group-hover:scale-105"
-          />
+        <div
+          className="relative aspect-[4/3] overflow-hidden rounded-3xl bg-white shadow-xl shadow-foreground/10 ring-1 ring-border"
+          onPointerMove={(e) => {
+            if (reduce) return;
+            const r = e.currentTarget.getBoundingClientRect();
+            px.set((e.clientX - r.left) / r.width - 0.5);
+            py.set((e.clientY - r.top) / r.height - 0.5);
+          }}
+          onPointerLeave={() => {
+            px.set(0);
+            py.set(0);
+          }}
+        >
+          {/* Three layers, each animating its own property: tilt toward the pointer (style),
+              entrance after the card (initial/animate), and a slow endless float. All
+              transform/opacity only; none of it runs with "reduce motion". */}
+          <motion.div
+            className="h-full w-full"
+            style={reduce ? undefined : { rotateX, rotateY, x: shiftX, y: shiftY, transformPerspective: 900 }}
+          >
+            <motion.div
+              className="h-full w-full"
+              initial={reduce ? false : { opacity: 0, y: 24, scale: 0.9, rotate: -2 }}
+              animate={{ opacity: 1, y: 0, scale: 1, rotate: 0 }}
+              transition={{ duration: 0.7, delay: intro ? 0.35 : 0.15, ease: [0.2, 0.8, 0.2, 1] }}
+            >
+              <motion.div
+                className="h-full w-full"
+                animate={reduce ? undefined : { y: [0, -9, 0] }}
+                transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={offer.image}
+                  alt={offer.title}
+                  className="h-full w-full object-contain p-5 transition-transform duration-500 motion-safe:group-hover:scale-105"
+                />
+              </motion.div>
+            </motion.div>
+          </motion.div>
           {offer.insight && (
             <motion.div
               initial={{ opacity: 0, y: 8 }}
