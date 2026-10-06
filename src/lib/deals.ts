@@ -105,8 +105,29 @@ export function byRelevance(products: Product[], now = Date.now()) {
     const weight = Math.max(0.25, list.reduce((sum, e) => sum + freshness(e.p, now), 0) / list.length)
     list.forEach((e, i) => merged.push({ ...e, key: (i + 0.5) / Math.sqrt(list.length) / weight }))
   }
-  return merged.sort((a, b) => a.key - b.key || b.score - a.score).map((e) => e.p)
+  const ranked = merged.sort((a, b) => a.key - b.key || b.score - a.score).map((e) => e.p)
+  // Other flavours / sellers of a product already listed go after everything else:
+  // still reachable, but a shelf never shows the same product three times.
+  const seen = new Set<string>()
+  const first: Product[] = []
+  const repeats: Product[] = []
+  for (const p of ranked) {
+    const key = variantKey(p.title)
+    ;(seen.has(key) ? repeats : first).push(p)
+    seen.add(key)
+  }
+  return [...first, ...repeats]
 }
+
+/** Same product ignoring flavour: accents, spaces and everything from "sabor" on are dropped. */
+const variantKey = (title: string) =>
+  title
+    .normalize("NFD")
+    .replace(/\p{M}/gu, "")
+    .toLowerCase()
+    .replace(/sabor.*$/, "")
+    .replace(/[^a-z0-9]+/g, "")
+    .slice(0, 32)
 
 /** Highlight candidates: a real discount, or a price seen within about a day (so Amazon posts qualify too). */
 export const byFeatured = (products: Product[], now = Date.now()) =>
