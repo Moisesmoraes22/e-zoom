@@ -19,7 +19,7 @@ export function CategoryGrid({
   gridClassName?: string
 }) {
   return (
-    <section className="page-container py-12">
+    <section className="page-container section-y">
       {withHeader && (
         <SectionHeader
           title="Categorias populares"

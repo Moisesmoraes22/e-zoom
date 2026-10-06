@@ -163,6 +163,12 @@
   padding-inline: clamp(16px, 3vw, 32px);
 }
 
+/* Vertical rhythm of home sections: 24px above and below each one on phones, 32px on desktop,
+   so two neighbours are 48px apart (64px on desktop). The navy band keeps its own 48px inside. */
+@utility section-y {
+  padding-block: clamp(24px, 3vw, 32px);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

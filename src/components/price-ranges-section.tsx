@@ -14,7 +14,7 @@ export function PriceRangesSection({ products }: { products: Product[] }) {
   if (ranges.length < 2) return null
 
   return (
-    <section className="page-container py-12">
+    <section className="page-container section-y">
       <SectionHeader
         icon={<Tag className="h-5 w-5" />}
         title="Compre por faixa de preço"
