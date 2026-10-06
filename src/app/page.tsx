@@ -8,7 +8,7 @@ import { InterestsSection } from "@/components/interests-section"
 import { PriceRangesSection } from "@/components/price-ranges-section"
 import { StoresSection } from "@/components/stores-section"
 import { CommerceHero } from "@/components/ui/commerce-hero"
-import { byDiscount, byFinds, byRelevance, capPerCategory, byPriceDrop, byRecent, categoryCounts, countByStoreId } from "@/lib/deals"
+import { byFeatured, byFinds, byRelevance, capPerCategory, byPriceDrop, byRecent, categoryCounts, countByStoreId } from "@/lib/deals"
 import { toHeroOffer } from "@/lib/hero"
 import { selectHeroOffers } from "@/lib/hero-select"
 import { STORES } from "@/lib/mock-data"
@@ -42,7 +42,7 @@ export default async function Home() {
     picked.forEach((p) => used.add(p.id))
     return picked
   }
-  const featured = take(capPerCategory(byRelevance(byDiscount(products)), 3))
+  const featured = take(capPerCategory(byFeatured(products), 3))
   const priceDrops = take(byPriceDrop(products))
   const finds = take(byFinds(products))
   const recent = take(byRecent(products))

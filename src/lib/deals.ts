@@ -70,17 +70,27 @@ export const byFinds = (products: Product[]) => {
     })
 }
 
-/** Internal ordering score (never shown): real price signals + store rating + a fresh price. */
+const FRESHNESS_HALF_LIFE_H = 48
+
+/** 1 = price seen just now, 0.5 after 48h, 0.25 after 96h. Unknown age counts as old. */
+export function freshness(p: Product, now: number) {
+  const seen = Date.parse(p.seenAt ?? p.createdAt ?? "")
+  if (Number.isNaN(seen)) return 0.3
+  return 0.5 ** (Math.max(0, now - seen) / (FRESHNESS_HALF_LIFE_H * 3_600_000))
+}
+
+/** Internal ordering score (never shown): real price signals + store rating, weighed by how recent the price is. */
 export function offerScore(p: Product, now: number) {
-  const fresh = p.seenAt && now - Date.parse(p.seenAt) < 86_400_000 ? 8 : 0
   const rated = p.rating ? (p.rating - 4) * 10 : 0
-  return heroRank(p, now) + (discountOf(p) ?? 0) * 0.3 + rated + fresh
+  const signals = Math.max(0, heroRank(p, now) + (discountOf(p) ?? 0) * 0.3 + rated)
+  return signals * (0.3 + 0.7 * freshness(p, now))
 }
 
 /**
- * Best first, without one store taking over. Each store is ranked by score on its own
- * and the lists are merged by relative position (top 10% of each store together), so
- * a big catalog does not bury a small one and stores appear in proportion to size.
+ * Best first, without one store taking over. Each store is ranked on its own and the
+ * lists are merged by position, so a big catalog does not bury a small one. A store's
+ * share grows with the square root of its size (not linearly) and with how recent its
+ * prices are on average: fresh data earns more room, a stale snapshot less.
  */
 export function byRelevance(products: Product[], now = Date.now()) {
   const stores = new Map<string, { p: Product; score: number }[]>()
@@ -89,13 +99,18 @@ export function byRelevance(products: Product[], now = Date.now()) {
     list.push({ p, score: offerScore(p, now) })
     stores.set(p.store, list)
   }
-  const merged: { p: Product; score: number; pos: number }[] = []
+  const merged: { p: Product; score: number; key: number }[] = []
   for (const list of stores.values()) {
     list.sort((a, b) => b.score - a.score)
-    list.forEach((e, i) => merged.push({ ...e, pos: (i + 0.5) / list.length }))
+    const weight = Math.max(0.25, list.reduce((sum, e) => sum + freshness(e.p, now), 0) / list.length)
+    list.forEach((e, i) => merged.push({ ...e, key: (i + 0.5) / Math.sqrt(list.length) / weight }))
   }
-  return merged.sort((a, b) => a.pos - b.pos || b.score - a.score).map((e) => e.p)
+  return merged.sort((a, b) => a.key - b.key || b.score - a.score).map((e) => e.p)
 }
+
+/** Highlight candidates: a real discount, or a price seen within about a day (so Amazon posts qualify too). */
+export const byFeatured = (products: Product[], now = Date.now()) =>
+  byRelevance(products.filter((p) => discountOf(p) || freshness(p, now) >= 0.7), now)
 
 /** Keeps at most `max` offers of each category, preserving order. */
 export function capPerCategory(products: Product[], max: number) {
