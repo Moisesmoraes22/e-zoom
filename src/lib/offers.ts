@@ -6,8 +6,12 @@ import { ALL_PRODUCTS } from "@/lib/mock-data"
 import { OFFER_COLUMNS, rowToProduct, type OfferRow } from "@/lib/offer-row"
 import type { PriceStats, Product } from "@/lib/types"
 
-/** Safety ceiling for the public catalog (the engine keeps ~1,300 offers live). */
-const MAX_OFFERS = 3000
+/**
+ * Safety ceiling for the public catalog. The cut drops the OLDEST prices first (the Shopee
+ * feed snapshot), so it must stay well above the live count (3,3k today): at 3,000 the site
+ * silently hid hundreds of real offers.
+ */
+const MAX_OFFERS = 6000
 /** Same idea for price_history (3.5k rows today, growing with every price change). */
 const MAX_HISTORY_ROWS = 20_000
 
