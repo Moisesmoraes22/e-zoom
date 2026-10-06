@@ -61,9 +61,14 @@ export function parsePrices(text: string) {
 const SLOGAN =
   /\b(corre|corra|aproveit\w*|imperd[ií]vel|achadinho|baratinho|bomba|urgente|rel[aâ]mpago|r[aá]pido|link|clique|compre|garanta|estoque|cupom|resgate|desconto|oferta|promo[cç][aã]o|frete|parcel\w*|vista|dispon[ií]vel|canal|grupo|entre|participe)\b|[!?]|^#/i
 
+// Lines about payment or the buy box ("Até 7x de sem juros", "Selecione a opção de compra"),
+// which are never a product name.
+const NOT_A_TITLE =
+  /sem juros|\b\d{1,2}\s?x\s*(de|sem|no)\b|selecione|programe e poupe|op[cç][aã]o de compra/i
+
 /** Higher = more likely a product name; <= 0 means "looks like a slogan". */
 function titleScore(line: string): number {
-  if (line.length < 8) return -1
+  if (line.length < 8 || NOT_A_TITLE.test(line)) return -1
   const letters = line.replace(/[^\p{L}]/gu, "")
   let score = Math.min(line.length, 60) / 10
   if (/\d/.test(line)) score += 1 // model numbers, sizes, capacities
@@ -107,4 +112,12 @@ const CATEGORY_KEYWORDS: [string, RegExp][] = [
 export function guessCategory(title: string): string | null {
   if (isSupplement(title)) return "suplementos"
   return CATEGORY_KEYWORDS.find(([, re]) => re.test(title))?.[0] ?? null
+}
+
+if (process.argv[1]?.endsWith("message-parser.ts")) {
+  const nl = String.fromCharCode(10)
+  console.assert(extractTitle(["Até 7x de sem juros", "R$ 350", "https://amzn.to/x"].join(nl)) === null)
+  console.assert(extractTitle(["Selecione a opção de compra: Programe e Poupe", "R$ 10"].join(nl)) === null)
+  console.assert(extractTitle(["Kit Ventoinha 3x120mm ARGB Preto", "R$ 74"].join(nl)) === "Kit Ventoinha 3x120mm ARGB Preto")
+  console.log("message-parser ok")
 }

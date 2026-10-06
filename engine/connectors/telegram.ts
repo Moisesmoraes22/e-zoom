@@ -16,6 +16,8 @@ import {
 } from "../lib/message-parser.ts"
 import type { Connector, OfferRow } from "../types.ts"
 
+const MIN_AMAZON_PRICE = 5
+
 /** Reads og:image from the product page, the same tag link previews use. */
 async function fetchPreviewImage(url: string): Promise<string | null> {
   try {
@@ -134,6 +136,8 @@ export function createTelegramConnector(env: NodeJS.ProcessEnv): Connector {
               const prices = parsePrices(text)
               const title = extractTitle(text)
               if (!prices || !title) continue
+              // Sub-R$5 "prices" on Amazon were misread numbers (R$ 2 for 60 capsules), not offers.
+              if (canonical.store_id === "amazon" && prices.price < MIN_AMAZON_PRICE) continue
 
               let image =
                 canonical.store_id === "amazon"
@@ -163,6 +167,8 @@ export function createTelegramConnector(env: NodeJS.ProcessEnv): Connector {
                 affiliate_url: buildAffiliateUrl(canonical, env),
                 is_free_shipping: /frete\s+gr[aá]tis/i.test(text),
                 source: "telegram",
+                // The price is as of the post, not as of this run: a 3-day-old post says "3 days ago".
+                seen_at: new Date(message.date * 1000).toISOString(),
               })
             }
           }

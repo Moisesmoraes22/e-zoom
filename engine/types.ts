@@ -15,6 +15,11 @@ export interface OfferRow {
   source: "api" | "telegram" | "manual"
   /** Store rating, 0-5. Only set by sources that really have it (Shopee). */
   rating?: number | null
+  /**
+   * When this price was really seen, if not now (Telegram: the post's date, since the
+   * collector re-reads old posts). Becomes `last_seen_at`; defaults to the run time.
+   */
+  seen_at?: string
 }
 
 export interface Connector {

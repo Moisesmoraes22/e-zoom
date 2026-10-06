@@ -48,7 +48,7 @@ async function main() {
     for (let i = 0; i < offers.length; i += 100) {
       const chunk = offers
         .slice(i, i + 100)
-        .map((offer) => ({ ...offer, is_active: true, last_seen_at: now }))
+        .map(({ seen_at, ...offer }) => ({ ...offer, is_active: true, last_seen_at: seen_at ?? now }))
       const { error } = await supabase
         .from("offers")
         .upsert(chunk, { onConflict: "store_id,external_id" })
