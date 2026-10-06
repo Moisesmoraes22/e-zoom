@@ -42,8 +42,8 @@ export const byPriceDrop = (products: Product[]) =>
     .filter((p) => p.isPriceDrop && p.priceHistory)
     .sort(
       (a, b) =>
-        (calculateDiscountPercent(b.price, Math.max(...b.priceHistory!)) ?? 0) -
-        (calculateDiscountPercent(a.price, Math.max(...a.priceHistory!)) ?? 0),
+        (calculateDiscountPercent(b.price, b.priceHistory!.at(-2)!) ?? 0) -
+        (calculateDiscountPercent(a.price, a.priceHistory!.at(-2)!) ?? 0),
     )
 
 const FIND_MIN_RATING = 4.8
@@ -183,6 +183,10 @@ export function capPerCategory(products: Product[], max: number) {
 /** Most opened through "Ver oferta" lately. Nothing qualifies until real clicks pile up. */
 export const byClicks = (products: Product[]) =>
   products.filter((p) => (p.clicks ?? 0) >= MIN_CLICKS).sort((a, b) => b.clicks! - a.clicks!)
+
+/** Offers whose price fell in the last `hours` hours (recorded drops only). */
+export const dropsInLast = (products: Product[], hours: number, now = Date.now()) =>
+  products.filter((p) => p.dropAt && now - Date.parse(p.dropAt) < hours * 3_600_000).length
 
 export const byRecent =(products: Product[]) =>
   [...products].sort((a, b) => (b.createdAt ?? "").localeCompare(a.createdAt ?? ""))

@@ -50,14 +50,14 @@ export function DealsCarousel({
         </div>
 
         <Carousel
-          opts={{ align: "start", loop: false }}
+          opts={{ align: "start", loop: products.length > 6 }}
           className="w-full"
         >
           <CarouselContent>
             {products.map((product, index) => (
               <CarouselItem
                 key={product.id}
-                className="basis-[65%] xs:basis-[55%] sm:basis-1/3 lg:basis-1/4"
+                className="basis-[46%] sm:basis-1/3 md:basis-1/4 lg:basis-1/5 xl:basis-1/6"
               >
                 <motion.div
                   initial={{ opacity: 0, y: 16 }}
@@ -70,13 +70,13 @@ export function DealsCarousel({
                   }}
                   className="h-full"
                 >
-                  <ProductCard product={product} className="bg-background" />
+                  <ProductCard product={product} className="bg-background" compact />
                 </motion.div>
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious className="hidden sm:flex active:scale-90" />
-          <CarouselNext className="hidden sm:flex active:scale-90" />
+          <CarouselPrevious className="-left-2 active:scale-90 sm:-left-4" />
+          <CarouselNext className="-right-2 active:scale-90 sm:-right-4" />
         </Carousel>
       </div>
     </section>

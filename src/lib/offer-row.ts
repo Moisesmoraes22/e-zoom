@@ -33,6 +33,9 @@ export const OFFER_COLUMNS =
  */
 export const MAX_CREDIBLE_DISCOUNT = 50
 
+export const isCredibleDrop = (previous: number, current: number) =>
+  current < previous * 0.97 && current >= previous * 0.5
+
 /** `recentPrices`: last recorded prices, oldest first (the catalog passes them; favorites do not). */
 export function rowToProduct(row: OfferRow, recentPrices: number[] = []): Product {
   const prices = recentPrices.slice(-8)
@@ -53,7 +56,8 @@ export function rowToProduct(row: OfferRow, recentPrices: number[] = []): Produc
     rating: row.rating ? Number(row.rating) : undefined,
     popularity: row.popularity ? Number(row.popularity) : undefined,
     priceHistory: hasHistory ? prices : undefined,
-    // A real drop: at least 3% below the previous recorded price (ignores cent-level noise).
-    isPriceDrop: hasHistory && prices.at(-1)! < prices.at(-2)! * 0.97,
+    // A real drop: 3% to 50% below the previous recorded price. Under 3% is cent-level noise;
+    // over 50% is a glitch (a R$ 9.999 placeholder price, or the cheapest seller changing).
+    isPriceDrop: hasHistory && isCredibleDrop(prices.at(-2)!, prices.at(-1)!),
   }
 }

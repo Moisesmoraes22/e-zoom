@@ -3,7 +3,7 @@
 import { Compass, X } from "lucide-react"
 import { useMemo } from "react"
 
-import { ProductCard } from "@/components/product-card"
+import { ProductCarousel } from "@/components/product-carousel"
 import { buildProfile, clearInterests, recommend } from "@/lib/interest-profile"
 import { useInterestsRaw } from "@/lib/use-interests"
 import type { Product } from "@/lib/types"
@@ -43,11 +43,7 @@ export function RecommendedSection({ pool }: { pool: Product[] }) {
           Limpar meus interesses
         </button>
       </div>
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5">
-        {picks.map(({ product, reason }) => (
-          <ProductCard key={product.id} product={product} label={reason} />
-        ))}
-      </div>
+      <ProductCarousel items={picks.map(({ product, reason }) => ({ product, label: reason }))} />
     </section>
   )
 }

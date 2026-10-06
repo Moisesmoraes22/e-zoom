@@ -21,6 +21,8 @@ export interface Product {
   popularity?: number
   /** Clicks on "Ver oferta" in the last 14 days (only offers with 2+); used to rank, never shown. */
   clicks?: number
+  /** When the price last fell (ISO), for "caiu hoje". Only set when the latest recorded change was a drop. */
+  dropAt?: string
   /** Other offers of the same product (other flavours or sellers), for the "+N sabores" link on the card. */
   variants?: { count: number; noun: "sabores" | "opções"; query: string }
   reviewsCount?: number

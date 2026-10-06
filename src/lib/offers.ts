@@ -3,7 +3,7 @@ import { cache } from "react"
 
 import { withVariants } from "@/lib/deals"
 import { ALL_PRODUCTS } from "@/lib/mock-data"
-import { OFFER_COLUMNS, rowToProduct, type OfferRow } from "@/lib/offer-row"
+import { isCredibleDrop, OFFER_COLUMNS, rowToProduct, type OfferRow } from "@/lib/offer-row"
 import type { PriceStats, Product } from "@/lib/types"
 
 /**
@@ -50,11 +50,11 @@ export const getCatalog = cache(async (): Promise<{ products: Product[]; live: b
   // The DB trigger only records a row when the price changes (plus one first row per
   // offer). Read it all, page by page (PostgREST caps a request at 1000 rows), so the
   // drops are not hidden behind thousands of first-price rows. Oldest-first per offer below.
-  const history: { offer_id: string; price: number }[] = []
+  const history: { offer_id: string; price: number; recorded_at: string }[] = []
   for (let from = 0; from < MAX_HISTORY_ROWS; from += 1000) {
     const { data: page } = await supabase
       .from("price_history")
-      .select("offer_id, price")
+      .select("offer_id, price, recorded_at")
       .order("recorded_at", { ascending: false })
       .order("id", { ascending: false })
       .range(from, from + 999)
@@ -62,9 +62,13 @@ export const getCatalog = cache(async (): Promise<{ products: Product[]; live: b
     if ((page?.length ?? 0) < 1000) break
   }
   const pricesByOffer = new Map<string, number[]>()
+  const dropAtByOffer = new Map<string, string>() // when the latest change was a drop (>= 3%)
   for (const row of history.reverse()) {
     const list = pricesByOffer.get(row.offer_id) ?? []
-    list.push(Number(row.price))
+    const price = Number(row.price)
+    if (list.length > 0 && isCredibleDrop(list.at(-1)!, price)) dropAtByOffer.set(row.offer_id, row.recorded_at)
+    else if (list.length > 0) dropAtByOffer.delete(row.offer_id) // a later rise or flat change ends the drop
+    list.push(price)
     pricesByOffer.set(row.offer_id, list)
   }
 
@@ -77,6 +81,7 @@ export const getCatalog = cache(async (): Promise<{ products: Product[]; live: b
   const products = (data as OfferRow[]).map((row) => ({
     ...rowToProduct(row, pricesByOffer.get(row.id)),
     clicks: clicksByOffer.get(row.id),
+    dropAt: dropAtByOffer.get(row.id),
   }))
   return { products: withVariants(products), live: true }
 })

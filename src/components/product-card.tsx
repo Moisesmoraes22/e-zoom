@@ -25,9 +25,12 @@ export function ProductCard({
   product,
   className,
   label,
+  compact = false,
 }: {
   product: Product
   className?: string
+  /** Tighter padding and type, for rows with 5-6 cards side by side. */
+  compact?: boolean
   /** Small tag above the title, e.g. "Achado E-Zoom". */
   label?: string
 }) {
@@ -77,13 +80,13 @@ export function ProductCard({
             />
           </div>
 
-          <div className="flex flex-1 flex-col gap-3 p-5 pb-3">
+          <div className={cn("flex flex-1 flex-col", compact ? "gap-1.5 p-3 pb-2" : "gap-3 p-5 pb-3")}>
             {label && (
               <span className="-mb-1 text-[11px] font-semibold uppercase tracking-wide text-brand">
                 {label}
               </span>
             )}
-            <h3 className="line-clamp-2 min-h-[2.5rem] text-sm font-medium text-foreground">
+            <h3 className={cn("line-clamp-2 min-h-[2.5rem] font-medium text-foreground", compact ? "text-[13px] leading-snug" : "text-sm")}>
               {product.title}
             </h3>
 
@@ -103,7 +106,7 @@ export function ProductCard({
 
             <div className="flex flex-col gap-1">
               <div className="flex flex-wrap items-baseline gap-x-2">
-                <span className="text-xl font-bold tabular-nums text-brand">
+                <span className={cn("font-bold tabular-nums text-brand", compact ? "text-lg" : "text-xl")}>
                   {formatCurrency(product.price)}
                 </span>
                 {product.originalPrice && discount && (
@@ -121,7 +124,7 @@ export function ProductCard({
               {product.isPriceDrop && product.priceHistory && (
                 <span className="flex items-center gap-2 text-xs font-medium text-brand">
                   <PriceSparkline values={product.priceHistory} className="h-5 w-14" />
-                  Preço caiu {calculateDiscountPercent(product.price, Math.max(...product.priceHistory))}%
+                  Caiu {formatCurrency(product.priceHistory.at(-2)! - product.price)} ({calculateDiscountPercent(product.price, product.priceHistory.at(-2)!)}%)
                 </span>
               )}
               {unit && (
@@ -162,13 +165,16 @@ export function ProductCard({
         {product.variants && (
           <Link
             href={`/busca?q=${encodeURIComponent(product.variants.query)}`}
-            className="mx-5 mb-3 text-xs font-medium text-brand hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className={cn(
+              "mb-3 text-xs font-medium text-brand hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              compact ? "mx-3" : "mx-5",
+            )}
           >
             +{product.variants.count} {product.variants.count === 1 ? product.variants.noun.replace(/res$/, "r").replace("opções", "opção") : product.variants.noun} · ver todos
           </Link>
         )}
 
-        <div className="px-5 pb-5">
+        <div className={compact ? "px-3 pb-3" : "px-5 pb-5"}>
           <OfferLink
             product={product}
             store={product.store}
