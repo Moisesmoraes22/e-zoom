@@ -71,7 +71,7 @@ export const byFinds = (products: Product[]) => {
 }
 
 const FRESHNESS_HALF_LIFE_H = 48
-const MIN_CLICKS = 3
+export const MIN_CLICKS = 3
 
 /** 1 = price seen just now, 0.5 after 48h, 0.25 after 96h. Unknown age counts as old. */
 export function freshness(p: Product, now: number) {
@@ -147,6 +147,10 @@ export function capPerCategory(products: Product[], max: number) {
     return n < max
   })
 }
+
+/** Most opened through "Ver oferta" lately. Nothing qualifies until real clicks pile up. */
+export const byClicks = (products: Product[]) =>
+  products.filter((p) => (p.clicks ?? 0) >= MIN_CLICKS).sort((a, b) => b.clicks! - a.clicks!)
 
 export const byRecent =(products: Product[]) =>
   [...products].sort((a, b) => (b.createdAt ?? "").localeCompare(a.createdAt ?? ""))

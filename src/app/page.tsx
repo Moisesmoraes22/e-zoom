@@ -1,4 +1,4 @@
-import { Flame, Sparkles, Tag, TrendingDown } from "lucide-react"
+import { Flame, Sparkles, Tag, TrendingDown, Zap } from "lucide-react"
 
 import { CategoryGrid } from "@/components/category-grid"
 import { DealsCarousel } from "@/components/deals-carousel"
@@ -8,7 +8,7 @@ import { InterestsSection } from "@/components/interests-section"
 import { PriceRangesSection } from "@/components/price-ranges-section"
 import { StoresSection } from "@/components/stores-section"
 import { CommerceHero } from "@/components/ui/commerce-hero"
-import { byFeatured, byFinds, byRelevance, capPerCategory, byPriceDrop, byRecent, categoryCounts, countByStoreId } from "@/lib/deals"
+import { byClicks, byFeatured, byFinds, byRelevance, capPerCategory, byPriceDrop, byRecent, categoryCounts, countByStoreId } from "@/lib/deals"
 import { toHeroOffer } from "@/lib/hero"
 import { selectHeroOffers } from "@/lib/hero-select"
 import { STORES } from "@/lib/mock-data"
@@ -42,6 +42,7 @@ export default async function Home() {
     picked.forEach((p) => used.add(p.id))
     return picked
   }
+  const hot = take(byClicks(products))
   const featured = take(capPerCategory(byFeatured(products), 3))
   const priceDrops = take(byPriceDrop(products))
   const finds = take(byFinds(products))
@@ -62,6 +63,15 @@ export default async function Home() {
     <main id="conteudo" className="bg-background">
       <CommerceHero storeNames={storeNames} offers={hero} />
       <CategoryGrid categories={categoryCounts(products).slice(0, 8)} showCounts={live} />
+      {hot.length > 0 && (
+        <ProductGrid
+          icon={<Zap className="h-5 w-5" />}
+          title="Bombando agora"
+          subtitle="As ofertas mais abertas pelos visitantes do E-Zoom nos últimos dias."
+          products={hot}
+          href="/busca"
+        />
+      )}
       {featured.length > 0 && (
         <ProductGrid
           icon={<Flame className="h-5 w-5" />}
