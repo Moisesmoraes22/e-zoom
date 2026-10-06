@@ -8,7 +8,7 @@ export default function PrivacyPage() {
   return (
     <>
       <h1>Política de Privacidade</h1>
-      <p>Última atualização: 5 de outubro de 2026.</p>
+      <p>Última atualização: 6 de outubro de 2026.</p>
       <p>
         Esta política explica quais dados o E-Zoom coleta, para quê, e como você pode exercer seus direitos
         previstos na Lei Geral de Proteção de Dados (LGPD, Lei 13.709/2018).
@@ -34,8 +34,18 @@ export default function PrivacyPage() {
       </p>
       <ul>
         <li>seus favoritos (título, imagem, preço, loja e link das ofertas);</li>
-        <li>a escolha de tema claro/escuro e suas últimas buscas.</li>
+        <li>a escolha de tema claro/escuro e suas últimas buscas;</li>
+        <li>
+          seus interesses: o que você buscou, abriu, clicou em &quot;Ver oferta&quot; ou favoritou (categoria e palavras do
+          produto), usados para mostrar a seção &quot;Recomendado para você&quot;.
+        </li>
       </ul>
+      <p>
+        <strong>Seus interesses ficam só no seu navegador.</strong> Eles não são enviados para nós, para a Vercel, para o
+        Supabase nem para as lojas, e perdem peso sozinhos com o passar dos dias (guardamos até 150 ações). Para apagar
+        tudo, use o botão &quot;Limpar meus interesses&quot; na seção &quot;Recomendado para você&quot; da página inicial, ou limpe
+        os dados do site no navegador.
+      </p>
       <p>
         Você pode apagar esses dados a qualquer momento limpando os dados do site no navegador. Não usamos
         publicidade.
