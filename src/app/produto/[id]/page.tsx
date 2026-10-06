@@ -13,9 +13,18 @@ import { getCatalog, getPriceStats } from "@/lib/offers"
 
 export const revalidate = 300
 
+/**
+ * Only the best deals are built ahead of time. Every product page loads the whole
+ * catalog while building, so pre-building all of them (3,000+) ran the Vercel build
+ * out of memory. The rest are generated on the first visit and cached (revalidate).
+ */
+const PREBUILT_PAGES = 200
+
 export async function generateStaticParams() {
   const { products } = await getCatalog()
-  return products.map((product) => ({ id: product.id }))
+  return byDiscount(products)
+    .slice(0, PREBUILT_PAGES)
+    .map((product) => ({ id: product.id }))
 }
 
 export async function generateMetadata({
