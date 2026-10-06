@@ -17,8 +17,20 @@ export interface OfferRow {
   rating: number | null
 }
 
+const credibleOriginalPrice = (price: number, original: number | null) =>
+  original && Number(original) > price && price >= Number(original) * (1 - MAX_CREDIBLE_DISCOUNT / 100)
+    ? Number(original)
+    : undefined
+
 export const OFFER_COLUMNS =
   "id, store_id, title, image, category_slug, price, original_price, affiliate_url, is_free_shipping, last_seen_at, created_at, product_id, rating"
+
+/**
+ * A "previous price" implying more than this much off is not believable (stores, and
+ * especially marketplace sellers, inflate list prices: R$ 1.599 for a R$ 266 power
+ * supply). Above it we show only the current price, no strikethrough and no badge.
+ */
+export const MAX_CREDIBLE_DISCOUNT = 60
 
 /** `recentPrices`: last recorded prices, oldest first (the catalog passes them; favorites do not). */
 export function rowToProduct(row: OfferRow, recentPrices: number[] = []): Product {
@@ -29,7 +41,7 @@ export function rowToProduct(row: OfferRow, recentPrices: number[] = []): Produc
     title: row.title,
     image: row.image,
     price: Number(row.price),
-    originalPrice: row.original_price ? Number(row.original_price) : undefined,
+    originalPrice: credibleOriginalPrice(Number(row.price), row.original_price),
     store: row.store_id,
     category: row.category_slug ?? "outros",
     affiliateUrl: row.affiliate_url,

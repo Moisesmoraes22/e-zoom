@@ -92,7 +92,7 @@ function toOffer(r: Row, affiliateId: string): (OfferRow & { score: number; like
     category_slug: slug,
     price,
     // Only the store's own discount; never invented.
-    original_price: discount >= 5 && discount <= 85 && original > price ? original : null,
+    original_price: discount >= 5 && discount <= 60 && original > price ? original : null,
     url,
     affiliate_url: `https://shope.ee/an_redir?origin_link=${encodeURIComponent(url)}&affiliate_id=${affiliateId}&sub_id=${SUB_ID}`,
     is_free_shipping: false,
