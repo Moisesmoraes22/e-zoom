@@ -68,7 +68,7 @@ export function DealsCarousel({
                 className="basis-[40%] sm:basis-[40%] md:basis-[28.57%] lg:basis-[22.22%] xl:basis-[18.18%] 2xl:basis-[15.38%]"
               >
                 <motion.div
-                  initial={{ opacity: 0, y: 16 }}
+                  initial={index < 2 ? false : { opacity: 0, y: 16 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-40px" }}
                   transition={{

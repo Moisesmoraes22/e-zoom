@@ -33,7 +33,8 @@ export function CategoryGrid({
           <motion.div
             key={category.slug}
             className="h-full"
-            initial={{ opacity: 0, y: 16 }}
+            // First row ships visible; animating from opacity 0 would hide it until hydration.
+            initial={index < 4 ? false : { opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-40px" }}
             transition={{
@@ -51,6 +52,10 @@ export function CategoryGrid({
                 <img
                   src={category.image}
                   alt={category.name}
+                  width={64}
+                  height={64}
+                  loading={index < 4 ? undefined : "lazy"}
+                  decoding="async"
                   className="h-full w-full object-cover transition-transform duration-500 motion-safe:group-hover:scale-110"
                 />
               </div>

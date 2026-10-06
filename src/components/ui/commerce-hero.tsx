@@ -93,12 +93,8 @@ export function CommerceHero({
             active && "lg:grid-cols-[1.1fr_0.9fr] lg:gap-12",
           )}
         >
-          <motion.div
-            className={cn(!active && "mx-auto max-w-2xl text-center")}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, ease: "easeOut" }}
-          >
+          {/* No entrance animation: it ships as opacity 0, hiding the h1 until hydration (slow LCP on phones). */}
+          <div className={cn(!active && "mx-auto max-w-2xl text-center")}>
             <h1 className="mb-2 text-2xl font-bold leading-tight tracking-tight sm:mb-3 sm:text-4xl lg:text-5xl">
               <span className="text-foreground">Encontre </span>
               <span className="bg-gradient-to-r from-primary via-primary/90 to-primary/70 bg-clip-text text-transparent">
@@ -131,7 +127,7 @@ export function CommerceHero({
                 ))}
               </p>
             )}
-          </motion.div>
+          </div>
 
           {active && (
             <div className="group/slides relative mx-auto hidden w-full max-w-[26rem] lg:block">
@@ -235,6 +231,8 @@ function HeroSlide({ offer, intro }: { offer: HeroOffer; intro: boolean }) {
                 <img
                   src={offer.image}
                   alt={offer.title}
+                  // Lazy: the card is display:none on phones, so they skip this large photo.
+                  loading="lazy"
                   className="h-full w-full object-contain p-5 transition-transform duration-500 motion-safe:group-hover:scale-105"
                 />
               </motion.div>
