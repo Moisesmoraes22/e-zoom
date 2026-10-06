@@ -30,7 +30,7 @@ export const OFFER_COLUMNS =
  * especially marketplace sellers, inflate list prices: R$ 1.599 for a R$ 266 power
  * supply). Above it we show only the current price, no strikethrough and no badge.
  */
-export const MAX_CREDIBLE_DISCOUNT = 60
+export const MAX_CREDIBLE_DISCOUNT = 50
 
 /** `recentPrices`: last recorded prices, oldest first (the catalog passes them; favorites do not). */
 export function rowToProduct(row: OfferRow, recentPrices: number[] = []): Product {

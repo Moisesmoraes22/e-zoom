@@ -91,7 +91,7 @@ export function createShopeeConnector(env: NodeJS.ProcessEnv): Connector {
               category_slug: category,
               price,
               // Only a real discount from the store; never invented.
-              original_price: rate >= 5 && rate <= 60 ? Math.round((price / (1 - rate / 100)) * 100) / 100 : null,
+              original_price: rate >= 5 && rate <= 50 ? Math.round((price / (1 - rate / 100)) * 100) / 100 : null,
               url: `https://shopee.com.br/product/${node.shopId}/${node.itemId}`,
               affiliate_url: node.offerLink,
               is_free_shipping: false,

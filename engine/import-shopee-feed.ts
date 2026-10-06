@@ -92,7 +92,7 @@ function toOffer(r: Row, affiliateId: string): (OfferRow & { score: number; like
     category_slug: slug,
     price,
     // Only the store's own discount; never invented.
-    original_price: discount >= 5 && discount <= 60 && original > price ? original : null,
+    original_price: discount >= 5 && discount <= 50 && original > price ? original : null,
     url,
     affiliate_url: `https://shope.ee/an_redir?origin_link=${encodeURIComponent(url)}&affiliate_id=${affiliateId}&sub_id=${SUB_ID}`,
     is_free_shipping: false,
@@ -101,7 +101,7 @@ function toOffer(r: Row, affiliateId: string): (OfferRow & { score: number; like
     rating: Number(r.like || 0) >= MIN_LIKES_FOR_RATING ? rating : null,
     // Popularity (likes) + real discount + rating, to pick the best per category.
     likes: Number(r.like || 0),
-    score: Math.log10(1 + Number(r.like || 0)) * 20 + Math.min(discount || 0, 60) * 0.5 + (rating - 4.5) * 20,
+    score: Math.log10(1 + Number(r.like || 0)) * 20 + Math.min(discount || 0, 50) * 0.5 + (rating - 4.5) * 20,
   }
 }
 
