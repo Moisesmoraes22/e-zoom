@@ -164,3 +164,34 @@ export function recommend(pool: Product[], profile: Profile, size = 9, now = Dat
   }
   return picked
 }
+
+export const PERSONALIZE_KEY = "ezoom:personalize"
+/** Most positions an offer can climb in a list because of the profile (it never hides anything). */
+export const MAX_CLIMB = 12
+
+/** 0..1: how well an offer matches the profile (shared words weigh most, then a liked category). */
+function affinityOf(p: Product, profile: Profile): number {
+  const maxCat = Math.max(0, ...profile.categories.values())
+  const maxTerm = Math.max(0, ...[...profile.terms.values()].map((t) => t.weight))
+  const title = normalizeText(p.title)
+  const catShare = maxCat ? (profile.categories.get(p.category) ?? 0) / maxCat : 0
+  let terms = 0
+  for (const [term, t] of profile.terms) if (title.includes(term)) terms += t.weight / maxTerm
+  return Math.min(1, Math.min(terms, 3) / 2 + catShare * 0.3)
+}
+
+/**
+ * Gentle push for lists already in relevance order: each offer climbs up to MAX_CLIMB
+ * places in proportion to its affinity. Same offers, same count; `boosted` are the ones
+ * that moved up noticeably, so the page can say why.
+ */
+export function personalizeOrder(list: Product[], profile: Profile): { ordered: Product[]; boosted: Set<string> } {
+  if (profile.total < MIN_PROFILE_WEIGHT) return { ordered: list, boosted: new Set() }
+  const keyed = list.map((p, i) => ({ p, i, key: i - MAX_CLIMB * affinityOf(p, profile) }))
+  const ordered = [...keyed].sort((a, b) => a.key - b.key || a.i - b.i)
+  const boosted = new Set<string>()
+  ordered.forEach((e, newIndex) => {
+    if (e.i - newIndex >= 3) boosted.add(e.p.id)
+  })
+  return { ordered: ordered.map((e) => e.p), boosted }
+}

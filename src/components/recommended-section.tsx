@@ -1,33 +1,12 @@
 "use client"
 
 import { Compass, X } from "lucide-react"
-import { useMemo, useSyncExternalStore } from "react"
+import { useMemo } from "react"
 
 import { ProductCard } from "@/components/product-card"
-import {
-  buildProfile,
-  clearInterests,
-  INTERESTS_CHANGED,
-  INTERESTS_KEY,
-  recommend,
-} from "@/lib/interest-profile"
+import { buildProfile, clearInterests, recommend } from "@/lib/interest-profile"
+import { useInterestsRaw } from "@/lib/use-interests"
 import type { Product } from "@/lib/types"
-
-const subscribe = (notify: () => void) => {
-  window.addEventListener(INTERESTS_CHANGED, notify)
-  window.addEventListener("storage", notify)
-  return () => {
-    window.removeEventListener(INTERESTS_CHANGED, notify)
-    window.removeEventListener("storage", notify)
-  }
-}
-const snapshot = () => {
-  try {
-    return localStorage.getItem(INTERESTS_KEY) ?? ""
-  } catch {
-    return ""
-  }
-}
 
 /**
  * "Recomendado para você": built in the browser from what this person searched, opened,
@@ -35,7 +14,7 @@ const snapshot = () => {
  * about it is sent to the server.
  */
 export function RecommendedSection({ pool }: { pool: Product[] }) {
-  const raw = useSyncExternalStore(subscribe, snapshot, () => "")
+  const raw = useInterestsRaw()
   const picks = useMemo(() => recommend(pool, buildProfile(raw)), [pool, raw])
 
   if (picks.length < 3) return null

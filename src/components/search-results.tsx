@@ -29,7 +29,8 @@ import {
   type ProductFilters,
 } from "@/lib/search"
 import type { CategoryCount } from "@/lib/deals"
-import { recordSearch } from "@/lib/interest-profile"
+import { buildProfile, INTERESTS_KEY, MIN_PROFILE_WEIGHT, personalizeOrder, recordSearch } from "@/lib/interest-profile"
+import { usePersonalize } from "@/lib/use-interests"
 import { STORES } from "@/lib/mock-data"
 import { SUPPLEMENT_TYPES, supplementTypeOf, type SupplementType } from "@/lib/supplement-types"
 import type { Product, SortOption, StoreSource } from "@/lib/types"
@@ -144,6 +145,26 @@ function SearchResultsInner({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [baseProducts, query, filters, sort],
   )
+  // The profile is read once when the page opens, so the list never reshuffles under the
+  // visitor's cursor (clicking "Ver oferta" updates the profile for the NEXT page).
+  const [profile] = useState(() => {
+    try {
+      return buildProfile(localStorage.getItem(INTERESTS_KEY) ?? "")
+    } catch {
+      return buildProfile("")
+    }
+  })
+  const [personalizeOn, setPersonalize] = usePersonalize()
+  const hasProfile = profile.total >= MIN_PROFILE_WEIGHT
+  // Only in the default relevance order: any other sort is exactly what the visitor asked for.
+  const { ordered, boosted } = useMemo(
+    () =>
+      sort === "relevance" && personalizeOn
+        ? personalizeOrder(results, profile)
+        : { ordered: results, boosted: new Set<string>() },
+    [results, sort, personalizeOn, profile],
+  )
+
   // A search that found something is a (local-only) sign of interest.
   const hasResults = results.length > 0
   useEffect(() => {
@@ -154,7 +175,7 @@ function SearchResultsInner({
   const [pageState, setPageState] = useState({ page: 1, key: pageKey })
   const totalPages = Math.max(1, Math.ceil(results.length / PAGE_SIZE))
   const page = Math.min(pageState.key === pageKey ? pageState.page : 1, totalPages)
-  const visible = results.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+  const visible = ordered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
   const gridRef = useRef<HTMLDivElement>(null)
   const goToPage = (next: number) => {
     setPageState({ page: next, key: pageKey })
@@ -244,6 +265,21 @@ function SearchResultsInner({
             </div>
           )}
 
+          {sort === "relevance" && hasProfile && results.length > 0 && (
+            <p className="mb-4 flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
+              {personalizeOn
+                ? "Ordenado também pelo que você viu neste aparelho."
+                : "Ordenação pelos seus interesses desligada."}
+              <button
+                type="button"
+                onClick={() => setPersonalize(!personalizeOn)}
+                className="font-semibold text-brand underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                {personalizeOn ? "Desativar" : "Ativar"}
+              </button>
+            </p>
+          )}
+
           {results.length === 0 ? (
             <div
               role="status"
@@ -275,7 +311,11 @@ function SearchResultsInner({
                 className="grid scroll-mt-24 grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4"
               >
                 {visible.map((product) => (
-                  <ProductCard key={product.id} product={product} />
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    label={boosted.has(product.id) ? "Combina com seus interesses" : undefined}
+                  />
                 ))}
               </div>
               <Pagination page={page} totalPages={totalPages} onChange={goToPage} />
