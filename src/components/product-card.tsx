@@ -108,7 +108,7 @@ export function ProductCard({
 
             <div className="flex flex-col gap-1">
               <div className="flex flex-wrap items-baseline gap-x-2">
-                <span className={cn("font-bold tabular-nums text-brand", "text-xl")}>
+                <span className={cn("font-bold tabular-nums text-price", "text-xl")}>
                   {formatCurrency(product.price)}
                 </span>
                 {product.originalPrice && discount && (

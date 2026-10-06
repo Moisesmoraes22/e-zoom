@@ -61,6 +61,8 @@
   --discount: #15803d;
   --discount-foreground: #ffffff;
   --success: #15803d;
+  /* Prices: black on light, white on dark. */
+  --price: #111111;
 }
 
 .dark {
@@ -115,6 +117,7 @@
   --discount: #15803d;
   --discount-foreground: #ffffff;
   --success: #4ade80;
+  --price: #ffffff;
 }
 
 @theme inline {
@@ -145,6 +148,7 @@
   --color-discount: var(--discount);
   --color-discount-foreground: var(--discount-foreground);
   --color-success: var(--success);
+  --color-price: var(--price);
 
   --color-border: var(--border);
   --color-input: var(--input);

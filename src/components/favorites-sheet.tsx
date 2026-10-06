@@ -191,7 +191,7 @@ export function FavoritesSheet() {
                           </p>
                         ) : (
                           <>
-                            <p className="text-base font-bold tabular-nums text-brand">
+                            <p className="text-base font-bold tabular-nums text-price">
                               {formatCurrency(now ?? item.price)}
                             </p>
                             {delta < -0.005 && (

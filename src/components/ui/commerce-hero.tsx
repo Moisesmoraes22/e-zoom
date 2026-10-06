@@ -271,7 +271,7 @@ function HeroSlide({ offer, intro }: { offer: HeroOffer; intro: boolean }) {
               {offer.title}
             </p>
             <p className="mt-1 flex flex-wrap items-baseline gap-x-2">
-              <span className="text-2xl font-bold tabular-nums text-brand">
+              <span className="text-2xl font-bold tabular-nums text-price">
                 {formatCurrency(offer.price)}
               </span>
               {offer.originalPrice && (

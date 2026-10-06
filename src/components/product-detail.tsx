@@ -135,7 +135,7 @@ export function ProductDetail({
             <p className="text-sm text-muted-foreground">
               Preço atual em {STORES[bestOffer.store].name}
             </p>
-            <p className="mt-1 text-4xl font-bold tabular-nums text-brand">
+            <p className="mt-1 text-4xl font-bold tabular-nums text-price">
               {formatCurrency(bestOffer.price)}
             </p>
 
