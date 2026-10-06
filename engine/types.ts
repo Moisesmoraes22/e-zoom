@@ -13,6 +13,8 @@ export interface OfferRow {
   affiliate_url: string | null
   is_free_shipping: boolean
   source: "api" | "telegram" | "manual"
+  /** Store rating, 0-5. Only set by sources that really have it (Shopee). */
+  rating?: number | null
 }
 
 export interface Connector {

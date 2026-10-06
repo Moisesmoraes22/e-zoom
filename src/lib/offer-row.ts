@@ -14,10 +14,11 @@ export interface OfferRow {
   last_seen_at: string
   created_at: string
   product_id: string | null
+  rating: number | null
 }
 
 export const OFFER_COLUMNS =
-  "id, store_id, title, image, category_slug, price, original_price, affiliate_url, is_free_shipping, last_seen_at, created_at, product_id"
+  "id, store_id, title, image, category_slug, price, original_price, affiliate_url, is_free_shipping, last_seen_at, created_at, product_id, rating"
 
 /** `recentPrices`: last recorded prices, oldest first (the catalog passes them; favorites do not). */
 export function rowToProduct(row: OfferRow, recentPrices: number[] = []): Product {
@@ -36,6 +37,7 @@ export function rowToProduct(row: OfferRow, recentPrices: number[] = []): Produc
     seenAt: row.last_seen_at,
     createdAt: row.created_at,
     productId: row.product_id ?? undefined,
+    rating: row.rating ? Number(row.rating) : undefined,
     priceHistory: hasHistory ? prices : undefined,
     // A real drop: at least 3% below the previous recorded price (ignores cent-level noise).
     isPriceDrop: hasHistory && prices.at(-1)! < prices.at(-2)! * 0.97,

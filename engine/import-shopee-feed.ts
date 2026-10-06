@@ -17,6 +17,7 @@ import type { OfferRow } from "./types.ts"
 const PER_CATEGORY = 130
 const PER_CATEGORY_MAX: Record<string, number> = { suplementos: 400 } // the niche we're growing
 const SUB_ID = "ezoom"
+const MIN_LIKES_FOR_RATING = 50
 
 /** Feed top-level category -> our slug. Anything not listed (car parts, books, food...) is skipped. */
 const CATEGORY: Record<string, string> = {
@@ -69,7 +70,7 @@ async function* readCsv(path: string): AsyncGenerator<Row> {
   }
 }
 
-function toOffer(r: Row, affiliateId: string): (OfferRow & { score: number }) | null {
+function toOffer(r: Row, affiliateId: string): (OfferRow & { score: number; likes: number }) | null {
   // Supplements are picked by title, whatever top-level category the feed files them under.
   const slug = isSupplement(r.title) ? "suplementos" : CATEGORY[r.global_category1]
   const link = r.product_link.match(/shopee\.com\.br\/product\/(\d+)\/(\d+)/)
@@ -96,7 +97,10 @@ function toOffer(r: Row, affiliateId: string): (OfferRow & { score: number }) | 
     affiliate_url: `https://shope.ee/an_redir?origin_link=${encodeURIComponent(url)}&affiliate_id=${affiliateId}&sub_id=${SUB_ID}`,
     is_free_shipping: false,
     source: "manual",
+    // A grade from a handful of people means little: shown only with enough likes behind it.
+    rating: Number(r.like || 0) >= MIN_LIKES_FOR_RATING ? rating : null,
     // Popularity (likes) + real discount + rating, to pick the best per category.
+    likes: Number(r.like || 0),
     score: Math.log10(1 + Number(r.like || 0)) * 20 + Math.min(discount || 0, 60) * 0.5 + (rating - 4.5) * 20,
   }
 }
@@ -109,7 +113,7 @@ async function main() {
     process.exit(1)
   }
 
-  const byCategory = new Map<string, (OfferRow & { score: number })[]>()
+  const byCategory = new Map<string, (OfferRow & { score: number; likes: number })[]>()
   let total = 0
   for await (const row of readCsv(path)) {
     total++
@@ -129,7 +133,9 @@ async function main() {
       })
       .slice(0, PER_CATEGORY_MAX[slug] ?? PER_CATEGORY)
     console.log(`${slug.padEnd(12)} ${String(best.length).padStart(4)} escolhidas de ${list.length} que passaram no filtro`)
-    picked.push(...best.map(({ score: _score, ...offer }) => offer))
+    picked.push(...best.map(({ score: _score, likes: _likes, ...offer }) => offer))
+    const likes = best.map((o) => o.likes).sort((a, b) => a - b)
+    console.log(`  curtidas: mín ${likes[0]}, mediana ${likes[likes.length >> 1]}`)
   }
   console.log(`\n${total} produtos no feed -> ${picked.length} ofertas selecionadas`)
 
