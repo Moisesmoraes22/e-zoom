@@ -112,8 +112,8 @@ function draw(
 
 /**
  * Animated hero background (canvas). Decoration only: aria-hidden, no pointer events.
- * Colours come from the active palette (--band, --primary, --accent) and follow theme or
- * palette switches. It pauses when off screen or when the tab is hidden, and with
+ * Colours come from the theme tokens (--band, --primary, --accent) and follow light/dark.
+ * It pauses when off screen or when the tab is hidden, and with
  * "reduce motion" it paints a single still frame.
  */
 export function HeroBackdrop() {
@@ -189,12 +189,12 @@ export function HeroBackdrop() {
       else stop()
     })
     intersection.observe(parent)
-    // Theme (dark class) or palette (data-palette) switched: re-read the colours.
+    // Theme (dark class) switched: re-read the colours.
     const themeObserver = new MutationObserver(() => {
       pal = readPalette()
       frame(performance.now(), true)
     })
-    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["class", "data-palette"] })
+    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] })
 
     if (!still) {
       window.addEventListener("pointermove", onMove, { passive: true })
