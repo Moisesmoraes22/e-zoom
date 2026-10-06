@@ -58,6 +58,13 @@ export const CATEGORIES: Category[] = [
       "https://images.unsplash.com/photo-1593095948071-474c5cc2989d?q=80&w=300&auto=format&fit=crop",
   },
   {
+    slug: "dj",
+    name: "DJ",
+    icon: "Disc3",
+    image:
+      "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=300&auto=format&fit=crop",
+  },
+  {
     slug: "games",
     name: "Games",
     icon: "Gamepad2",

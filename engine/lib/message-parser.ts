@@ -1,3 +1,4 @@
+import { isDj } from "./dj.ts"
 import { isSupplement } from "./supplements.ts"
 
 const URL_PATTERN =/https?:\/\/[^\s<>"')\]]+/gi
@@ -130,6 +131,7 @@ export function isOutOfScope(title: string): boolean {
 
 export function guessCategory(title: string): string | null {
   if (isSupplement(title) || /\b(proteico|chocowhey\w*)/i.test(title)) return "suplementos"
+  if (isDj(title)) return "dj"
   const plain = title.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase()
   return CATEGORY_KEYWORDS.find(([, re]) => re.test(plain))?.[0] ?? null
 }

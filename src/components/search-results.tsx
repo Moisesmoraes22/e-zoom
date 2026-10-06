@@ -32,7 +32,14 @@ import type { CategoryCount } from "@/lib/deals"
 import { buildProfile, INTERESTS_KEY, MIN_PROFILE_WEIGHT, personalizeOrder, recordSearch } from "@/lib/interest-profile"
 import { usePersonalize } from "@/lib/use-interests"
 import { STORES } from "@/lib/mock-data"
-import { SUPPLEMENT_TYPES, supplementTypeOf, type SupplementType } from "@/lib/supplement-types"
+import { DJ_TYPES, djTypeOf } from "@/lib/dj-types"
+import { SUPPLEMENT_TYPES, supplementTypeOf } from "@/lib/supplement-types"
+
+/** Categories that get quick chips by kind of product. */
+const KINDS: Record<string, { label: string; types: readonly { value: string; label: string }[]; typeOf: (title: string) => string | null }> = {
+  suplementos: { label: "Tipo de suplemento", types: SUPPLEMENT_TYPES, typeOf: supplementTypeOf },
+  dj: { label: "Tipo de produto de DJ", types: DJ_TYPES, typeOf: djTypeOf },
+}
 import type { Product, SortOption, StoreSource } from "@/lib/types"
 
 const PAGE_SIZE = 24
@@ -104,20 +111,21 @@ function SearchResultsInner({
     }))
   const categoryFilter = categorySlug ? undefined : categories
 
-  // Supplements only: quick chips by kind of product (whey, creatina, ...).
-  const [kind, setKind] = useState<SupplementType | null>(null)
+  // Supplements and DJ: quick chips by kind of product (whey, creatina, ... / controladoras, cabos, ...).
+  const [kind, setKind] = useState<string | null>(null)
+  const kinds = categorySlug ? KINDS[categorySlug] : undefined
   const kindCounts = useMemo(() => {
-    if (categorySlug !== "suplementos") return null
-    const counts = new Map<SupplementType, number>()
+    if (!kinds) return null
+    const counts = new Map<string, number>()
     for (const p of products) {
-      const t = p.category === categorySlug ? supplementTypeOf(p.title) : null
+      const t = p.category === categorySlug ? kinds.typeOf(p.title) : null
       if (t) counts.set(t, (counts.get(t) ?? 0) + 1)
     }
     return counts
-  }, [products, categorySlug])
+  }, [products, categorySlug, kinds])
   const baseProducts = useMemo(
-    () => (kind ? products.filter((p) => supplementTypeOf(p.title) === kind) : products),
-    [products, kind],
+    () => (kind && kinds ? products.filter((p) => kinds.typeOf(p.title) === kind) : products),
+    [products, kind, kinds],
   )
 
   // A search with no match at all is retried with typos fixed ("wehy" -> "whey").
@@ -244,9 +252,9 @@ function SearchResultsInner({
             />
           </div>
 
-          {kindCounts && (
-            <div className="mb-4 flex flex-wrap gap-2" role="group" aria-label="Tipo de suplemento">
-              {[{ value: null, label: "Todos" }, ...SUPPLEMENT_TYPES.filter((t) => kindCounts.get(t.value))].map((t) => (
+          {kinds && kindCounts && (
+            <div className="mb-4 flex flex-wrap gap-2" role="group" aria-label={kinds.label}>
+              {[{ value: null, label: "Todos" }, ...kinds.types.filter((t) => kindCounts.get(t.value))].map((t) => (
                 <button
                   key={t.value ?? "todos"}
                   type="button"

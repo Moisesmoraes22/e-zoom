@@ -1,4 +1,5 @@
 import { refineCategory } from "../lib/categories.ts"
+import { isDj } from "../lib/dj.ts"
 import { isSupplement } from "../lib/supplements.ts"
 import type { Connector, OfferRow } from "../types.ts"
 
@@ -13,6 +14,13 @@ const SUPPLEMENT_TERMS = [
   "whey protein", "whey isolado", "creatina", "bcaa", "glutamina", "pré treino", "hipercalórico",
   "albumina", "caseína", "colágeno", "multivitamínico", "ômega 3", "termogênico", "beta alanina",
   "vitamina d", "magnésio", "pasta de amendoim", "barra de proteína",
+]
+/** DJ niche: controllers, mixers, CDJs, turntables, monitors, cables, interfaces, PA, lights. */
+const DJ_TERMS = [
+  "controladora dj", "pioneer ddj", "numark", "mixer dj", "cdj pioneer", "toca discos", "fone dj",
+  "fone de ouvido profissional estudio", "cabo xlr", "cabo p10", "cabo rca", "interface de audio",
+  "microfone dinamico", "caixa ativa", "moving head", "maquina de fumaça", "pedestal caixa de som",
+  "mesa de som", "monitor de estudio", "behringer", "rekordbox", "case controladora dj",
 ]
 const PER_TERM = 25 // offers kept per term
 // Most catalog hits have no active seller (items -> 404), so we scan a few pages per term.
@@ -84,7 +92,7 @@ export function createMercadoLivreConnector(env: NodeJS.ProcessEnv): Connector {
 
       const offers = new Map<string, OfferRow>()
 
-      const buildOffer = async (id: string, categoryIn: string, onlySupplements = false) => {
+      const buildOffer = async (id: string, categoryIn: string, only?: "suplementos" | "dj") => {
         // Supplement search hits are mostly sellerless: check listings first, skip the rest.
         const { results } = await get<{ results: MlProductItem[] }>(`/products/${id}/items?limit=10`)
         const product = await get<MlProduct>(`/products/${id}`)
@@ -99,8 +107,10 @@ export function createMercadoLivreConnector(env: NodeJS.ProcessEnv): Connector {
         const best = sellers[1] && sellers[0].price < sellers[1].price * 0.5 ? sellers[1] : sellers[0]
         if (!best || !image || !product.name) return
         const supplement = isSupplement(product.name)
-        if (onlySupplements && !supplement) return
-        const category = supplement ? "suplementos" : refineCategory(product.name, categoryIn)
+        const dj = !supplement && isDj(product.name)
+        if (only === "suplementos" && !supplement) return
+        if (only === "dj" && !dj) return
+        const category = supplement ? "suplementos" : dj ? "dj" : refineCategory(product.name, categoryIn)
 
         const url = `https://www.mercadolivre.com.br/p/${id}`
         offers.set(id, {
@@ -132,7 +142,9 @@ export function createMercadoLivreConnector(env: NodeJS.ProcessEnv): Connector {
         return [mlId, ...children_categories.map((c) => c.id)]
       }
 
-      for (const term of SUPPLEMENT_TERMS) {
+      // ML_ONLY=dj (or suplementos) runs just that niche, handy to check it without a full collection.
+      const only = env.ML_ONLY
+      for (const term of !only || only === "suplementos" ? SUPPLEMENT_TERMS : []) {
         const before = offers.size
         for (let page = 0; page < SEARCH_PAGES && offers.size - before < PER_TERM; page++) {
           const { results = [] } = await get<{ results: { id: string }[] }>(
@@ -140,14 +152,29 @@ export function createMercadoLivreConnector(env: NodeJS.ProcessEnv): Connector {
           ).catch(() => ({ results: [] }))
           const ids = results.map((r) => r.id).filter((id) => !offers.has(id))
           for (let i = 0; i < ids.length && offers.size - before < PER_TERM; i += 10) {
-            await Promise.allSettled(ids.slice(i, i + 10).map((id) => buildOffer(id, "suplementos", true)))
+            await Promise.allSettled(ids.slice(i, i + 10).map((id) => buildOffer(id, "suplementos", "suplementos")))
           }
         }
         console.log(`[mercadolivre] suplementos/${term}: ${offers.size} ofertas até agora`)
       }
 
+      // DJ niche: same catalog search, one pass per term.
+      for (const term of !only || only === "dj" ? DJ_TERMS : []) {
+        const before = offers.size
+        for (let page = 0; page < SEARCH_PAGES && offers.size - before < PER_TERM; page++) {
+          const { results = [] } = await get<{ results: { id: string }[] }>(
+            `/products/search?status=active&site_id=MLB&limit=${SEARCH_PAGE_SIZE}&offset=${page * SEARCH_PAGE_SIZE}&q=${encodeURIComponent(term)}`,
+          ).catch(() => ({ results: [] }))
+          const ids = results.map((r) => r.id).filter((id) => !offers.has(id))
+          for (let i = 0; i < ids.length && offers.size - before < PER_TERM; i += 10) {
+            await Promise.allSettled(ids.slice(i, i + 10).map((id) => buildOffer(id, "dj", "dj")))
+          }
+        }
+        console.log(`[mercadolivre] dj/${term}: ${offers.size} ofertas até agora`)
+      }
+
       const full = () => wide && offers.size >= WIDE_MAX
-      for (const [category, mlIds] of Object.entries(CATEGORIES)) {
+      for (const [category, mlIds] of Object.entries(only ? {} : CATEGORIES)) {
         for (const top of mlIds) {
           if (full()) break
           for (const mlId of await nodesOf(top)) {

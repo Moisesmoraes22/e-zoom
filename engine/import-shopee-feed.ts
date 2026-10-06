@@ -12,11 +12,12 @@ import { createReadStream } from "node:fs"
 import { createClient } from "@supabase/supabase-js"
 
 import { refineCategory } from "./lib/categories.ts"
+import { isDj } from "./lib/dj.ts"
 import { isSupplement } from "./lib/supplements.ts"
 import type { OfferRow } from "./types.ts"
 
 const PER_CATEGORY = 130
-const PER_CATEGORY_MAX: Record<string, number> = { suplementos: 400 } // the niche we're growing
+const PER_CATEGORY_MAX: Record<string, number> = { suplementos: 400, dj: 300 } // the niche we're growing
 const SUB_ID = "ezoom"
 const MIN_LIKES_FOR_RATING = 50
 
@@ -73,14 +74,14 @@ async function* readCsv(path: string): AsyncGenerator<Row> {
 
 function toOffer(r: Row, affiliateId: string): (OfferRow & { score: number; likes: number }) | null {
   // Supplements are picked by title, whatever top-level category the feed files them under.
-  const slug = isSupplement(r.title) ? "suplementos" : refineCategory(r.title, CATEGORY[r.global_category1])
+  const slug = isSupplement(r.title) ? "suplementos" : isDj(r.title) ? "dj" : refineCategory(r.title, CATEGORY[r.global_category1])
   const link = r.product_link.match(/shopee\.com\.br\/product\/(\d+)\/(\d+)/)
   const price = Number(r.sale_price)
   const rating = Number(r.item_rating)
   if (!slug || !link || !r.image_link || r.title.length < 15) return null
   if (r.condition && r.condition !== "NEW" && r.condition !== "New") return null
   // Quality floor: good ratings on item and shop, sane price.
-  if (!(rating >= 4.7) || !(Number(r.shop_rating) >= 4.7) || !(price >= 10 && price <= 3000)) return null
+  if (!(rating >= 4.7) || !(Number(r.shop_rating) >= 4.7) || !(price >= 10 && price <= (slug === "dj" ? 8000 : 3000))) return null
 
   const discount = Number(r.discount_percentage)
   const original = Number(r.price)
