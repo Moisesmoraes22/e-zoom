@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js"
 import { createMercadoLivreConnector } from "./connectors/mercadolivre.ts"
 import { createShopeeConnector } from "./connectors/shopee.ts"
 import { createTelegramConnector } from "./connectors/telegram.ts"
+import { withoutBlocked } from "./lib/blocklist.ts"
 import type { Connector } from "./types.ts"
 
 const CONNECTORS: Record<string, (env: NodeJS.ProcessEnv) => Connector> = {
@@ -40,7 +41,14 @@ async function main() {
   if (runError) throw runError
 
   try {
-    const offers = await connector.fetchOffers()
+    // Blocked offers (table `blocked_offers`) are never saved, and are switched off if already live.
+    const { data: blockedRows, error: blockedError } = await supabase.from("blocked_offers").select("store_id, external_id")
+    if (blockedError) throw blockedError
+    const blocked = blockedRows ?? []
+    const offers = withoutBlocked(await connector.fetchOffers(), blocked)
+    for (const b of blocked) {
+      await supabase.from("offers").update({ is_active: false }).eq("store_id", b.store_id).eq("external_id", b.external_id).eq("is_active", true)
+    }
     const now = new Date().toISOString()
 
     // Upsert in chunks; the DB trigger records price_history on price change.
