@@ -1,0 +1,25 @@
+name: Revisão diária de categorias
+
+# Once a day (09:00 in Brasília): lists the offers of the last 24h whose title points to a
+# different category than the one they got. Read the run's Summary, and for each real
+# mistake add a rule in engine/lib/categories.ts and a case in engine/tests/categories.test.ts.
+on:
+  schedule:
+    - cron: "0 12 * * *"
+  workflow_dispatch:
+
+jobs:
+  revisao:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: node engine/audit-categories.ts --fix --hours 24
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}

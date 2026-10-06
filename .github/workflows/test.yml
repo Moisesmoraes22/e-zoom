@@ -1,0 +1,23 @@
+name: Testes
+
+# Every push: the engine's tests (categories, titles), types and lint. A category mistake
+# that was fixed once is a test case, so it cannot come back unnoticed.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  testes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run test:engine
+      - run: npx tsc --noEmit
+      - run: npm run lint

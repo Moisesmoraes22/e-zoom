@@ -52,3 +52,22 @@ jobs:
           ML_CLIENT_SECRET: ${{ secrets.ML_CLIENT_SECRET }}
           ML_AFFILIATE_URL_TEMPLATE: "{url}?matt_tool=36590912&matt_word=moraesmoises20230303173936"
           ML_WIDE: "1" # modo amplo: mais vendidos de cada subcategoria (até 1.200 ofertas)
+
+  # After both collections: fixes known category mistakes still in the catalog and lists the
+  # new suspicious ones in this run's summary (Actions tab) for a human to review.
+  revisao:
+    needs: [telegram, mercadolivre]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: node engine/audit-categories.ts --fix --hours 1
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
