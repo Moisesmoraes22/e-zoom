@@ -13,70 +13,70 @@ export const CATEGORIES: Category[] = [
     name: "Eletrônicos",
     icon: "Smartphone",
     image:
-      "https://images.unsplash.com/photo-1498049794561-7780e7231661?q=80&w=300&auto=format&fit=crop",
+      "/categorias/eletronicos.jpg",
   },
   {
     slug: "casa",
     name: "Casa e Decoração",
     icon: "Sofa",
     image:
-      "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=300&auto=format&fit=crop",
+      "/categorias/casa.jpg",
   },
   {
     slug: "moda",
     name: "Moda",
     icon: "Shirt",
     image:
-      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=300&auto=format&fit=crop",
+      "/categorias/moda.jpg",
   },
   {
     slug: "calcados",
     name: "Calçados",
     icon: "Footprints",
     image:
-      "https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=300&auto=format&fit=crop",
+      "/categorias/calcados.jpg",
   },
   {
     slug: "beleza",
     name: "Beleza",
     icon: "Sparkles",
     image:
-      "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=300&auto=format&fit=crop",
+      "/categorias/beleza.jpg",
   },
   {
     slug: "esporte",
     name: "Esporte e Fitness",
     icon: "Dumbbell",
     image:
-      "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=300&auto=format&fit=crop",
+      "/categorias/esporte.jpg",
   },
   {
     slug: "suplementos",
     name: "Suplementos",
     icon: "Pill",
     image:
-      "https://images.unsplash.com/photo-1593095948071-474c5cc2989d?q=80&w=300&auto=format&fit=crop",
+      "/categorias/suplementos.jpg",
   },
   {
     slug: "dj",
     name: "DJ",
     icon: "Disc3",
     image:
-      "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=300&auto=format&fit=crop",
+      "/categorias/dj.jpg",
   },
   {
     slug: "games",
     name: "Games",
     icon: "Gamepad2",
     image:
-      "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=300&auto=format&fit=crop",
+      "/categorias/games.jpg",
   },
   {
     slug: "infantil",
     name: "Infantil",
     icon: "Baby",
     image:
-      "https://images.unsplash.com/photo-1587654780291-39c9404d746b?q=80&w=300&auto=format&fit=crop",
+      "/categorias/infantil.jpg",
   },
 ]
 
