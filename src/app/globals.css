@@ -116,6 +116,101 @@
   --sidebar-ring: #22c55e;
 }
 
+/*
+ * Alternative palette "Azul Marinho + Cinza + Azul". Same token names as above, so nothing
+ * else changes. Applied with data-palette="marinho" on <html> (see THEME_INIT_SCRIPT):
+ * ?paleta=marinho previews it on this browser, ?paleta=verde goes back to the green one.
+ */
+:root[data-palette="marinho"] {
+  --background: #f4f6fb;
+  --foreground: #0f1b3d;
+  --card: #ffffff;
+  --card-foreground: #0f1b3d;
+  --popover: #ffffff;
+  --popover-foreground: #0f1b3d;
+
+  /* `--brand` is the darker blue for small blue TEXT on light surfaces (7.5:1). */
+  --primary: #2f64c8;
+  --primary-foreground: #ffffff;
+  --brand: #1e4aa3;
+
+  --secondary: #e6ecf7;
+  --secondary-foreground: #1b2f63;
+  --muted: #edf1f8;
+  --muted-foreground: #58648a;
+  --surface: #eaeff7;
+
+  /* Navy band behind the carousels */
+  --band: #13265a;
+  --band-foreground: #f4f7ff;
+
+  --accent: #dbe6fb;
+  --accent-foreground: #1b2f63;
+
+  --border: #d9e0ee;
+  --input: #d9e0ee;
+  --ring: #2f64c8;
+
+  --chart-1: #2f64c8;
+  --chart-2: #13265a;
+  --chart-3: #6f93d9;
+  --chart-4: #1b2f63;
+  --chart-5: #9db4e3;
+
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0f1b3d;
+  --sidebar-primary: #2f64c8;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #dbe6fb;
+  --sidebar-accent-foreground: #1b2f63;
+  --sidebar-border: #d9e0ee;
+  --sidebar-ring: #2f64c8;
+}
+
+:root[data-palette="marinho"].dark {
+  --background: #0a1330;
+  --foreground: #eef3ff;
+  --card: #101c40;
+  --card-foreground: #eef3ff;
+  --popover: #15244f;
+  --popover-foreground: #eef3ff;
+
+  --primary: #3569d6;
+  --primary-foreground: #ffffff;
+  --brand: #7aa7f5;
+
+  --secondary: #13214a;
+  --secondary-foreground: #dbe6fb;
+  --muted: #13214a;
+  --muted-foreground: #a3b2d6;
+  --surface: #0c1738;
+
+  --band: #101c40;
+  --band-foreground: #eef3ff;
+
+  --accent: #17285a;
+  --accent-foreground: #cfe0fd;
+
+  --border: #223463;
+  --input: #223463;
+  --ring: #7aa7f5;
+
+  --chart-1: #3569d6;
+  --chart-2: #eef3ff;
+  --chart-3: #7aa7f5;
+  --chart-4: #9db4e3;
+  --chart-5: #2f64c8;
+
+  --sidebar: #101c40;
+  --sidebar-foreground: #eef3ff;
+  --sidebar-primary: #3569d6;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #17285a;
+  --sidebar-accent-foreground: #cfe0fd;
+  --sidebar-border: #223463;
+  --sidebar-ring: #7aa7f5;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

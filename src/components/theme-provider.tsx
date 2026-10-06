@@ -16,10 +16,19 @@ const CHANGE_EVENT = "hl-theme-change"
 const DARK_QUERY = "(prefers-color-scheme: dark)"
 
 /**
+ * Colour palette: "verde" (original) or "marinho" (navy + gray + blue, see globals.css).
+ * DEFAULT_PALETTE is what everyone sees; `?paleta=marinho` / `?paleta=verde` in any URL
+ * switches it for that browser. To make navy the site's look, change DEFAULT_PALETTE to
+ * "marinho"; to undo, change it back (or revert the commit).
+ */
+const PALETTE_KEY = "ezoom:palette"
+const DEFAULT_PALETTE = "verde"
+
+/**
  * Runs before first paint (see layout.tsx) so the page never flashes the wrong
  * theme. Keep in sync with `applyTheme` below.
  */
-export const THEME_INIT_SCRIPT = `(function(){try{var t=localStorage.getItem("${STORAGE_KEY}");var d=t==="dark"||(t!=="light"&&matchMedia("${DARK_QUERY}").matches);var r=document.documentElement;r.classList.toggle("dark",d);r.style.colorScheme=d?"dark":"light"}catch(e){}})()`
+export const THEME_INIT_SCRIPT = `(function(){try{var t=localStorage.getItem("${STORAGE_KEY}");var d=t==="dark"||(t!=="light"&&matchMedia("${DARK_QUERY}").matches);var r=document.documentElement;r.classList.toggle("dark",d);r.style.colorScheme=d?"dark":"light"}catch(e){}try{var q=new URLSearchParams(location.search).get("paleta");if(q==="marinho"||q==="verde")localStorage.setItem("${PALETTE_KEY}",q);var p=localStorage.getItem("${PALETTE_KEY}")||"${DEFAULT_PALETTE}";if(p==="marinho")document.documentElement.setAttribute("data-palette","marinho");else document.documentElement.removeAttribute("data-palette")}catch(e){}})()`
 
 function readStored(): Theme {
   try {
