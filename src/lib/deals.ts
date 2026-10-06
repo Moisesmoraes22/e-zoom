@@ -45,6 +45,30 @@ export const byPriceDrop = (products: Product[]) =>
         (calculateDiscountPercent(a.price, Math.max(...a.priceHistory!)) ?? 0),
     )
 
+const FIND_MIN_RATING = 4.8
+const FIND_DISCOUNT = [20, 50] as const // above ~50% the "previous price" is rarely credible
+const FIND_PER_CATEGORY = 2
+
+/**
+ * Curated picks from real signals only: a store rating of 4.8+ (recorded only with
+ * enough likes behind it) and a store-declared discount of 20-50%. Best-rated first,
+ * at most two per category so the section is not one kind of product.
+ */
+export const byFinds = (products: Product[]) => {
+  const perCategory = new Map<string, number>()
+  return products
+    .filter((p) => {
+      const discount = discountOf(p) ?? 0
+      return (p.rating ?? 0) >= FIND_MIN_RATING && discount >= FIND_DISCOUNT[0] && discount <= FIND_DISCOUNT[1]
+    })
+    .sort((a, b) => b.rating! - a.rating! || (discountOf(b) ?? 0) - (discountOf(a) ?? 0))
+    .filter((p) => {
+      const n = perCategory.get(p.category) ?? 0
+      perCategory.set(p.category, n + 1)
+      return n < FIND_PER_CATEGORY
+    })
+}
+
 export const byRecent = (products: Product[]) =>
   [...products].sort((a, b) => (b.createdAt ?? "").localeCompare(a.createdAt ?? ""))
 

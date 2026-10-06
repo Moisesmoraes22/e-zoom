@@ -13,6 +13,7 @@ export function ProductGrid({
   href = "/busca",
   linkLabel,
   icon,
+  cardLabel,
 }: {
   title: string
   subtitle?: string
@@ -20,6 +21,8 @@ export function ProductGrid({
   href?: string
   linkLabel?: string
   icon?: React.ReactNode
+  /** Tag shown on every card of this section. */
+  cardLabel?: string
 }) {
   return (
     <section className="container mx-auto max-w-7xl px-4 py-12">
@@ -44,7 +47,7 @@ export function ProductGrid({
             }}
             className="h-full"
           >
-            <ProductCard product={product} />
+            <ProductCard product={product} label={cardLabel} />
           </motion.div>
         ))}
       </div>

@@ -1,4 +1,4 @@
-import { Flame, TrendingDown } from "lucide-react"
+import { Flame, Sparkles, TrendingDown } from "lucide-react"
 
 import { CategoryGrid } from "@/components/category-grid"
 import { DealsCarousel } from "@/components/deals-carousel"
@@ -8,7 +8,7 @@ import { InterestsSection } from "@/components/interests-section"
 import { PriceRangesSection } from "@/components/price-ranges-section"
 import { StoresSection } from "@/components/stores-section"
 import { CommerceHero } from "@/components/ui/commerce-hero"
-import { byDiscount, byPriceDrop, byRecent, categoryCounts, countByStoreId } from "@/lib/deals"
+import { byDiscount, byFinds, byPriceDrop, byRecent, categoryCounts, countByStoreId } from "@/lib/deals"
 import { toHeroOffer } from "@/lib/hero"
 import { selectHeroOffers } from "@/lib/hero-select"
 import { STORES } from "@/lib/mock-data"
@@ -42,6 +42,7 @@ export default async function Home() {
   }
   const featured = take(byDiscount(products))
   const priceDrops = take(byPriceDrop(products))
+  const finds = take(byFinds(products))
   const recent = take(byRecent(products))
 
   const storeCounts = countByStoreId(products)
@@ -69,6 +70,16 @@ export default async function Home() {
           subtitle="Produtos que ficaram mais baratos recentemente."
           products={priceDrops}
           href="/busca"
+        />
+      )}
+      {finds.length > 0 && (
+        <ProductGrid
+          icon={<Sparkles className="h-5 w-5" />}
+          title="Achados E-Zoom"
+          subtitle="Ofertas que merecem uma atenção especial: bem avaliadas e com bom desconto."
+          products={finds}
+          href="/busca?ordenacao=desconto"
+          cardLabel="Achado E-Zoom"
         />
       )}
       <InterestsSection products={products} />

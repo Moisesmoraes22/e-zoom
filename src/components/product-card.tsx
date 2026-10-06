@@ -23,9 +23,12 @@ import {
 export function ProductCard({
   product,
   className,
+  label,
 }: {
   product: Product
   className?: string
+  /** Small tag above the title, e.g. "Achado E-Zoom". */
+  label?: string
 }) {
   const { toggleFavorite, isFavorite, launchFlight } = useFavorites()
   const favorited = isFavorite(product.id)
@@ -73,6 +76,11 @@ export function ProductCard({
           </div>
 
           <div className="flex flex-1 flex-col gap-3 p-5 pb-3">
+            {label && (
+              <span className="-mb-1 text-[11px] font-semibold uppercase tracking-wide text-brand">
+                {label}
+              </span>
+            )}
             <h3 className="line-clamp-2 min-h-[2.5rem] text-sm font-medium text-foreground">
               {product.title}
             </h3>
