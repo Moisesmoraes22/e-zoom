@@ -214,7 +214,7 @@ export function FavoritesSheet() {
                               product={item}
                               store={item.store}
                               affiliateUrl={item.affiliateUrl}
-                              className="flex min-h-9 items-center gap-1.5 rounded-full bg-primary px-3.5 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                              className="flex min-h-9 items-center gap-1.5 rounded-full bg-cta px-3.5 text-xs font-semibold text-cta-foreground transition-colors hover:bg-cta/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                             >
                               Ver oferta
                               <ExternalLink className="h-3.5 w-3.5" aria-hidden />

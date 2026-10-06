@@ -67,7 +67,7 @@ export function ProductCard({
         >
           <div className="relative aspect-square w-full overflow-hidden bg-muted">
             {discount && (
-              <Badge className="absolute left-2 top-2 z-10 bg-primary text-primary-foreground">
+              <Badge className="absolute left-2 top-2 z-10 bg-discount text-discount-foreground hover:bg-discount">
                 -{discount}%
               </Badge>
             )}
@@ -175,7 +175,7 @@ export function ProductCard({
             product={product}
             store={product.store}
             affiliateUrl={product.affiliateUrl}
-            className="flex min-h-11 items-center justify-center gap-1.5 rounded-lg bg-primary py-2 text-sm font-semibold text-primary-foreground transition-colors duration-200 hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            className="flex min-h-11 items-center justify-center gap-1.5 rounded-lg bg-cta py-2 text-sm font-semibold text-cta-foreground transition-colors duration-200 hover:bg-cta/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             Ver oferta
             <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" aria-hidden />

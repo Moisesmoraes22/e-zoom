@@ -103,7 +103,7 @@ export function ProductDetail({
             className="h-full w-full object-cover"
           />
           {discount && (
-            <Badge className="absolute left-3 top-3 bg-primary text-primary-foreground">
+            <Badge className="absolute left-3 top-3 bg-discount text-discount-foreground hover:bg-discount">
               -{discount}%
             </Badge>
           )}
@@ -180,7 +180,7 @@ export function ProductDetail({
             )}
 
             <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-              <Button asChild size="lg" className="flex-1 gap-2 rounded-full">
+              <Button asChild size="lg" className="flex-1 gap-2 rounded-full bg-cta text-cta-foreground hover:bg-cta/90">
                 <OfferLink
                   product={product}
                   store={bestOffer.store}

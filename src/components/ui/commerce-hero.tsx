@@ -297,7 +297,7 @@ function HeroSlide({ offer, intro }: { offer: HeroOffer; intro: boolean }) {
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ type: "spring", stiffness: 260, damping: 18, delay: intro ? 0.45 : 0.15 }}
-          className="pointer-events-none absolute -right-2 -top-3 flex h-20 w-20 flex-col items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 sm:-right-4 sm:h-24 sm:w-24"
+          className="pointer-events-none absolute -right-2 -top-3 flex h-20 w-20 flex-col items-center justify-center rounded-full bg-discount text-discount-foreground shadow-lg shadow-discount/30 sm:-right-4 sm:h-24 sm:w-24"
         >
           <span className="text-2xl font-extrabold leading-none sm:text-3xl">
             -{offer.discount}%
