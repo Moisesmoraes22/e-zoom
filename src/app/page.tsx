@@ -17,7 +17,7 @@ import type { Product } from "@/lib/types"
 
 export const revalidate = 300
 
-const SECTION_SIZE = 8
+const SECTION_SIZE = 9
 /** A section with fewer cards than this looks broken, so it is left out. */
 const MIN_SECTION = 3
 
