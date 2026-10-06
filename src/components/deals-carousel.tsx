@@ -50,14 +50,14 @@ export function DealsCarousel({
         </div>
 
         <Carousel
-          opts={{ align: "start", loop: products.length > 6 }}
+          opts={{ align: "start", loop: products.length > 8 }}
           className="w-full"
         >
           <CarouselContent>
             {products.map((product, index) => (
               <CarouselItem
                 key={product.id}
-                className="basis-[46%] sm:basis-1/3 md:basis-1/4 lg:basis-1/5 xl:basis-1/6"
+                className="basis-[40%] sm:basis-[28.57%] md:basis-[22.22%] lg:basis-[18.18%] xl:basis-[15.38%]"
               >
                 <motion.div
                   initial={{ opacity: 0, y: 16 }}
