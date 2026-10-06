@@ -15,6 +15,7 @@ export interface OfferRow {
   created_at: string
   product_id: string | null
   rating: number | null
+  popularity: number | null
 }
 
 const credibleOriginalPrice = (price: number, original: number | null) =>
@@ -23,7 +24,7 @@ const credibleOriginalPrice = (price: number, original: number | null) =>
     : undefined
 
 export const OFFER_COLUMNS =
-  "id, store_id, title, image, category_slug, price, original_price, affiliate_url, is_free_shipping, last_seen_at, created_at, product_id, rating"
+  "id, store_id, title, image, category_slug, price, original_price, affiliate_url, is_free_shipping, last_seen_at, created_at, product_id, rating, popularity"
 
 /**
  * A "previous price" implying more than this much off is not believable (stores, and
@@ -50,6 +51,7 @@ export function rowToProduct(row: OfferRow, recentPrices: number[] = []): Produc
     createdAt: row.created_at,
     productId: row.product_id ?? undefined,
     rating: row.rating ? Number(row.rating) : undefined,
+    popularity: row.popularity ? Number(row.popularity) : undefined,
     priceHistory: hasHistory ? prices : undefined,
     // A real drop: at least 3% below the previous recorded price (ignores cent-level noise).
     isPriceDrop: hasHistory && prices.at(-1)! < prices.at(-2)! * 0.97,

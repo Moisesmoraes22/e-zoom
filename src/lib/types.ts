@@ -17,6 +17,8 @@ export interface Product {
     value: number
   }
   rating?: number
+  /** Store-reported popularity (Shopee likes / sales); only used to rank, never shown. */
+  popularity?: number
   reviewsCount?: number
   store: StoreSource
   category: string

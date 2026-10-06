@@ -95,6 +95,7 @@ export function createShopeeConnector(env: NodeJS.ProcessEnv): Connector {
               url: `https://shopee.com.br/product/${node.shopId}/${node.itemId}`,
               affiliate_url: node.offerLink,
               is_free_shipping: false,
+              popularity: node.sales ?? null,
               source: "api",
             })
           }

@@ -82,7 +82,8 @@ export function freshness(p: Product, now: number) {
 /** Internal ordering score (never shown): real price signals + store rating, weighed by how recent the price is. */
 export function offerScore(p: Product, now: number) {
   const rated = p.rating ? (p.rating - 4) * 10 : 0
-  const signals = Math.max(0, heroRank(p, now) + (discountOf(p) ?? 0) * 0.3 + rated)
+  const popular = p.popularity ? Math.log10(1 + p.popularity) * 4 : 0 // 10 -> ~4, 10,000 -> ~16
+  const signals = Math.max(0, heroRank(p, now) + (discountOf(p) ?? 0) * 0.3 + rated + popular)
   return signals * (0.3 + 0.7 * freshness(p, now))
 }
 

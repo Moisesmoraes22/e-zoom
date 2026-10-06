@@ -100,6 +100,7 @@ function toOffer(r: Row, affiliateId: string): (OfferRow & { score: number; like
     // A grade from a handful of people means little: shown only with enough likes behind it.
     rating: Number(r.like || 0) >= MIN_LIKES_FOR_RATING ? rating : null,
     // Popularity (likes) + real discount + rating, to pick the best per category.
+    popularity: Number(r.like || 0) || null,
     likes: Number(r.like || 0),
     score: Math.log10(1 + Number(r.like || 0)) * 20 + Math.min(discount || 0, 50) * 0.5 + (rating - 4.5) * 20,
   }
