@@ -1,4 +1,4 @@
-import { ArrowRight, Armchair, Dumbbell, Gamepad2, Headphones, Laptop, Monitor, Smartphone, Target, Watch, type LucideIcon } from "lucide-react"
+import { ArrowRight, Armchair, Dumbbell, Gamepad2, Headphones, Laptop, Monitor, Smartphone, Watch, type LucideIcon } from "lucide-react"
 import Link from "next/link"
 
 import { SectionHeader } from "@/components/section-header"
@@ -46,9 +46,7 @@ export function InterestsSection({ products }: { products: Product[] }) {
   return (
     <section className="page-container section-y">
       <SectionHeader
-        icon={<Target className="h-5 w-5" />}
         title="Encontre ofertas para o que você procura"
-        subtitle="Atalhos para os produtos que mais buscam."
         href="/busca"
         linkLabel="Pesquisar ofertas"
       />

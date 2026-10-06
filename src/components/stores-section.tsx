@@ -1,4 +1,4 @@
-import { ArrowRight, Store } from "lucide-react"
+import { ArrowRight } from "lucide-react"
 import Link from "next/link"
 
 import { SectionHeader } from "@/components/section-header"
@@ -17,9 +17,7 @@ export function StoresSection({ counts }: { counts: Record<string, number> }) {
   return (
     <section className="page-container section-y">
       <SectionHeader
-        icon={<Store className="h-5 w-5" />}
         title="Lojas parceiras"
-        subtitle="Veja as ofertas de cada loja."
         href="/busca"
         linkLabel="Ver todas as ofertas"
       />

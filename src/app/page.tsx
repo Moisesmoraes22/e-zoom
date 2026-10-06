@@ -1,5 +1,3 @@
-import { Flame, Sparkles, Tag, TrendingDown, Zap } from "lucide-react"
-
 import { CategoryGrid } from "@/components/category-grid"
 import { DealsCarousel } from "@/components/deals-carousel"
 import { ProductRow } from "@/components/product-row"
@@ -10,7 +8,7 @@ import { PriceRangesSection } from "@/components/price-ranges-section"
 import { StatsStrip } from "@/components/stats-strip"
 import { StoresSection } from "@/components/stores-section"
 import { CommerceHero } from "@/components/ui/commerce-hero"
-import { byClicks, byFeatured, dropsInLast, byFinds, byRelevance, capPerCategory, byPriceDrop, byRecent, categoryCounts, countByStoreId } from "@/lib/deals"
+import { discountOf, byClicks, byFeatured, dropsInLast, byFinds, byRelevance, capPerCategory, byPriceDrop, byRecent, categoryCounts, countByStoreId } from "@/lib/deals"
 import { toHeroOffer } from "@/lib/hero"
 import { selectHeroOffers } from "@/lib/hero-select"
 import { STORES } from "@/lib/mock-data"
@@ -21,6 +19,7 @@ export const revalidate = 300
 
 const SECTION_SIZE = 9
 const SHELVES = 2
+const SHOWCASE_SIZE = 6
 const ALL_SIZE = 12
 const POOL_PER_CATEGORY = 24
 /** A section with fewer cards than this looks broken, so it is left out. */
@@ -39,6 +38,14 @@ export default async function Home() {
 
   // Every hero slide is reserved, so the sections below never repeat any of them.
   const used = new Set<string>(heroProducts.map((p) => p.id))
+  // Biggest recorded discounts, as a strip inside the hero (first screen, phones included).
+  const showcase = live
+    ? products
+        .filter((p) => !used.has(p.id) && discountOf(p))
+        .sort((a, b) => (discountOf(b) ?? 0) - (discountOf(a) ?? 0))
+        .slice(0, SHOWCASE_SIZE)
+    : []
+  showcase.forEach((p) => used.add(p.id))
   const take = (list: Product[], size = SECTION_SIZE) => {
     const picked = list.filter((p) => !used.has(p.id)).slice(0, size)
     if (picked.length < MIN_SECTION) return [] // not shown, so its products stay available
@@ -74,25 +81,19 @@ export default async function Home() {
 
   return (
     <main id="conteudo" className="bg-background">
-      <CommerceHero storeNames={storeNames} offers={hero} />
+      <CommerceHero storeNames={storeNames} offers={hero} showcase={showcase} />
       {live && <StatsStrip offers={products.length} drops={dropsInLast(products, 24)} stores={storeNames.length} />}
       <CategoryGrid categories={categoryCounts(products).slice(0, 8)} showCounts={live} />
       {hot.length > 0 && (
         <ProductRow
-          icon={<Zap className="h-5 w-5" />}
-          iconTone="spark"
           title="Bombando agora"
-          subtitle="As ofertas mais abertas pelos visitantes do E-Zoom nos últimos dias."
           products={hot}
           href="/busca"
         />
       )}
       {featured.length > 0 && (
         <ProductRow
-          icon={<Flame className="h-5 w-5" />}
-          iconTone="fire"
           title="Ofertas que valem a pena hoje"
-          subtitle="Selecionadas por desconto, histórico de preço, avaliação da loja e preço visto recentemente."
           products={featured}
           href="/busca?ordenacao=desconto"
           linkLabel="Ver todas as ofertas"
@@ -100,20 +101,14 @@ export default async function Home() {
       )}
       {priceDrops.length > 0 && (
         <ProductRow
-          icon={<TrendingDown className="h-5 w-5" />}
-          iconTone="drop"
           title="Preço caiu"
-          subtitle="Produtos que ficaram mais baratos desde a última vez que vimos o preço."
           products={priceDrops}
           href="/busca"
         />
       )}
       {finds.length > 0 && (
         <ProductRow
-          icon={<Sparkles className="h-5 w-5" />}
-          iconTone="spark"
           title="Achados E-Zoom"
-          subtitle="Ofertas que merecem uma atenção especial: bem avaliadas e com bom desconto."
           products={finds}
           href="/busca?ordenacao=desconto"
           cardLabel="Achado E-Zoom"
@@ -129,8 +124,6 @@ export default async function Home() {
           tone={i === 0 ? "navy" : "light"}
           products={c.items}
           title={`Ofertas em ${c.name}`}
-          subtitle={`As melhores ofertas de ${c.name} agora.`}
-          icon={<Tag className="h-5 w-5" aria-hidden />}
           href={`/categoria/${c.slug}`}
         />
       ))}
@@ -140,7 +133,6 @@ export default async function Home() {
       {allOffers.length > 0 && (
         <ProductRow
           title="Todas as ofertas"
-          subtitle="Explore tudo o que o E-Zoom encontrou nas lojas parceiras."
           products={allOffers}
           href="/busca"
           linkLabel="Ver todas as ofertas"

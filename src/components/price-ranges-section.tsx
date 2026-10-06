@@ -1,4 +1,4 @@
-import { ArrowRight, Tag } from "lucide-react"
+import { ArrowRight } from "lucide-react"
 import Link from "next/link"
 
 import { SectionHeader } from "@/components/section-header"
@@ -16,9 +16,7 @@ export function PriceRangesSection({ products }: { products: Product[] }) {
   return (
     <section className="page-container section-y">
       <SectionHeader
-        icon={<Tag className="h-5 w-5" />}
         title="Compre por faixa de preço"
-        subtitle="Escolha quanto quer gastar e veja só as ofertas dessa faixa."
         href="/busca?ordenacao=preco"
         linkLabel="Ver do menor preço"
       />

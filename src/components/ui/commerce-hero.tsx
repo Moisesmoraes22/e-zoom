@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "framer-motion";
-import { ArrowRight, TrendingDown } from "lucide-react";
+import { ArrowRight, Flame, TrendingDown } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState, useSyncExternalStore } from "react";
 
@@ -9,6 +9,8 @@ import { PriceSparkline } from "@/components/price-sparkline";
 import { HeroBackdrop } from "@/components/ui/hero-backdrop";
 import { SearchBar } from "@/components/search-bar";
 import type { HeroOffer } from "@/lib/hero";
+import type { Product } from "@/lib/types";
+import { ProductCard } from "@/components/product-card";
 import { cn, formatCurrency } from "@/lib/utils";
 
 /** Below this the hero is the compact text + search version: no offers, no timer. */
@@ -30,7 +32,10 @@ const useIsDesktop = () =>
 export function CommerceHero({
   storeNames,
   offers,
+  showcase = [],
 }: {
+  /** Best-discount offers shown as a strip on the first screen. */
+  showcase?: Product[];
   storeNames: string[];
   /** Up to 4 real offers to rotate. Without any, the hero is text and search only. */
   offers: HeroOffer[];
@@ -89,7 +94,7 @@ export function CommerceHero({
 
         <div
           className={cn(
-            "relative grid items-center gap-10 px-5 py-6 sm:px-10 sm:py-12 lg:py-14",
+            "relative grid items-center gap-10 px-5 py-6 sm:px-10 sm:py-12 lg:py-8",
             active && "lg:grid-cols-[1.1fr_0.9fr] lg:gap-12",
           )}
         >
@@ -165,7 +170,33 @@ export function CommerceHero({
             </div>
           )}
         </div>
+
+        {showcase.length > 0 && <Showcase offers={showcase} />}
       </section>
+    </div>
+  );
+}
+
+/** Real offers with a recorded discount, visible on the first screen (also on phones, where the big card is hidden). */
+function Showcase({ offers }: { offers: Product[] }) {
+  return (
+    <div className="relative px-5 pb-6 sm:px-10 sm:pb-10">
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <h2 className="flex items-center gap-2 text-xl font-bold text-foreground sm:text-2xl">
+          <Flame className="h-5 w-5 shrink-0 text-discount" aria-hidden />
+          Maiores descontos agora
+        </h2>
+        <Link href="/busca?ordenacao=desconto" className="shrink-0 whitespace-nowrap text-sm font-semibold text-foreground hover:underline">
+          Ver todas
+        </Link>
+      </div>
+      <ul className="-mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-1 [scrollbar-width:none] sm:-mx-10 sm:px-10 lg:mx-0 lg:grid lg:grid-cols-6 lg:overflow-visible lg:px-0 [&::-webkit-scrollbar]:hidden">
+        {offers.map((offer) => (
+          <li key={offer.id} className="w-[46%] shrink-0 snap-start sm:w-[30%] lg:w-auto">
+            <ProductCard product={offer} compact />
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

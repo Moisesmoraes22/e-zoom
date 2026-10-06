@@ -23,7 +23,6 @@ export function CategoryGrid({
       {withHeader && (
         <SectionHeader
           title="Categorias populares"
-          subtitle="Navegue pelas ofertas por tipo de produto"
           href="/categorias"
           linkLabel="Ver todas as categorias"
         />

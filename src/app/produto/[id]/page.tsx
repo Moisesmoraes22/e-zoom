@@ -1,6 +1,5 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
-import { Flame, Tags } from "lucide-react"
 
 import { DealsCarousel } from "@/components/deals-carousel"
 import { ProductDetail } from "@/components/product-detail"
@@ -88,16 +87,12 @@ export default async function ProdutoPage({
         <DealsCarousel
           products={similar}
           title="Ofertas parecidas"
-          subtitle="Da mesma categoria, com preço próximo ao deste produto."
-          icon={<Tags className="h-5 w-5" aria-hidden />}
         />
       )}
       {more.length >= 3 && (
         <DealsCarousel
           products={more}
           title="Mais ofertas com desconto"
-          subtitle="Outras ofertas com queda de preço registrada."
-          icon={<Flame className="h-5 w-5" aria-hidden />}
         />
       )}
       <SiteFooter />

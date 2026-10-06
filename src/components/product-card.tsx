@@ -3,12 +3,11 @@
 import { AnimatePresence, motion } from "framer-motion"
 import { useRef } from "react"
 import Link from "next/link"
-import { ArrowRight, Bookmark, Star, TrendingDown, Truck } from "lucide-react"
+import { ArrowRight, Bookmark, Star, Truck } from "lucide-react"
 
 import { OfferLink } from "@/components/offer-link"
 import { PriceSparkline } from "@/components/price-sparkline"
 import { StoreBadge } from "@/components/store-badge"
-import { AgeDot, TimeAgo } from "@/components/time-ago"
 import { Badge } from "@/components/ui/badge"
 import { discountOf } from "@/lib/deals"
 import { useFavorites } from "@/lib/favorites-context"
@@ -63,6 +62,7 @@ export function ProductCard({
           className="flex flex-1 flex-col active:scale-[0.98] transition-transform duration-150"
         >
           <div className="relative aspect-square w-full overflow-hidden bg-muted">
+            <StoreBadge store={product.store} className="absolute bottom-2 left-2 z-10 shadow-sm" />
             {discount && (
               <Badge className="absolute left-2 top-2 z-10 bg-discount text-discount-foreground hover:bg-discount">
                 -{discount}%
@@ -90,18 +90,6 @@ export function ProductCard({
             <h3 className={cn("line-clamp-2 min-h-[2.4rem] font-medium text-foreground", "text-sm leading-snug")}>
               {product.title}
             </h3>
-
-            {product.rating && (
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <Star className="h-3.5 w-3.5 fill-primary text-primary" />
-                <span className="font-medium text-foreground">
-                  {product.rating.toFixed(1)}
-                </span>
-                {product.reviewsCount && (
-                  <span>({formatReviewCount(product.reviewsCount)})</span>
-                )}
-              </div>
-            )}
 
             <div className="flex flex-col gap-1">
               <div className="flex flex-wrap items-baseline gap-x-2">
@@ -133,25 +121,23 @@ export function ProductCard({
               )}
             </div>
 
-            <div className="mt-auto flex flex-col gap-1 pt-1.5">
-              <div className="flex items-center justify-between gap-2">
-                <StoreBadge store={product.store} variant="minimal" />
+            {(product.rating || product.isFreeShipping) && (
+              <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 pt-1 text-xs">
+                {product.rating && (
+                  <span className="flex items-center gap-1 text-muted-foreground">
+                    <Star className="h-3.5 w-3.5 fill-primary text-primary" />
+                    <span className="font-medium text-foreground">{product.rating.toFixed(1)}</span>
+                    {product.reviewsCount && <span>({formatReviewCount(product.reviewsCount)})</span>}
+                  </span>
+                )}
                 {product.isFreeShipping && (
-                  <span className="flex items-center gap-1 text-xs font-medium text-success">
+                  <span className="flex items-center gap-1 font-medium text-success">
                     <Truck className="h-3.5 w-3.5" aria-hidden />
                     Frete grátis
                   </span>
                 )}
               </div>
-              {product.seenAt && (
-                <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground/80">
-                  <AgeDot iso={product.seenAt} />
-                  <span>
-                    Visto <TimeAgo iso={product.seenAt} />
-                  </span>
-                </span>
-              )}
-            </div>
+            )}
           </div>
         </Link>
 

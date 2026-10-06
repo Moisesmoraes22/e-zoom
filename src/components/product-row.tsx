@@ -3,28 +3,22 @@
 import Link from "next/link"
 
 import { ProductCarousel } from "@/components/product-carousel"
-import { SectionHeader, type IconTone } from "@/components/section-header"
+import { SectionHeader } from "@/components/section-header"
 import type { Product } from "@/lib/types"
 
 /** A home section: title, then the offers in one row with arrows. */
 export function ProductRow({
   title,
-  subtitle,
   products,
   href = "/busca",
   linkLabel,
-  icon,
-  iconTone,
   cardLabel,
   chips,
 }: {
   title: string
-  subtitle?: string
   products: Product[]
   href?: string
   linkLabel?: string
-  icon?: React.ReactNode
-  iconTone?: IconTone
   /** Tag shown on every card of this section. */
   cardLabel?: string
   /** Quick links above the row (e.g. sort orders of the full listing). */
@@ -32,7 +26,7 @@ export function ProductRow({
 }) {
   return (
     <section className="page-container section-y">
-      <SectionHeader title={title} subtitle={subtitle} href={href} linkLabel={linkLabel} icon={icon} tone={iconTone} />
+      <SectionHeader title={title} href={href} linkLabel={linkLabel} />
       {chips && (
         <div className="mb-4 flex flex-wrap gap-2">
           {chips.map((c) => (
