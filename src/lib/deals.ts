@@ -134,6 +134,38 @@ export const variantKey = (title: string) =>
     .replace(/[^a-z0-9]+/g, "")
     .slice(0, 32)
 
+/** Title without accents, lowercase, cut at "sabor": the product regardless of flavour. */
+const baseTitle = (title: string) =>
+  title.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase().replace(/sabor.*$/, "").replace(/[^a-z0-9]+/g, " ").trim()
+
+/**
+ * Marks each offer that has others of the very same product (same title before "sabor")
+ * with how many, and a search that lists them. Exact title match, so unrelated products
+ * with similar names are never grouped.
+ */
+export function withVariants(products: Product[]): Product[] {
+  const groups = new Map<string, Product[]>()
+  for (const p of products) {
+    const key = baseTitle(p.title)
+    if (key.length < 12) continue
+    groups.set(key, [...(groups.get(key) ?? []), p])
+  }
+  return products.map((p) => {
+    const key = baseTitle(p.title)
+    const group = groups.get(key)
+    if (!group || group.length < 2) return p
+    const others = group.filter((o) => o.id !== p.id)
+    return {
+      ...p,
+      variants: {
+        count: others.length,
+        noun: others.every((o) => /sabor/i.test(o.title)) ? "sabores" : "opções",
+        query: key.split(" ").slice(0, 5).join(" "),
+      },
+    }
+  })
+}
+
 /** Highlight candidates: a real discount, or a price seen within about a day (so Amazon posts qualify too). */
 export const byFeatured = (products: Product[], now = Date.now()) =>
   byRelevance(products.filter((p) => discountOf(p) || freshness(p, now) >= 0.7), now)

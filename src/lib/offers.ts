@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js"
 import { cache } from "react"
 
+import { withVariants } from "@/lib/deals"
 import { ALL_PRODUCTS } from "@/lib/mock-data"
 import { OFFER_COLUMNS, rowToProduct, type OfferRow } from "@/lib/offer-row"
 import type { PriceStats, Product } from "@/lib/types"
@@ -73,7 +74,7 @@ export const getCatalog = cache(async (): Promise<{ products: Product[]; live: b
     ...rowToProduct(row, pricesByOffer.get(row.id)),
     clicks: clicksByOffer.get(row.id),
   }))
-  return { products, live: true }
+  return { products: withVariants(products), live: true }
 })
 
 function mockCatalog() {

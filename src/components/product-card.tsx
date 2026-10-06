@@ -159,6 +159,15 @@ export function ProductCard({
           </div>
         </Link>
 
+        {product.variants && (
+          <Link
+            href={`/busca?q=${encodeURIComponent(product.variants.query)}`}
+            className="mx-5 mb-3 text-xs font-medium text-brand hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            +{product.variants.count} {product.variants.count === 1 ? product.variants.noun.replace(/res$/, "r").replace("opções", "opção") : product.variants.noun} · ver todos
+          </Link>
+        )}
+
         <div className="px-5 pb-5">
           <OfferLink
             product={product}

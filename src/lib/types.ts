@@ -21,6 +21,8 @@ export interface Product {
   popularity?: number
   /** Clicks on "Ver oferta" in the last 14 days (only offers with 2+); used to rank, never shown. */
   clicks?: number
+  /** Other offers of the same product (other flavours or sellers), for the "+N sabores" link on the card. */
+  variants?: { count: number; noun: "sabores" | "opções"; query: string }
   reviewsCount?: number
   store: StoreSource
   category: string
