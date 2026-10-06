@@ -4,7 +4,7 @@ const SUPPLEMENT =
 
 /** Cosmetics, pet food and the like that reuse the same words. */
 const NOT_SUPPLEMENT =
-  /\b(shampoo|condicionador|cabelo|capilar|s[eé]rum|creme|hidratante|m[aá]scara|facial|sabonete|ra[cç][aã]o|c[aã]es|gatos|pets?|cachorro|l[aá]pis|brinquedo|garrafa|copo|mixer|misturador)\b/i
+  /\b(shampoo|condicionador|condicionante|cadiveu|skincare|antiacne|cabelo|capilar|s[eé]rum|creme|hidratante|m[aá]scara|facial|sabonete|ra[cç][aã]o|c[aã]es|gatos|pets?|cachorro|l[aá]pis|brinquedo|garrafa|copo|mixer|misturador)\b/i
 
 export const isSupplement = (title: string) => SUPPLEMENT.test(title) && !NOT_SUPPLEMENT.test(title)
 

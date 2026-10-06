@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion"
 import { Clock } from "lucide-react"
+import Link from "next/link"
 import type { ReactNode } from "react"
 
 import { ProductCard } from "@/components/product-card"
@@ -19,11 +20,14 @@ export function DealsCarousel({
   title = "Ofertas recém-encontradas",
   subtitle = "Encontradas há pouco pelo E-Zoom nas lojas parceiras.",
   icon = <Clock className="h-5 w-5" aria-hidden />,
+  href,
 }: {
   products: Product[]
   title?: string
   subtitle?: string
   icon?: ReactNode
+  /** Optional "see all" link shown beside the title. */
+  href?: string
 }) {
   return (
     <section className="bg-band py-12">
@@ -38,6 +42,11 @@ export function DealsCarousel({
             </h2>
             <p className="text-sm text-band-foreground/70">{subtitle}</p>
           </div>
+          {href && (
+            <Link href={href} className="ml-auto shrink-0 text-sm font-semibold text-brand hover:underline">
+              Ver todas
+            </Link>
+          )}
         </div>
 
         <Carousel

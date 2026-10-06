@@ -1,4 +1,5 @@
 import { CATEGORIES } from "@/lib/mock-data"
+import { heroRank } from "@/lib/hero-select"
 import type { Product } from "@/lib/types"
 import { calculateDiscountPercent } from "@/lib/utils"
 
@@ -69,7 +70,44 @@ export const byFinds = (products: Product[]) => {
     })
 }
 
-export const byRecent = (products: Product[]) =>
+/** Internal ordering score (never shown): real price signals + store rating + a fresh price. */
+export function offerScore(p: Product, now: number) {
+  const fresh = p.seenAt && now - Date.parse(p.seenAt) < 86_400_000 ? 8 : 0
+  const rated = p.rating ? (p.rating - 4) * 10 : 0
+  return heroRank(p, now) + (discountOf(p) ?? 0) * 0.3 + rated + fresh
+}
+
+/**
+ * Best first, without one store taking over. Each store is ranked by score on its own
+ * and the lists are merged by relative position (top 10% of each store together), so
+ * a big catalog does not bury a small one and stores appear in proportion to size.
+ */
+export function byRelevance(products: Product[], now = Date.now()) {
+  const stores = new Map<string, { p: Product; score: number }[]>()
+  for (const p of products) {
+    const list = stores.get(p.store) ?? []
+    list.push({ p, score: offerScore(p, now) })
+    stores.set(p.store, list)
+  }
+  const merged: { p: Product; score: number; pos: number }[] = []
+  for (const list of stores.values()) {
+    list.sort((a, b) => b.score - a.score)
+    list.forEach((e, i) => merged.push({ ...e, pos: (i + 0.5) / list.length }))
+  }
+  return merged.sort((a, b) => a.pos - b.pos || b.score - a.score).map((e) => e.p)
+}
+
+/** Keeps at most `max` offers of each category, preserving order. */
+export function capPerCategory(products: Product[], max: number) {
+  const seen = new Map<string, number>()
+  return products.filter((p) => {
+    const n = seen.get(p.category) ?? 0
+    seen.set(p.category, n + 1)
+    return n < max
+  })
+}
+
+export const byRecent =(products: Product[]) =>
   [...products].sort((a, b) => (b.createdAt ?? "").localeCompare(a.createdAt ?? ""))
 
 export function countByStoreId(products: Product[]) {

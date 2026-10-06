@@ -1,3 +1,4 @@
+import { byRelevance } from "@/lib/deals"
 import type { Product, SortOption, StoreSource } from "@/lib/types"
 import { calculateDiscountPercent } from "@/lib/utils"
 
@@ -91,8 +92,7 @@ export function sortProducts(products: Product[], sort: SortOption) {
       return sorted.sort((a, b) => (b.createdAt ?? "").localeCompare(a.createdAt ?? ""))
     case "relevance":
     default:
-      // Offers with a real discount first (biggest first); the rest keep catalog order.
-      return sorted.sort((a, b) => discountOf(b) - discountOf(a))
+      return byRelevance(sorted)
   }
 }
 

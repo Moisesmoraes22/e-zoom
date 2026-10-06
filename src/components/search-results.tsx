@@ -29,6 +29,7 @@ import {
 } from "@/lib/search"
 import type { CategoryCount } from "@/lib/deals"
 import { STORES } from "@/lib/mock-data"
+import { SUPPLEMENT_TYPES, supplementTypeOf, type SupplementType } from "@/lib/supplement-types"
 import type { Product, SortOption, StoreSource } from "@/lib/types"
 
 const PAGE_SIZE = 24
@@ -100,6 +101,22 @@ function SearchResultsInner({
     }))
   const categoryFilter = categorySlug ? undefined : categories
 
+  // Supplements only: quick chips by kind of product (whey, creatina, ...).
+  const [kind, setKind] = useState<SupplementType | null>(null)
+  const kindCounts = useMemo(() => {
+    if (categorySlug !== "suplementos") return null
+    const counts = new Map<SupplementType, number>()
+    for (const p of products) {
+      const t = p.category === categorySlug ? supplementTypeOf(p.title) : null
+      if (t) counts.set(t, (counts.get(t) ?? 0) + 1)
+    }
+    return counts
+  }, [products, categorySlug])
+  const baseProducts = useMemo(
+    () => (kind ? products.filter((p) => supplementTypeOf(p.title) === kind) : products),
+    [products, kind],
+  )
+
   const baseFilters: ProductFilters = { ...filters, query }
 
   const availableStores = useMemo(
@@ -107,17 +124,17 @@ function SearchResultsInner({
     [products],
   )
   const storeCounts = useMemo(
-    () => countByStore(filterProducts(products, { ...baseFilters, stores: [] })),
+    () => countByStore(filterProducts(baseProducts, { ...baseFilters, stores: [] })),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [products, query, filters],
+    [baseProducts, query, filters],
   )
   const results = useMemo(
-    () => sortProducts(filterProducts(products, baseFilters), sort),
+    () => sortProducts(filterProducts(baseProducts, baseFilters), sort),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [products, query, filters, sort],
+    [baseProducts, query, filters, sort],
   )
   // Page resets to 1 whenever the query, filters or sort change (the key no longer matches).
-  const pageKey = `${query}|${sort}|${JSON.stringify(filters)}`
+  const pageKey = `${query}|${sort}|${kind}|${JSON.stringify(filters)}`
   const [pageState, setPageState] = useState({ page: 1, key: pageKey })
   const totalPages = Math.max(1, Math.ceil(results.length / PAGE_SIZE))
   const page = Math.min(pageState.key === pageKey ? pageState.page : 1, totalPages)
@@ -184,6 +201,27 @@ function SearchResultsInner({
               categories={categoryFilter}
             />
           </div>
+
+          {kindCounts && (
+            <div className="mb-4 flex flex-wrap gap-2" role="group" aria-label="Tipo de suplemento">
+              {[{ value: null, label: "Todos" }, ...SUPPLEMENT_TYPES.filter((t) => kindCounts.get(t.value))].map((t) => (
+                <button
+                  key={t.value ?? "todos"}
+                  type="button"
+                  aria-pressed={kind === t.value}
+                  onClick={() => setKind(t.value)}
+                  className={`min-h-9 rounded-full border px-3.5 text-xs font-medium transition-colors ${
+                    kind === t.value
+                      ? "border-primary bg-primary/10 text-brand"
+                      : "border-border text-foreground hover:bg-accent/40"
+                  }`}
+                >
+                  {t.label}
+                  {t.value && ` (${kindCounts.get(t.value)})`}
+                </button>
+              ))}
+            </div>
+          )}
 
           {results.length === 0 ? (
             <div

@@ -1,4 +1,4 @@
-import { Flame, Sparkles, TrendingDown } from "lucide-react"
+import { Flame, Sparkles, Tag, TrendingDown } from "lucide-react"
 
 import { CategoryGrid } from "@/components/category-grid"
 import { DealsCarousel } from "@/components/deals-carousel"
@@ -8,7 +8,7 @@ import { InterestsSection } from "@/components/interests-section"
 import { PriceRangesSection } from "@/components/price-ranges-section"
 import { StoresSection } from "@/components/stores-section"
 import { CommerceHero } from "@/components/ui/commerce-hero"
-import { byDiscount, byFinds, byPriceDrop, byRecent, categoryCounts, countByStoreId } from "@/lib/deals"
+import { byDiscount, byFinds, byRelevance, capPerCategory, byPriceDrop, byRecent, categoryCounts, countByStoreId } from "@/lib/deals"
 import { toHeroOffer } from "@/lib/hero"
 import { selectHeroOffers } from "@/lib/hero-select"
 import { STORES } from "@/lib/mock-data"
@@ -18,6 +18,8 @@ import type { Product } from "@/lib/types"
 export const revalidate = 300
 
 const SECTION_SIZE = 9
+const SHELVES = 5
+const ALL_SIZE = 12
 /** A section with fewer cards than this looks broken, so it is left out. */
 const MIN_SECTION = 3
 
@@ -34,16 +36,22 @@ export default async function Home() {
 
   // Every hero slide is reserved, so the sections below never repeat any of them.
   const used = new Set<string>(heroProducts.map((p) => p.id))
-  const take = (list: Product[]) => {
-    const picked = list.filter((p) => !used.has(p.id)).slice(0, SECTION_SIZE)
+  const take = (list: Product[], size = SECTION_SIZE) => {
+    const picked = list.filter((p) => !used.has(p.id)).slice(0, size)
     if (picked.length < MIN_SECTION) return [] // not shown, so its products stay available
     picked.forEach((p) => used.add(p.id))
     return picked
   }
-  const featured = take(byDiscount(products))
+  const featured = take(capPerCategory(byRelevance(byDiscount(products)), 3))
   const priceDrops = take(byPriceDrop(products))
   const finds = take(byFinds(products))
   const recent = take(byRecent(products))
+  // One shelf per busiest category, best offers first with the stores mixed.
+  const shelves = categoryCounts(products)
+    .slice(0, SHELVES)
+    .map((c) => ({ ...c, items: take(byRelevance(products.filter((p) => p.category === c.slug))) }))
+    .filter((c) => c.items.length > 0)
+  const allOffers = take(byRelevance(products), ALL_SIZE)
 
   const storeCounts = countByStoreId(products)
   const storeNames = (["mercado_livre", "shopee", "amazon"] as const)
@@ -53,6 +61,7 @@ export default async function Home() {
   return (
     <main id="conteudo" className="bg-background">
       <CommerceHero storeNames={storeNames} offers={hero} />
+      <CategoryGrid categories={categoryCounts(products).slice(0, 8)} showCounts={live} />
       {featured.length > 0 && (
         <ProductGrid
           icon={<Flame className="h-5 w-5" />}
@@ -83,10 +92,28 @@ export default async function Home() {
         />
       )}
       <InterestsSection products={products} />
-      <CategoryGrid categories={categoryCounts(products).slice(0, 8)} showCounts={live} />
+      {shelves.map((c) => (
+        <DealsCarousel
+          key={c.slug}
+          products={c.items}
+          title={`Ofertas em ${c.name}`}
+          subtitle={`As melhores ofertas de ${c.name} agora.`}
+          icon={<Tag className="h-5 w-5" aria-hidden />}
+          href={`/categoria/${c.slug}`}
+        />
+      ))}
       <PriceRangesSection products={products} />
       {recent.length > 0 && (
         <DealsCarousel products={recent} />
+      )}
+      {allOffers.length > 0 && (
+        <ProductGrid
+          title="Todas as ofertas"
+          subtitle="Mais ofertas das lojas parceiras, das mais relevantes para as demais."
+          products={allOffers}
+          href="/busca"
+          linkLabel="Ver todas as ofertas"
+        />
       )}
       <StoresSection counts={storeCounts} />
       <SiteFooter />
