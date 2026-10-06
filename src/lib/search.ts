@@ -1,3 +1,4 @@
+import { djTypeOf } from "@/lib/dj-types"
 import { SUPPLEMENT_TYPES, supplementTypeOf } from "@/lib/supplement-types"
 import { unitPrice } from "@/lib/unit-price"
 import { byRelevance } from "@/lib/deals"
@@ -126,6 +127,13 @@ export function filterProducts(
 const discountOf = (p: Product) =>
   calculateDiscountPercent(p.price, p.originalPrice) ?? 0
 
+/** On a DJ-only list the centre of the niche (controllers, CDJs, mixers) comes first; the usual order is kept inside each group. */
+function djFirst(ranked: Product[]) {
+  if (ranked.length === 0 || !ranked.every((p) => p.category === "dj")) return ranked
+  const core = (p: Product) => djTypeOf(p.title) === "controladoras"
+  return [...ranked.filter(core), ...ranked.filter((p) => !core(p))]
+}
+
 export function sortProducts(products: Product[], sort: SortOption, query = "") {
   const sorted = [...products]
   switch (sort) {
@@ -152,7 +160,7 @@ export function sortProducts(products: Product[], sort: SortOption, query = "") 
     default: {
       const ranked = byRelevance(sorted)
       const groups = queryGroups(query)
-      if (groups.length === 0) return ranked
+      if (groups.length === 0) return djFirst(ranked)
       // With a search, how well the title matches comes first; the usual ranking breaks ties.
       const hinted = groups.flat().map((w) => CATEGORY_HINTS[w]).find(Boolean)
       return ranked
