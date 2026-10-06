@@ -89,9 +89,13 @@ export function createMercadoLivreConnector(env: NodeJS.ProcessEnv): Connector {
         const product = await get<MlProduct>(`/products/${id}`)
         const image = product.pictures?.[0]?.url
         // Cheapest new listing of this catalog product.
-        const best = results
+        const sellers = results
           .filter((item) => item.condition === "new" && item.price > 0)
-          .sort((a, b) => a.price - b.price)[0]
+          .sort((a, b) => a.price - b.price)
+        // A seller far below everyone else (under half of the next one) is usually a
+        // reseller of codes/gift cards or a typo, and makes the price flip between runs.
+        // ponytail: with a single seller there is nothing to compare, it is kept as is.
+        const best = sellers[1] && sellers[0].price < sellers[1].price * 0.5 ? sellers[1] : sellers[0]
         if (!best || !image || !product.name) return
         const supplement = isSupplement(product.name)
         if (onlySupplements && !supplement) return
