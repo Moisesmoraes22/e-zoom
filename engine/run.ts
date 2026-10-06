@@ -56,17 +56,21 @@ async function main() {
       upserted += chunk.length
     }
 
-    // Offers that left the channels stop showing after a 48h grace period.
+    // Offers that left the source stop showing after a grace period. Telegram prices are
+    // the post's, and Amazon moves them several times a day: 24h. APIs re-read every run: 48h.
     // Skipped on empty runs so a Telegram outage can't wipe the catalog.
     if (offers.length > 0) {
-      const cutoff = new Date(Date.now() - 48 * 3600_000).toISOString()
-      const { error } = await supabase
-        .from("offers")
-        .update({ is_active: false })
-        .in("source", [...new Set(offers.map((o) => o.source))])
-        .eq("is_active", true)
-        .lt("last_seen_at", cutoff)
-      if (error) throw error
+      for (const source of new Set(offers.map((o) => o.source))) {
+        const hours = source === "telegram" ? 24 : 48
+        const cutoff = new Date(Date.now() - hours * 3600_000).toISOString()
+        const { error } = await supabase
+          .from("offers")
+          .update({ is_active: false })
+          .eq("source", source)
+          .eq("is_active", true)
+          .lt("last_seen_at", cutoff)
+        if (error) throw error
+      }
     }
 
     await supabase
