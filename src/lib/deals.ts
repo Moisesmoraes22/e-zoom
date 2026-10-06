@@ -35,6 +35,16 @@ export const byDiscount = (products: Product[]) =>
     .filter((p) => discountOf(p))
     .sort((a, b) => (discountOf(b) ?? 0) - (discountOf(a) ?? 0))
 
+/** Real drops only (from recorded prices), biggest percentage first. Same figure the card shows. */
+export const byPriceDrop = (products: Product[]) =>
+  products
+    .filter((p) => p.isPriceDrop && p.priceHistory)
+    .sort(
+      (a, b) =>
+        (calculateDiscountPercent(b.price, Math.max(...b.priceHistory!)) ?? 0) -
+        (calculateDiscountPercent(a.price, Math.max(...a.priceHistory!)) ?? 0),
+    )
+
 export const byRecent = (products: Product[]) =>
   [...products].sort((a, b) => (b.createdAt ?? "").localeCompare(a.createdAt ?? ""))
 

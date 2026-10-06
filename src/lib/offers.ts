@@ -7,6 +7,8 @@ import type { PriceStats, Product } from "@/lib/types"
 
 /** Safety ceiling for the public catalog (the engine keeps ~1,300 offers live). */
 const MAX_OFFERS = 3000
+/** Same idea for price_history (3.5k rows today, growing with every price change). */
+const MAX_HISTORY_ROWS = 20_000
 
 /**
  * Live offers from Supabase (public read via RLS). Only offers with OUR
@@ -40,15 +42,22 @@ export const getCatalog = cache(async (): Promise<{ products: Product[]; live: b
 
   if (!data.length) return mockCatalog()
 
-  // The DB trigger only records a row when the price changes. Newest 1000 rows
-  // (PostgREST's page cap), re-ordered oldest-first per offer below.
-  const { data: history } = await supabase
-    .from("price_history")
-    .select("offer_id, price")
-    .order("recorded_at", { ascending: false })
-    .limit(1000)
+  // The DB trigger only records a row when the price changes (plus one first row per
+  // offer). Read it all, page by page (PostgREST caps a request at 1000 rows), so the
+  // drops are not hidden behind thousands of first-price rows. Oldest-first per offer below.
+  const history: { offer_id: string; price: number }[] = []
+  for (let from = 0; from < MAX_HISTORY_ROWS; from += 1000) {
+    const { data: page } = await supabase
+      .from("price_history")
+      .select("offer_id, price")
+      .order("recorded_at", { ascending: false })
+      .order("id", { ascending: false })
+      .range(from, from + 999)
+    history.push(...(page ?? []))
+    if ((page?.length ?? 0) < 1000) break
+  }
   const pricesByOffer = new Map<string, number[]>()
-  for (const row of [...(history ?? [])].reverse()) {
+  for (const row of history.reverse()) {
     const list = pricesByOffer.get(row.offer_id) ?? []
     list.push(Number(row.price))
     pricesByOffer.set(row.offer_id, list)

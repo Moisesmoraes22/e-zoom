@@ -4,10 +4,11 @@ import { CategoryGrid } from "@/components/category-grid"
 import { DealsCarousel } from "@/components/deals-carousel"
 import { ProductGrid } from "@/components/product-grid"
 import { SiteFooter } from "@/components/site-footer"
+import { InterestsSection } from "@/components/interests-section"
 import { PriceRangesSection } from "@/components/price-ranges-section"
 import { StoresSection } from "@/components/stores-section"
 import { CommerceHero } from "@/components/ui/commerce-hero"
-import { byDiscount, byRecent, categoryCounts, countByStoreId } from "@/lib/deals"
+import { byDiscount, byPriceDrop, byRecent, categoryCounts, countByStoreId } from "@/lib/deals"
 import { toHeroOffer } from "@/lib/hero"
 import { selectHeroOffers } from "@/lib/hero-select"
 import { STORES } from "@/lib/mock-data"
@@ -40,7 +41,7 @@ export default async function Home() {
     return picked
   }
   const featured = take(byDiscount(products))
-  const priceDrops = take(products.filter((p) => p.isPriceDrop))
+  const priceDrops = take(byPriceDrop(products))
   const recent = take(byRecent(products))
 
   const storeCounts = countByStoreId(products)
@@ -64,12 +65,13 @@ export default async function Home() {
       {priceDrops.length > 0 && (
         <ProductGrid
           icon={<TrendingDown className="h-5 w-5" />}
-          title="O preço caiu"
-          subtitle="Produtos que ficaram mais baratos desde que começamos a acompanhar."
+          title="Maior queda de preço"
+          subtitle="Produtos que ficaram mais baratos recentemente."
           products={priceDrops}
           href="/busca"
         />
       )}
+      <InterestsSection products={products} />
       <CategoryGrid categories={categoryCounts(products).slice(0, 8)} showCounts={live} />
       <PriceRangesSection products={products} />
       {recent.length > 0 && (
