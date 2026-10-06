@@ -125,7 +125,7 @@ export function byRelevance(products: Product[], now = Date.now()) {
 }
 
 /** Same product ignoring flavour: accents, spaces and everything from "sabor" on are dropped. */
-const variantKey = (title: string) =>
+export const variantKey = (title: string) =>
   title
     .normalize("NFD")
     .replace(/\p{M}/gu, "")

@@ -2,7 +2,7 @@
 
 import { ListFilter, SearchX, SlidersHorizontal } from "lucide-react"
 import { useSearchParams } from "next/navigation"
-import { useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 
 import { AppliedFilterChips } from "@/components/applied-filter-chips"
 import { FilterPanel } from "@/components/filter-panel"
@@ -29,6 +29,7 @@ import {
   type ProductFilters,
 } from "@/lib/search"
 import type { CategoryCount } from "@/lib/deals"
+import { recordSearch } from "@/lib/interest-profile"
 import { STORES } from "@/lib/mock-data"
 import { SUPPLEMENT_TYPES, supplementTypeOf, type SupplementType } from "@/lib/supplement-types"
 import type { Product, SortOption, StoreSource } from "@/lib/types"
@@ -143,6 +144,11 @@ function SearchResultsInner({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [baseProducts, query, filters, sort],
   )
+  // A search that found something is a (local-only) sign of interest.
+  const hasResults = results.length > 0
+  useEffect(() => {
+    if (rawQuery && hasResults) recordSearch(query)
+  }, [rawQuery, query, hasResults])
   // Page resets to 1 whenever the query, filters or sort change (the key no longer matches).
   const pageKey = `${query}|${sort}|${kind}|${JSON.stringify(filters)}`
   const [pageState, setPageState] = useState({ page: 1, key: pageKey })

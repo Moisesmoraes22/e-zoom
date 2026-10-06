@@ -5,6 +5,7 @@ import { DealsCarousel } from "@/components/deals-carousel"
 import { ProductGrid } from "@/components/product-grid"
 import { SiteFooter } from "@/components/site-footer"
 import { InterestsSection } from "@/components/interests-section"
+import { RecommendedSection } from "@/components/recommended-section"
 import { PriceRangesSection } from "@/components/price-ranges-section"
 import { StoresSection } from "@/components/stores-section"
 import { CommerceHero } from "@/components/ui/commerce-hero"
@@ -20,6 +21,7 @@ export const revalidate = 300
 const SECTION_SIZE = 9
 const SHELVES = 5
 const ALL_SIZE = 12
+const POOL_PER_CATEGORY = 24
 /** A section with fewer cards than this looks broken, so it is left out. */
 const MIN_SECTION = 3
 
@@ -53,6 +55,16 @@ export default async function Home() {
     .map((c) => ({ ...c, items: take(byRelevance(products.filter((p) => p.category === c.slug))) }))
     .filter((c) => c.items.length > 0)
   const allOffers = take(byRelevance(products), ALL_SIZE)
+
+  // Candidates for "Recomendado para você" (picked in the browser from the visitor's own
+  // history): the best offers of every category, so any interest has something to match.
+  const ranked = byRelevance(products)
+  const perCategory = new Map<string, number>()
+  const recommendPool = ranked.filter((p) => {
+    const n = perCategory.get(p.category) ?? 0
+    perCategory.set(p.category, n + 1)
+    return n < POOL_PER_CATEGORY
+  })
 
   const storeCounts = countByStoreId(products)
   const storeNames = (["mercado_livre", "shopee", "amazon"] as const)
@@ -101,6 +113,7 @@ export default async function Home() {
           cardLabel="Achado E-Zoom"
         />
       )}
+      {live && <RecommendedSection pool={recommendPool} />}
       <InterestsSection products={products} />
       {shelves.map((c) => (
         <DealsCarousel

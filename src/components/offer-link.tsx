@@ -2,10 +2,11 @@
 
 import type { AnchorHTMLAttributes } from "react"
 
+import { recordProduct } from "@/lib/interest-profile"
 import type { Product, StoreSource } from "@/lib/types"
 
 interface OfferLinkProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
-  product: Pick<Product, "id" | "title">
+  product: Pick<Product, "id" | "title" | "category">
   store: StoreSource
   affiliateUrl: string
 }
@@ -31,6 +32,7 @@ export function OfferLink({
 }: OfferLinkProps) {
   void _store // part of the call sites' API; kept out of the <a> props
   const record = () => {
+    recordProduct("click", product)
     const payload = JSON.stringify({ offerId: product.id, origin: originOf(window.location.pathname) })
     if (!navigator.sendBeacon?.("/api/click", new Blob([payload], { type: "application/json" }))) {
       void fetch("/api/click", { method: "POST", body: payload, keepalive: true }).catch(() => {})

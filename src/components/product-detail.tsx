@@ -12,7 +12,7 @@ import {
   Truck,
 } from "lucide-react"
 import Link from "next/link"
-import { useRef } from "react"
+import { useEffect, useRef } from "react"
 
 import { OfferLink } from "@/components/offer-link"
 import { PriceSparkline } from "@/components/price-sparkline"
@@ -22,6 +22,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { discountOf, savingsOf } from "@/lib/deals"
 import { useFavorites } from "@/lib/favorites-context"
+import { recordProduct } from "@/lib/interest-profile"
 import { CATEGORIES, STORES } from "@/lib/mock-data"
 import type { PriceStats, Product, ProductOffer } from "@/lib/types"
 import {
@@ -45,6 +46,7 @@ export function ProductDetail({
 }) {
   const { toggleFavorite, isFavorite, launchFlight } = useFavorites()
   const favorited = isFavorite(product.id)
+  useEffect(() => recordProduct("view", product), [product])
   const buttonRef = useRef<HTMLButtonElement>(null)
   const bestOffer = offers[0]
   const category = CATEGORIES.find((c) => c.slug === product.category)

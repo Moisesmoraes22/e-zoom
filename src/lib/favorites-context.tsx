@@ -15,6 +15,7 @@ import {
 import { useAuth } from "@/components/auth-provider"
 import { createFavoritesApi } from "@/lib/favorites-api"
 import { isOfferId, mergeLoaded, syncFavorites, type FavoritesApi } from "@/lib/favorites-sync"
+import { recordProduct } from "@/lib/interest-profile"
 import type { Product } from "@/lib/types"
 
 export interface FavoriteFlight {
@@ -203,6 +204,7 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
     if (itemsRef.current.some((i) => i.id === product.id)) return
     commit([...itemsRef.current, product])
     pushAdd(product.id)
+    recordProduct("favorite", product)
   }
 
   const removeFavorite = (id: string) => {
