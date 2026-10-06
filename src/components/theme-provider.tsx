@@ -17,12 +17,12 @@ const DARK_QUERY = "(prefers-color-scheme: dark)"
 
 /**
  * Colour palette: "verde" (original) or "marinho" (navy + gray + blue, see globals.css).
- * DEFAULT_PALETTE is what everyone sees; `?paleta=marinho` / `?paleta=verde` in any URL
- * switches it for that browser. To make navy the site's look, change DEFAULT_PALETTE to
- * "marinho"; to undo, change it back (or revert the commit).
+ * DEFAULT_PALETTE is what everyone sees: "marinho" now. `?paleta=verde` / `?paleta=marinho`
+ * in any URL switches it for that browser. To bring the green one back for everybody,
+ * set DEFAULT_PALETTE to "verde" (and recolor src/app/icon.svg to #16a34a), or revert the commit.
  */
 const PALETTE_KEY = "ezoom:palette"
-const DEFAULT_PALETTE = "verde"
+const DEFAULT_PALETTE = "marinho"
 
 /**
  * Runs before first paint (see layout.tsx) so the page never flashes the wrong
