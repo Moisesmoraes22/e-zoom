@@ -63,9 +63,16 @@ export const getCatalog = cache(async (): Promise<{ products: Product[]; live: b
     pricesByOffer.set(row.offer_id, list)
   }
 
-  const products = (data as OfferRow[]).map((row) =>
-    rowToProduct(row, pricesByOffer.get(row.id)),
+  // Click totals (counts only) feed the ranking; if the call fails the site just ranks without them.
+  const { data: clickRows } = await supabase.rpc("offer_click_counts", { days: 14 })
+  const clicksByOffer = new Map<string, number>(
+    ((clickRows ?? []) as { offer_id: string; clicks: number }[]).map((r) => [r.offer_id, r.clicks]),
   )
+
+  const products = (data as OfferRow[]).map((row) => ({
+    ...rowToProduct(row, pricesByOffer.get(row.id)),
+    clicks: clicksByOffer.get(row.id),
+  }))
   return { products, live: true }
 })
 

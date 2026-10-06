@@ -19,6 +19,8 @@ export interface Product {
   rating?: number
   /** Store-reported popularity (Shopee likes / sales); only used to rank, never shown. */
   popularity?: number
+  /** Clicks on "Ver oferta" in the last 14 days (only offers with 2+); used to rank, never shown. */
+  clicks?: number
   reviewsCount?: number
   store: StoreSource
   category: string

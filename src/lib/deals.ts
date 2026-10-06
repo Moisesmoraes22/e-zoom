@@ -71,6 +71,7 @@ export const byFinds = (products: Product[]) => {
 }
 
 const FRESHNESS_HALF_LIFE_H = 48
+const MIN_CLICKS = 3
 
 /** 1 = price seen just now, 0.5 after 48h, 0.25 after 96h. Unknown age counts as old. */
 export function freshness(p: Product, now: number) {
@@ -83,7 +84,10 @@ export function freshness(p: Product, now: number) {
 export function offerScore(p: Product, now: number) {
   const rated = p.rating ? (p.rating - 4) * 10 : 0
   const popular = p.popularity ? Math.log10(1 + p.popularity) * 4 : 0 // 10 -> ~4, 10,000 -> ~16
-  const signals = Math.max(0, heroRank(p, now) + (discountOf(p) ?? 0) * 0.3 + rated + popular)
+  // Real interest from our own visitors. Ignored below MIN_CLICKS (a couple of clicks is noise)
+  // and capped, so already-popular offers cannot snowball by being shown more.
+  const clicked = p.clicks && p.clicks >= MIN_CLICKS ? Math.min(12, Math.log2(p.clicks) * 3) : 0
+  const signals = Math.max(0, heroRank(p, now) + (discountOf(p) ?? 0) * 0.3 + rated + popular + clicked)
   return signals * (0.3 + 0.7 * freshness(p, now))
 }
 
