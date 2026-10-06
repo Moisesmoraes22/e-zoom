@@ -10,8 +10,9 @@ import { PriceSparkline } from "@/components/price-sparkline"
 import { StoreBadge } from "@/components/store-badge"
 import { AgeDot, TimeAgo } from "@/components/time-ago"
 import { Badge } from "@/components/ui/badge"
-import { discountOf, savingsOf } from "@/lib/deals"
+import { discountOf } from "@/lib/deals"
 import { useFavorites } from "@/lib/favorites-context"
+import { cardImage } from "@/lib/image-url"
 import { unitPrice } from "@/lib/unit-price"
 import type { Product } from "@/lib/types"
 import {
@@ -38,7 +39,6 @@ export function ProductCard({
   const favorited = isFavorite(product.id)
   const buttonRef = useRef<HTMLButtonElement>(null)
   const discount = discountOf(product)
-  const savings = savingsOf(product)
   const unit = product.category === "suplementos" ? unitPrice(product.title, product.price) : null
 
   const handleToggle = (event: React.MouseEvent) => {
@@ -73,20 +73,24 @@ export function ProductCard({
             )}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={product.image}
+              src={cardImage(product.image)}
               alt={product.title}
               loading="lazy"
+              decoding="async"
+              onError={(e) => {
+                if (e.currentTarget.src !== product.image) e.currentTarget.src = product.image
+              }}
               className="h-full w-full object-cover transition-transform duration-500 motion-safe:group-hover:scale-105"
             />
           </div>
 
-          <div className={cn("flex flex-1 flex-col", compact ? "gap-1.5 p-3 pb-2" : "gap-3 p-5 pb-3")}>
+          <div className={cn("flex flex-1 flex-col", compact ? "gap-1.5 p-3.5 pb-2" : "gap-2 p-4 pb-2")}>
             {label && (
               <span className="-mb-1 text-[11px] font-semibold uppercase tracking-wide text-brand">
                 {label}
               </span>
             )}
-            <h3 className={cn("line-clamp-2 min-h-[2.5rem] font-medium text-foreground", compact ? "text-[13px] leading-snug" : "text-sm")}>
+            <h3 className={cn("line-clamp-2 min-h-[2.4rem] font-medium text-foreground", "text-sm leading-snug")}>
               {product.title}
             </h3>
 
@@ -97,16 +101,14 @@ export function ProductCard({
                   {product.rating.toFixed(1)}
                 </span>
                 {product.reviewsCount && (
-                  <span>
-                    ({formatReviewCount(product.reviewsCount)} avaliações)
-                  </span>
+                  <span>({formatReviewCount(product.reviewsCount)})</span>
                 )}
               </div>
             )}
 
             <div className="flex flex-col gap-1">
               <div className="flex flex-wrap items-baseline gap-x-2">
-                <span className={cn("font-bold tabular-nums text-brand", compact ? "text-lg" : "text-xl")}>
+                <span className={cn("font-bold tabular-nums text-brand", "text-xl")}>
                   {formatCurrency(product.price)}
                 </span>
                 {product.originalPrice && discount && (
@@ -115,24 +117,18 @@ export function ProductCard({
                   </span>
                 )}
               </div>
-              {savings && (
-                <span className="flex items-center gap-1 text-xs font-medium text-brand">
-                  <TrendingDown className="h-3.5 w-3.5" aria-hidden />
-                  Economize {formatCurrency(savings)}
-                </span>
-              )}
               {product.isPriceDrop && product.priceHistory && (
                 <span className="flex items-center gap-2 text-xs font-medium text-brand">
                   <PriceSparkline values={product.priceHistory} className="h-5 w-14" />
                   Caiu {formatCurrency(product.priceHistory.at(-2)! - product.price)} ({calculateDiscountPercent(product.price, product.priceHistory.at(-2)!)}%)
                 </span>
               )}
-              {unit && (
+              {!(product.isPriceDrop && product.priceHistory) && unit && (
                 <span className="text-xs font-medium text-muted-foreground">
                   {formatCurrency(unit.value)}/{unit.unit}
                 </span>
               )}
-              {product.installments && (
+              {!(product.isPriceDrop && product.priceHistory) && !unit && product.installments && (
                 <span className="text-xs text-muted-foreground">
                   em {product.installments.count}x de{" "}
                   {formatCurrency(product.installments.value)}
@@ -140,7 +136,7 @@ export function ProductCard({
               )}
             </div>
 
-            <div className="mt-auto flex flex-col gap-1.5 pt-2">
+            <div className="mt-auto flex flex-col gap-1 pt-1.5">
               <div className="flex items-center justify-between gap-2">
                 <StoreBadge store={product.store} variant="minimal" />
                 {product.isFreeShipping && (
@@ -154,7 +150,7 @@ export function ProductCard({
                 <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground/80">
                   <AgeDot iso={product.seenAt} />
                   <span>
-                    Preço visto <TimeAgo iso={product.seenAt} />
+                    Visto <TimeAgo iso={product.seenAt} />
                   </span>
                 </span>
               )}
@@ -167,14 +163,14 @@ export function ProductCard({
             href={`/busca?q=${encodeURIComponent(product.variants.query)}`}
             className={cn(
               "mb-3 text-xs font-medium text-brand hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-              compact ? "mx-3" : "mx-5",
+              compact ? "mx-3.5" : "mx-4",
             )}
           >
             +{product.variants.count} {product.variants.count === 1 ? product.variants.noun.replace(/res$/, "r").replace("opções", "opção") : product.variants.noun} · ver todos
           </Link>
         )}
 
-        <div className={compact ? "px-3 pb-3" : "px-5 pb-5"}>
+        <div className={compact ? "px-3.5 pb-3.5" : "px-4 pb-4"}>
           <OfferLink
             product={product}
             store={product.store}
