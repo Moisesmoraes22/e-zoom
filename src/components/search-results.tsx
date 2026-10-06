@@ -129,7 +129,7 @@ function SearchResultsInner({
     [baseProducts, query, filters],
   )
   const results = useMemo(
-    () => sortProducts(filterProducts(baseProducts, baseFilters), sort),
+    () => sortProducts(filterProducts(baseProducts, baseFilters), sort, query),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [baseProducts, query, filters, sort],
   )

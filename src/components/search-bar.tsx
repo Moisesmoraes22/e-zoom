@@ -8,7 +8,7 @@ import { useEffect, useId, useMemo, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { categoryIcon } from "@/lib/category-icons"
 import { CATEGORIES } from "@/lib/mock-data"
-import { normalizeText } from "@/lib/search"
+import { matchTier, normalizeText, queryGroups } from "@/lib/search"
 import { loadSearchIndex, useSearchIndex } from "@/lib/search-index"
 import { cn, formatCurrency } from "@/lib/utils"
 
@@ -110,13 +110,13 @@ export function SearchBar({
       }
       rows.splice(MAX_IDLE_ROWS)
     } else if (index.status === "ready") {
-      const tokens = normalized.split(/\s+/)
+      const groups = queryGroups(query)
       index.items
-        .filter((item) => {
-          const title = normalizeText(item.title)
-          return tokens.every((t) => title.includes(t))
-        })
+        .map((item) => ({ item, tier: matchTier(item.title, groups) }))
+        .filter((e) => e.tier > 0)
+        .sort((a, b) => b.tier - a.tier) // stable: same tier keeps catalog order
         .slice(0, 5)
+        .map((e) => e.item)
         .forEach((item) =>
           rows.push({
             key: `p-${item.id}`,

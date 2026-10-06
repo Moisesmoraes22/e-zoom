@@ -8,6 +8,47 @@ import { calculateDiscountPercent } from "@/lib/utils"
 export const normalizeText = (text: string) =>
   text.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase()
 
+/** Words people use for the same thing; searching one finds the others. */
+const SYNONYMS = [
+  ["whey", "proteina"],
+  ["celular", "smartphone", "iphone", "galaxy"],
+  ["fone", "headset", "headphone", "earbuds"],
+  ["tv", "televisao"],
+  ["notebook", "laptop"],
+  ["geladeira", "refrigerador"],
+  ["airfryer", "air fryer", "fritadeira"],
+  ["ps5", "playstation 5", "playstation5"],
+  ["ps4", "playstation 4", "playstation4"],
+  ["tenis", "sapatilha"],
+  ["relogio", "smartwatch"],
+  ["pretreino", "pre treino"],
+]
+
+/** One list of acceptable spellings per typed word (plural, synonyms), accents removed. */
+export function queryGroups(query: string): string[][] {
+  const words = normalizeText(query).replace(/[^a-z0-9 ]+/g, " ").split(/\s+/).filter(Boolean)
+  return words.map((word) => {
+    const alts = new Set([word])
+    if (word.length > 3 && word.endsWith("s")) alts.add(word.slice(0, -1))
+    for (const group of SYNONYMS) if (group.includes(word)) group.forEach((g) => alts.add(g))
+    return [...alts]
+  })
+}
+
+/**
+ * 0 = the title does not match every typed word; 1 = matches inside words;
+ * 2 = every word appears as a whole word; 3 = same, and the title starts with the first word.
+ */
+export function matchTier(title: string, groups: string[][]): number {
+  if (groups.length === 0) return 1
+  const plain = normalizeText(title)
+  if (!groups.every((alts) => alts.some((a) => plain.includes(a)))) return 0
+  const padded = ` ${plain.replace(/[^a-z0-9]+/g, " ")} `
+  const whole = groups.every((alts) => alts.some((a) => padded.includes(` ${a} `)))
+  if (!whole) return 1
+  return groups[0].some((a) => padded.startsWith(` ${a} `)) ? 3 : 2
+}
+
 /** Price buckets shared by the filter panel, the filter chips and the home section. */
 export const PRICE_RANGES = [
   { value: "0-50", label: "Até R$ 50", min: 0, max: 50 },
@@ -48,13 +89,10 @@ export function filterProducts(
   products: Product[],
   filters: ProductFilters,
 ): Product[] {
-  const tokens = normalizeText(filters.query ?? "").split(/\s+/).filter(Boolean)
+  const groups = queryGroups(filters.query ?? "")
 
   return products.filter((product) => {
-    if (tokens.length) {
-      const title = normalizeText(product.title)
-      if (!tokens.every((token) => title.includes(token))) return false
-    }
+    if (groups.length && matchTier(product.title, groups) === 0) return false
     if (filters.category && product.category !== filters.category)
       return false
     if (filters.stores.length && !filters.stores.includes(product.store))
@@ -82,7 +120,7 @@ export function filterProducts(
 const discountOf = (p: Product) =>
   calculateDiscountPercent(p.price, p.originalPrice) ?? 0
 
-export function sortProducts(products: Product[], sort: SortOption) {
+export function sortProducts(products: Product[], sort: SortOption, query = "") {
   const sorted = [...products]
   switch (sort) {
     case "price_asc":
@@ -105,8 +143,16 @@ export function sortProducts(products: Product[], sort: SortOption) {
       return sorted.sort((a, b) => rank(a) - rank(b))
     }
     case "relevance":
-    default:
-      return byRelevance(sorted)
+    default: {
+      const ranked = byRelevance(sorted)
+      const groups = queryGroups(query)
+      if (groups.length === 0) return ranked
+      // With a search, how well the title matches comes first; the usual ranking breaks ties.
+      return ranked
+        .map((p, i) => ({ p, i, tier: matchTier(p.title, groups) }))
+        .sort((a, b) => b.tier - a.tier || a.i - b.i)
+        .map((e) => e.p)
+    }
   }
 }
 
