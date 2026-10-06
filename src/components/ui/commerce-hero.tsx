@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useEffect, useState, useSyncExternalStore } from "react";
 
 import { PriceSparkline } from "@/components/price-sparkline";
+import { HeroBackdrop } from "@/components/ui/hero-backdrop";
 import { SearchBar } from "@/components/search-bar";
 import type { HeroOffer } from "@/lib/hero";
 import { cn, formatCurrency } from "@/lib/utils";
@@ -83,8 +84,7 @@ export function CommerceHero({
       >
         {/* Decoration only; clipped on its own so the search dropdown can overflow the hero. */}
         <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl">
-          <div className="absolute -right-24 -top-24 h-96 w-96 rounded-full bg-primary/15 blur-3xl" />
-          <div className="absolute -bottom-32 left-1/4 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
+          <HeroBackdrop />
         </div>
 
         <div
@@ -213,7 +213,7 @@ function HeroSlide({ offer, intro }: { offer: HeroOffer; intro: boolean }) {
           )}
         </div>
 
-        <div className="mt-4 flex items-end justify-between gap-3 px-1">
+        <div className="mt-4 flex items-end justify-between gap-3 rounded-2xl bg-card/90 px-4 py-3 shadow-lg shadow-foreground/10 ring-1 ring-border backdrop-blur-sm">
           <div className="min-w-0">
             <p className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
               <span
