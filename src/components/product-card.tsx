@@ -55,7 +55,7 @@ export function ProductCard({
       className={cn(
         "group relative flex h-full flex-col overflow-hidden rounded-2xl border bg-card transition-all duration-300 motion-safe:hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10",
         favorited
-          ? "border-primary ring-2 ring-primary/40 ring-offset-2 ring-offset-background"
+          ? "border-destructive ring-2 ring-destructive/40 ring-offset-2 ring-offset-background"
           : "border-border",
         className,
       )}
@@ -140,7 +140,7 @@ export function ProductCard({
               <div className="flex items-center justify-between gap-2">
                 <StoreBadge store={product.store} variant="minimal" />
                 {product.isFreeShipping && (
-                  <span className="flex items-center gap-1 text-xs font-medium text-brand">
+                  <span className="flex items-center gap-1 text-xs font-medium text-success">
                     <Truck className="h-3.5 w-3.5" aria-hidden />
                     Frete grátis
                   </span>
@@ -197,8 +197,8 @@ export function ProductCard({
         className={cn(
           "absolute right-2 top-2 z-20 flex h-9 w-9 items-center justify-center rounded-full shadow-md transition-colors duration-300",
           favorited
-            ? "bg-primary text-primary-foreground"
-            : "bg-background/90 text-foreground backdrop-blur-sm hover:bg-primary hover:text-primary-foreground",
+            ? "bg-destructive text-white"
+            : "bg-background/90 text-destructive backdrop-blur-sm hover:bg-destructive hover:text-white",
         )}
       >
         <AnimatePresence mode="popLayout" initial={false}>
