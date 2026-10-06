@@ -118,9 +118,11 @@ export default async function Home() {
       {live && <RecommendedSection pool={recommendPool} />}
       <InterestsSection products={products} />
       <PriceRangesSection products={products} />
-      {shelves.map((c) => (
+      {/* One navy band on the whole page (the first category); the other shelves stay on the light background. */}
+      {shelves.map((c, i) => (
         <DealsCarousel
           key={c.slug}
+          tone={i === 0 ? "navy" : "light"}
           products={c.items}
           title={`Ofertas em ${c.name}`}
           subtitle={`As melhores ofertas de ${c.name} agora.`}
@@ -129,7 +131,7 @@ export default async function Home() {
         />
       ))}
       {recent.length > 0 && (
-        <DealsCarousel products={recent} />
+        <DealsCarousel products={recent} tone="light" />
       )}
       {allOffers.length > 0 && (
         <ProductRow

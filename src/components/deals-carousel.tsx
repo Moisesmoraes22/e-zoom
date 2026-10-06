@@ -21,6 +21,7 @@ export function DealsCarousel({
   subtitle = "Encontradas há pouco pelo E-Zoom nas lojas parceiras.",
   icon = <Clock className="h-5 w-5" aria-hidden />,
   href,
+  tone = "navy",
 }: {
   products: Product[]
   title?: string
@@ -28,19 +29,22 @@ export function DealsCarousel({
   icon?: ReactNode
   /** Optional "see all" link shown beside the title. */
   href?: string
+  /** "navy" is the dark highlight band; "light" sits on the page background. */
+  tone?: "navy" | "light"
 }) {
+  const navy = tone === "navy"
   return (
-    <section className="bg-band py-12">
+    <section className={navy ? "bg-band py-12" : "py-12"}>
       <div className="container mx-auto max-w-7xl px-4">
         <div className="mb-6 flex items-center gap-2">
           <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground">
             {icon}
           </span>
           <div>
-            <h2 className="text-2xl font-bold text-band-foreground sm:text-3xl">
+            <h2 className={`text-2xl font-bold sm:text-3xl ${navy ? "text-band-foreground" : "text-foreground"}`}>
               {title}
             </h2>
-            <p className="text-sm text-band-foreground/70">{subtitle}</p>
+            <p className={`text-sm ${navy ? "text-band-foreground/70" : "text-muted-foreground"}`}>{subtitle}</p>
           </div>
           {href && (
             <Link href={href} className="ml-auto shrink-0 text-sm font-semibold text-brand hover:underline">
@@ -70,7 +74,7 @@ export function DealsCarousel({
                   }}
                   className="h-full"
                 >
-                  <ProductCard product={product} className="bg-background" compact />
+                  <ProductCard product={product} className={navy ? "bg-background" : undefined} compact />
                 </motion.div>
               </CarouselItem>
             ))}
