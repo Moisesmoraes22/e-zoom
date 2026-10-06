@@ -1,6 +1,6 @@
 "use client"
 
-import { Heart, LogOut } from "lucide-react"
+import { Bookmark, LogOut } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 
@@ -12,7 +12,7 @@ export function OpenFavoritesButton() {
   const { openFavorites } = useFavorites()
   return (
     <Button type="button" variant="outline" className="shrink-0 gap-2" onClick={openFavorites}>
-      <Heart className="h-4 w-4" aria-hidden />
+      <Bookmark className="h-4 w-4" aria-hidden />
       Ver favoritos
     </Button>
   )

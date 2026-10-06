@@ -5,7 +5,7 @@ import {
   Award,
   ArrowRight,
   ChevronDown,
-  Heart,
+  Bookmark,
   LineChart,
   Star,
   TrendingDown,
@@ -211,7 +211,7 @@ export function ProductDetail({
                     exit={{ scale: 0.4, opacity: 0 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <Heart className={cn("h-4 w-4", favorited && "fill-current")} aria-hidden />
+                    <Bookmark className={cn("h-4 w-4", favorited && "fill-current")} aria-hidden />
                   </motion.span>
                 </AnimatePresence>
                 {favorited ? "Favoritado" : "Favoritar"}

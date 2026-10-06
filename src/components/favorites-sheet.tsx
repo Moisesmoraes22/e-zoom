@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from "framer-motion"
 import {
   Cloud,
   ExternalLink,
-  Heart,
+  Bookmark,
   Loader2,
   TrendingDown,
   TrendingUp,
@@ -98,7 +98,7 @@ export function FavoritesSheet() {
               aria-hidden
               className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground"
             >
-              <Heart className="h-5 w-5 fill-current" />
+              <Bookmark className="h-5 w-5 fill-current" />
             </span>
             <span>
               <span className="block text-base font-semibold text-foreground">
@@ -135,7 +135,7 @@ export function FavoritesSheet() {
               aria-hidden
               className="flex h-20 w-20 items-center justify-center rounded-full bg-accent text-brand"
             >
-              <Heart className="h-9 w-9" />
+              <Bookmark className="h-9 w-9" />
             </span>
             <div className="flex flex-col gap-1.5">
               <p className="text-base font-semibold text-foreground">
@@ -184,10 +184,11 @@ export function FavoritesSheet() {
                       exit={{ opacity: 0, x: 24, height: 0 }}
                       transition={{ duration: 0.25, ease: "easeOut" }}
                       className={cn(
-                        "flex shrink-0 gap-3 overflow-hidden rounded-xl border border-border bg-card p-3",
+                        "flex shrink-0 flex-col gap-2 overflow-hidden rounded-xl border border-border bg-card p-3",
                         isClearing && "pointer-events-none",
                       )}
                     >
+                      <div className="flex gap-3">
                       <Link
                         href={`/produto/${item.id}`}
                         onClick={closeFavorites}
@@ -233,29 +234,30 @@ export function FavoritesSheet() {
                             )}
                           </>
                         )}
-                        <div className="mt-1 flex items-center gap-2">
-                          {!gone && (
-                            <OfferLink
-                              product={item}
-                              store={item.store}
-                              affiliateUrl={item.affiliateUrl}
-                              className="flex min-h-9 items-center gap-1.5 rounded-full bg-cta px-3.5 text-xs font-semibold text-cta-foreground transition-colors hover:bg-cta-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                            >
-                              Ver oferta
-                              <ExternalLink className="h-3.5 w-3.5" aria-hidden />
-                            </OfferLink>
-                          )}
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            aria-label={`Remover ${item.title} dos favoritos`}
-                            className="ml-auto h-11 w-11 shrink-0 text-muted-foreground hover:text-destructive"
-                            onClick={() => removeFavorite(item.id)}
+                      </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {!gone && (
+                          <OfferLink
+                            product={item}
+                            store={item.store}
+                            affiliateUrl={item.affiliateUrl}
+                            className="flex min-h-9 items-center gap-1.5 rounded-full bg-cta px-3.5 text-xs font-semibold text-cta-foreground transition-colors hover:bg-cta-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                           >
-                            <Trash2 className="h-4 w-4" aria-hidden />
-                          </Button>
-                        </div>
+                            Ver oferta
+                            <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+                          </OfferLink>
+                        )}
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          aria-label={`Remover ${item.title} dos favoritos`}
+                          className="ml-auto h-11 w-11 shrink-0 text-muted-foreground hover:text-destructive"
+                          onClick={() => removeFavorite(item.id)}
+                        >
+                          <Trash2 className="h-4 w-4" aria-hidden />
+                        </Button>
                       </div>
                     </motion.li>
                   )

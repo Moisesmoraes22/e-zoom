@@ -65,7 +65,7 @@ export function DealsCarousel({
             {products.map((product, index) => (
               <CarouselItem
                 key={product.id}
-                className="basis-[40%] sm:basis-[40%] md:basis-[28.57%] lg:basis-[22.22%] xl:basis-[18.18%]"
+                className="basis-[40%] sm:basis-[40%] md:basis-[28.57%] lg:basis-[22.22%] xl:basis-[18.18%] 2xl:basis-[15.38%]"
               >
                 <motion.div
                   initial={{ opacity: 0, y: 16 }}

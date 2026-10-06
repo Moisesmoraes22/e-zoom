@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion"
 import { useRef } from "react"
 import Link from "next/link"
-import { ArrowRight, Heart, Star, TrendingDown, Truck } from "lucide-react"
+import { ArrowRight, Bookmark, Star, TrendingDown, Truck } from "lucide-react"
 
 import { OfferLink } from "@/components/offer-link"
 import { PriceSparkline } from "@/components/price-sparkline"
@@ -53,10 +53,7 @@ export function ProductCard({
   return (
     <div
       className={cn(
-        "group relative flex h-full flex-col overflow-hidden rounded-2xl border bg-card",
-        favorited
-          ? "border-destructive ring-2 ring-destructive/40 ring-offset-2 ring-offset-background"
-          : "border-border",
+        "group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card",
         className,
       )}
     >
@@ -197,8 +194,8 @@ export function ProductCard({
         className={cn(
           "absolute right-2 top-2 z-20 flex h-9 w-9 items-center justify-center rounded-full shadow-md transition-colors duration-300",
           favorited
-            ? "bg-destructive text-white"
-            : "bg-background/90 text-destructive backdrop-blur-sm hover:bg-destructive hover:text-white",
+            ? "bg-primary text-primary-foreground"
+            : "bg-background/90 text-primary backdrop-blur-sm hover:bg-primary hover:text-primary-foreground",
         )}
       >
         <AnimatePresence mode="popLayout" initial={false}>
@@ -210,7 +207,7 @@ export function ProductCard({
               exit={{ scale: 0.4, opacity: 0 }}
               transition={{ duration: 0.2, ease: "easeOut" }}
             >
-              <Heart className="h-4 w-4 fill-current" />
+              <Bookmark className="h-4 w-4 fill-current" />
             </motion.span>
           ) : (
             <motion.span
@@ -220,7 +217,7 @@ export function ProductCard({
               exit={{ scale: 0.4, opacity: 0 }}
               transition={{ duration: 0.2, ease: "easeOut" }}
             >
-              <Heart className="h-4 w-4" />
+              <Bookmark className="h-4 w-4" />
             </motion.span>
           )}
         </AnimatePresence>

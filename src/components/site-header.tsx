@@ -7,7 +7,7 @@ import {
   ArrowRight,
   Clock,
   Flame,
-  Heart,
+  Bookmark,
   Menu as MenuIcon,
   Search,
   Tag,
@@ -168,7 +168,7 @@ export function SiteHeader({
             whileTap={{ scale: 0.9 }}
             className="relative flex h-11 cursor-pointer items-center gap-2 rounded-full border-2 border-primary/40 bg-primary/10 px-3 text-brand transition-colors duration-300 hover:border-primary hover:bg-primary hover:text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            <Heart className="h-5 w-5" aria-hidden />
+            <Bookmark className="h-5 w-5" aria-hidden />
             <span className="hidden text-sm font-semibold sm:inline">Favoritos</span>
             <AnimatePresence mode="popLayout" initial={false}>
               {count > 0 && (

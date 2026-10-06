@@ -1,6 +1,6 @@
 "use client"
 
-import { Heart, LogOut, User } from "lucide-react"
+import { Bookmark, LogOut, User } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useRef, useState } from "react"
@@ -83,7 +83,7 @@ export function AccountMenu({ className }: { className?: string }) {
             }}
             className={item}
           >
-            <Heart className="h-4 w-4 text-muted-foreground" aria-hidden />
+            <Bookmark className="h-4 w-4 text-muted-foreground" aria-hidden />
             Favoritos
           </button>
           <button
