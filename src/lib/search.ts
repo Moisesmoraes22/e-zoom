@@ -24,6 +24,11 @@ const SYNONYMS = [
   ["pretreino", "pre treino"],
 ]
 
+/** Words that clearly mean one category: results from it come first ("proteína" -> supplements, not hair care). */
+const CATEGORY_HINTS: Record<string, string> = Object.fromEntries(
+  ["whey", "proteina", "creatina", "bcaa", "suplemento", "colageno", "multivitaminico", "termogenico", "pretreino", "hipercalorico", "albumina"].map((w) => [w, "suplementos"]),
+)
+
 /** One list of acceptable spellings per typed word (plural, synonyms), accents removed. */
 export function queryGroups(query: string): string[][] {
   const words = normalizeText(query).replace(/[^a-z0-9 ]+/g, " ").split(/\s+/).filter(Boolean)
@@ -148,8 +153,9 @@ export function sortProducts(products: Product[], sort: SortOption, query = "") 
       const groups = queryGroups(query)
       if (groups.length === 0) return ranked
       // With a search, how well the title matches comes first; the usual ranking breaks ties.
+      const hinted = groups.flat().map((w) => CATEGORY_HINTS[w]).find(Boolean)
       return ranked
-        .map((p, i) => ({ p, i, tier: matchTier(p.title, groups) }))
+        .map((p, i) => ({ p, i, tier: matchTier(p.title, groups) + (hinted && p.category === hinted ? 10 : 0) }))
         .sort((a, b) => b.tier - a.tier || a.i - b.i)
         .map((e) => e.p)
     }
