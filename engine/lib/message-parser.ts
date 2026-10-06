@@ -66,10 +66,16 @@ const SLOGAN =
 const NOT_A_TITLE =
   /sem juros|\b\d{1,2}\s?x\s*(de|sem|no)\b|selecione|programe e poupe|op[cç][aã]o de compra/i
 
+// Chatty promo lines ("A RAPUNZEL USAVA ESSE", "PRA QUEM GOSTA DO LEITE CREMOSO") that name no product.
+const CHATTER =
+  /\b(esse|essa|essas|esses|usava|pra quem|precinho|milagres?|liberado|recomendado|famosa|parceladinh\w*)\b/i
+
 /** Higher = more likely a product name; <= 0 means "looks like a slogan". */
 function titleScore(line: string): number {
-  if (line.length < 8 || NOT_A_TITLE.test(line)) return -1
+  if (line.length < 8 || NOT_A_TITLE.test(line) || CHATTER.test(line)) return -1
   const letters = line.replace(/[^\p{L}]/gu, "")
+  // Several words in capitals and no model/size number: a shout ("CADA ROLO FOLHA TRIPLA"), not a product.
+  if (letters.length > 6 && letters === letters.toUpperCase() && !/\d/.test(line) && line.split(" ").length >= 3 && !guessCategory(line)) return -1
   let score = Math.min(line.length, 60) / 10
   if (/\d/.test(line)) score += 1 // model numbers, sizes, capacities
   if (letters.length > 6 && letters === letters.toUpperCase()) score -= 2 // SHOUTING
@@ -121,6 +127,9 @@ if (process.argv[1]?.endsWith("message-parser.ts")) {
   console.assert(extractTitle(["Até 7x de sem juros", "R$ 350", "https://amzn.to/x"].join(nl)) === null)
   console.assert(extractTitle(["Selecione a opção de compra: Programe e Poupe", "R$ 10"].join(nl)) === null)
   console.assert(extractTitle(["Kit Ventoinha 3x120mm ARGB Preto", "R$ 74"].join(nl)) === "Kit Ventoinha 3x120mm ARGB Preto")
+  const nope = ["A RAPUNZEL USAVA ESSE", "CADA ROLO FOLHA TRIPLA", "PRA QUEM GOSTA DO LEITE CREMOSO", "PERFUMAÇO DA ARMANI, parceladinho tá valendo", "REDBULL ZERO TÁ LIBERADO"]
+  for (const t of nope) console.assert(extractTitle([t, "R$ 10"].join(nl)) === null, t)
+  console.assert(extractTitle(["Apple iPhone 18 Pro de 256 GB — Preto", "R$ 9000"].join(nl)) !== null)
   console.assert(guessCategory("Bloodborne Hits - PlayStation 4") === "games")
   console.assert(guessCategory("Processador AMD Ryzen 5 8400F") === "eletronicos")
   console.assert(guessCategory("Escrivaninha Industrial em L 2 Pecas") === "casa")
