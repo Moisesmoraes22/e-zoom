@@ -12,6 +12,7 @@ import { AgeDot, TimeAgo } from "@/components/time-ago"
 import { Badge } from "@/components/ui/badge"
 import { discountOf, savingsOf } from "@/lib/deals"
 import { useFavorites } from "@/lib/favorites-context"
+import { unitPrice } from "@/lib/unit-price"
 import type { Product } from "@/lib/types"
 import {
   calculateDiscountPercent,
@@ -35,6 +36,7 @@ export function ProductCard({
   const buttonRef = useRef<HTMLButtonElement>(null)
   const discount = discountOf(product)
   const savings = savingsOf(product)
+  const unit = product.category === "suplementos" ? unitPrice(product.title, product.price) : null
 
   const handleToggle = (event: React.MouseEvent) => {
     event.preventDefault()
@@ -120,6 +122,11 @@ export function ProductCard({
                 <span className="flex items-center gap-2 text-xs font-medium text-brand">
                   <PriceSparkline values={product.priceHistory} className="h-5 w-14" />
                   Preço caiu {calculateDiscountPercent(product.price, Math.max(...product.priceHistory))}%
+                </span>
+              )}
+              {unit && (
+                <span className="text-xs font-medium text-muted-foreground">
+                  {formatCurrency(unit.value)}/{unit.unit}
                 </span>
               )}
               {product.installments && (

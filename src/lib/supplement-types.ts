@@ -1,4 +1,3 @@
-import { normalizeText } from "@/lib/search"
 
 /** Sub-groups of the supplements category, first match wins. Same words the engine uses to detect supplements. */
 export const SUPPLEMENT_TYPES = [
@@ -13,6 +12,6 @@ export const SUPPLEMENT_TYPES = [
 export type SupplementType = (typeof SUPPLEMENT_TYPES)[number]["value"]
 
 export function supplementTypeOf(title: string): SupplementType | null {
-  const text = normalizeText(title)
+  const text = title.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase()
   return SUPPLEMENT_TYPES.find((t) => t.re.test(text))?.value ?? null
 }

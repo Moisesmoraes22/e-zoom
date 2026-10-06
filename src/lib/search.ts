@@ -1,3 +1,5 @@
+import { SUPPLEMENT_TYPES, supplementTypeOf } from "@/lib/supplement-types"
+import { unitPrice } from "@/lib/unit-price"
 import { byRelevance } from "@/lib/deals"
 import type { Product, SortOption, StoreSource } from "@/lib/types"
 import { calculateDiscountPercent } from "@/lib/utils"
@@ -90,6 +92,18 @@ export function sortProducts(products: Product[], sort: SortOption) {
     case "recent":
       // Newest in the catalog first; items without a date keep their order.
       return sorted.sort((a, b) => (b.createdAt ?? "").localeCompare(a.createdAt ?? ""))
+    case "unit_price": {
+      // Per kind of supplement (price per kg is only comparable inside the same kind),
+      // cheapest first; per kg before per 100 capsules; unclear sizes go last.
+      const rank = (p: Product) => {
+        const u = unitPrice(p.title, p.price)
+        if (!u) return Infinity
+        const found = SUPPLEMENT_TYPES.findIndex((t) => t.value === supplementTypeOf(p.title))
+        const kind = found < 0 ? SUPPLEMENT_TYPES.length : found // untyped supplements after the kinds
+        return kind * 1e8 + (u.unit === "kg" ? 0 : 1e6) + u.value
+      }
+      return sorted.sort((a, b) => rank(a) - rank(b))
+    }
     case "relevance":
     default:
       return byRelevance(sorted)
@@ -102,6 +116,7 @@ export const SORT_PARAMS: Record<string, SortOption> = {
   desconto: "discount_desc",
   preco: "price_asc",
   recente: "recent",
+  "custo-beneficio": "unit_price",
 }
 
 export function countByStore(products: Product[]) {

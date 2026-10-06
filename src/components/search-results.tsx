@@ -191,7 +191,7 @@ function SearchResultsInner({
               onChange={handleFilterChange}
               categories={categoryFilter}
             />
-            <SortSelect value={sort} onChange={setSort} />
+            <SortSelect value={sort} onChange={setSort} withUnitPrice={categorySlug === "suplementos"} />
           </div>
 
           <div className="mb-4 lg:hidden">
@@ -319,6 +319,7 @@ function SearchResultsInner({
                 ["discount_desc", "Maior desconto"],
                 ["price_asc", "Menor preço"],
                 ["recent", "Mais recentes"],
+                ...(categorySlug === "suplementos" ? [["unit_price", "Melhor custo-benefício"]] : []),
               ] as [SortOption, string][]
             ).map(([value, label]) => (
               <button

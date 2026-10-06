@@ -12,7 +12,10 @@ const OPTIONS: { value: SortOption; label: string }[] = [
 export function SortSelect({
   value,
   onChange,
+  withUnitPrice = false,
 }: {
+  /** Supplements only: sort by price per kg. */
+  withUnitPrice?: boolean
   value: SortOption
   onChange: (value: SortOption) => void
 }) {
@@ -26,7 +29,7 @@ export function SortSelect({
         onChange={(event) => onChange(event.target.value as SortOption)}
         className="rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
       >
-        {OPTIONS.map((option) => (
+        {[...OPTIONS, ...(withUnitPrice ? [{ value: "unit_price" as SortOption, label: "Melhor custo-benefício" }] : [])].map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}
           </option>

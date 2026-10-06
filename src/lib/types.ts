@@ -47,7 +47,7 @@ export interface ProductOffer {
   isFreeShipping?: boolean
 }
 
-export type SortOption = "relevance" | "price_asc" | "discount_desc" | "recent"
+export type SortOption = "relevance" | "price_asc" | "discount_desc" | "recent" | "unit_price"
 
 export interface Category {
   slug: string
