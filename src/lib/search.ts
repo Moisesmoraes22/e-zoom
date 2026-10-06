@@ -41,14 +41,15 @@ export function queryGroups(query: string): string[][] {
 }
 
 /**
- * 0 = the title does not match every typed word; 1 = matches inside words;
- * 2 = every word appears as a whole word; 3 = same, and the title starts with the first word.
+ * 0 = the title does not match every typed word; 1 = every word starts a word of the title
+ * ("cadeira" finds "cadeiras" and "cadeirinha", but NOT "brincadeira": a word is never
+ * matched from its middle); 2 = every word appears as a whole word; 3 = same, and the
+ * title starts with the first word.
  */
 export function matchTier(title: string, groups: string[][]): number {
   if (groups.length === 0) return 1
-  const plain = normalizeText(title)
-  if (!groups.every((alts) => alts.some((a) => plain.includes(a)))) return 0
-  const padded = ` ${plain.replace(/[^a-z0-9]+/g, " ")} `
+  const padded = ` ${normalizeText(title).replace(/[^a-z0-9]+/g, " ")} `
+  if (!groups.every((alts) => alts.some((a) => padded.includes(` ${a}`)))) return 0
   const whole = groups.every((alts) => alts.some((a) => padded.includes(` ${a} `)))
   if (!whole) return 1
   return groups[0].some((a) => padded.startsWith(` ${a} `)) ? 3 : 2
@@ -217,7 +218,7 @@ export function correctQuery(query: string, products: Product[]): string | null 
   }
   let changed = false
   const fixed = words.map((word) => {
-    if (word.length < 4 || [...freq.keys()].some((k) => k.includes(word))) return word
+    if (word.length < 4 || [...freq.keys()].some((k) => k.startsWith(word))) return word
     const limit = word.length >= 7 ? 2 : 1
     let best: { w: string; dist: number; n: number } | null = null
     for (const [w, n] of freq) {
