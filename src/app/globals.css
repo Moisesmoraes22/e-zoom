@@ -155,6 +155,14 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* Page width shared by every section: 1320px, side margin 16px on phones growing to 32px. */
+@utility page-container {
+  width: 100%;
+  max-width: 1320px;
+  margin-inline: auto;
+  padding-inline: clamp(16px, 3vw, 32px);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

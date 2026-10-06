@@ -19,7 +19,7 @@ export default async function CategoriasPage() {
 
   return (
     <main id="conteudo" className="min-h-screen bg-background">
-      <div className="container mx-auto max-w-7xl px-4 pt-10">
+      <div className="page-container pt-10">
         <h1 className="text-2xl font-bold text-foreground sm:text-3xl">Categorias</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Navegue pelas ofertas por tipo de produto.
@@ -33,7 +33,7 @@ export default async function CategoriasPage() {
           gridClassName="grid-cols-2 sm:grid-cols-3 lg:grid-cols-4"
         />
       ) : (
-        <p className="container mx-auto max-w-7xl px-4 py-12 text-muted-foreground">
+        <p className="page-container py-12 text-muted-foreground">
           Ainda não há ofertas por categoria. Volte em instantes.
         </p>
       )}

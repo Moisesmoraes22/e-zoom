@@ -72,8 +72,8 @@ export function SiteHeader({
   const homeActive = pathname === "/";
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background/95 px-4 py-3 backdrop-blur-sm">
-      <div className="mx-auto flex max-w-7xl items-center gap-3">
+    <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background/95 py-3 backdrop-blur-sm">
+      <div className="page-container flex items-center gap-3">
         <Link
           href="/"
           className="rounded-md bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-xl font-semibold text-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"

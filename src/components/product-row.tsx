@@ -29,7 +29,7 @@ export function ProductRow({
   chips?: { label: string; href: string }[]
 }) {
   return (
-    <section className="container mx-auto max-w-7xl px-4 py-12">
+    <section className="page-container py-12">
       <SectionHeader title={title} subtitle={subtitle} href={href} linkLabel={linkLabel} icon={icon} />
       {chips && (
         <div className="mb-4 flex flex-wrap gap-2">

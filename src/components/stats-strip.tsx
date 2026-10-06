@@ -13,7 +13,7 @@ export function StatsStrip({ offers, drops, stores }: { offers: number; drops: n
     { icon: Store, value: String(stores), label: stores === 1 ? "loja monitorada" : "lojas monitoradas" },
   ]
   return (
-    <section aria-label="Resumo do que está acontecendo agora" className="container mx-auto max-w-7xl px-4 pt-6">
+    <section aria-label="Resumo do que está acontecendo agora" className="page-container pt-6">
       <ul className="grid grid-cols-1 gap-3 sm:grid-cols-[repeat(auto-fit,minmax(0,1fr))]">
         {items.map(({ icon: Icon, value, label }) => (
           <li key={label} className="flex items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3">

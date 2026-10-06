@@ -203,7 +203,7 @@ function SearchResultsInner({
       : "Todas as ofertas"
 
   return (
-    <div className="container mx-auto max-w-7xl px-4 py-8 pb-24 lg:pb-8">
+    <div className="page-container py-8 pb-24 lg:pb-8">
       <div className="mb-6 lg:hidden">
         <SearchBar defaultValue={rawQuery} size="sm" />
       </div>

@@ -42,7 +42,7 @@ export function InterestsSection({ products }: { products: Product[] }) {
   if (shortcuts.length < 4) return null
 
   return (
-    <section className="container mx-auto max-w-7xl px-4 py-12">
+    <section className="page-container py-12">
       <SectionHeader
         icon={<Target className="h-5 w-5" />}
         title="Encontre ofertas para o que você procura"

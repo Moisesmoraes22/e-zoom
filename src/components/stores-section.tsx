@@ -15,7 +15,7 @@ export function StoresSection({ counts }: { counts: Record<string, number> }) {
   if (stores.length === 0) return null
 
   return (
-    <section className="container mx-auto max-w-7xl px-4 py-12">
+    <section className="page-container py-12">
       <SectionHeader
         icon={<Store className="h-5 w-5" />}
         title="Lojas parceiras"

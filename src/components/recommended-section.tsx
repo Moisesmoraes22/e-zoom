@@ -19,7 +19,7 @@ export function RecommendedSection({ pool }: { pool: Product[] }) {
 
   if (picks.length < 3) return null
   return (
-    <section className="container mx-auto max-w-7xl px-4 py-12" aria-labelledby="recomendado-titulo">
+    <section className="page-container py-12" aria-labelledby="recomendado-titulo">
       <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
         <div className="flex items-center gap-3">
           <span aria-hidden className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">

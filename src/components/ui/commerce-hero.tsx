@@ -70,7 +70,7 @@ export function CommerceHero({
   };
 
   return (
-    <div className="container relative mx-auto max-w-7xl px-2">
+    <div className="page-container relative">
       <section
         className="relative mt-3 rounded-3xl sm:mt-4 border border-border bg-accent/40"
         onMouseEnter={() => setHovered(true)}
