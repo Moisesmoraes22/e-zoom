@@ -98,20 +98,22 @@ export function extractTitle(text: string): string | null {
   return best ? best.line.slice(0, 160) : null
 }
 
+// Matched against the title without accents, first match wins (order = priority).
 const CATEGORY_KEYWORDS: [string, RegExp][] = [
-  ["games", /\b(ps5|ps4|xbox|nintendo|gamer|controle|headset|console)\b/i],
-  ["calcados", /\b(t[eê]nis|sapat|chinelo|sand[aá]lia|bota)\b/i],
-  ["beleza", /\b(perfume|shampoo|creme|maquiagem|skincare|secador|batom)\b/i],
-  ["esporte", /\b(bicicleta|esteira|halter|whey|academia|fitness)\b/i],
-  ["moda", /\b(camisa|camiseta|jaqueta|cal[cç]a|vestido|mochila|bolsa|rel[oó]gio)\b/i],
-  ["infantil", /\b(infantil|beb[eê]|crian[cç]a|brinquedo|boneca|lego)\b/i],
-  ["casa", /\b(air ?fryer|fritadeira|aspirador|cadeira|colch[aã]o|sof[aá]|panela|geladeira|microondas|liquidificador)\b/i],
-  ["eletronicos", /\b(fone|smartwatch|celular|smartphone|notebook|tablet|tv|monitor|carregador|ssd|c[aâ]mera|bluetooth)\b/i],
+  ["games", /\b(ps5|ps4|playstation[0-9]?|xbox|nintendo|switch|gamer|controle|headset|console)\b/],
+  ["infantil", /\b(infantil|bebe|crianca|brinquedo|boneca|lego|pokemon|hot wheels|transformers|figura|pelucia)\b/],
+  ["beleza", /\b(perfume|shampoo|condicionador|creme|maquiagem|skincare|secador|batom|serum|hidratante|aparador|barbeador|oneblade|caspa|elixir|bio oil|kerastase|armani|desodorante)\b/],
+  ["calcados", /\b(tenis|sapat\w*|chinelo|sandalia|bota)\b/],
+  ["moda", /\b(camisas?|camisetas?|bermudas?|polo|jaquetas?|calcas?|vestidos?|mochilas?|bolsas?|relogios?|oculos)\b/],
+  ["esporte", /\b(bicicleta|esteira|halter|academia|fitness|garrafa termica|copo termico)\b/],
+  ["casa", /\b(air ?fryer|fritadeira|aspirador|cadeira|colchao|sofa|poltrona|mesa|escrivaninha|panela|frigideira|geladeira|microondas|micro-ondas|forno|cafeteira|sanduicheira|sorveteira|liquidificador|ventilador|ar-condicionado|ar condicionado|lampada|ferramentas|parafusadeira|furadeira)\b/],
+  ["eletronicos", /\b(fone|smartwatch|celular|smartphone|iphone|galaxy|kindle|echo|alexa|soundbar|notebook|tablet|tv|monitor|carregador|adaptador|cabo|bateria|ssd|camera|bluetooth|caixa de som|teclado|mouse|mousepad|microfone|processador|ryzen|placa mae|placa de video|placa grafica|placa principal|rtx|radeon|geforce|cooler|water cooler|ventoinhas?|fans?|fonte|gabinete|impressora|suporte articulado|suporte de mesa|suporte fixo)\b/],
 ]
 
 export function guessCategory(title: string): string | null {
-  if (isSupplement(title)) return "suplementos"
-  return CATEGORY_KEYWORDS.find(([, re]) => re.test(title))?.[0] ?? null
+  if (isSupplement(title) || /\b(proteico|chocowhey\w*)/i.test(title)) return "suplementos"
+  const plain = title.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase()
+  return CATEGORY_KEYWORDS.find(([, re]) => re.test(plain))?.[0] ?? null
 }
 
 if (process.argv[1]?.endsWith("message-parser.ts")) {
@@ -119,5 +121,10 @@ if (process.argv[1]?.endsWith("message-parser.ts")) {
   console.assert(extractTitle(["Até 7x de sem juros", "R$ 350", "https://amzn.to/x"].join(nl)) === null)
   console.assert(extractTitle(["Selecione a opção de compra: Programe e Poupe", "R$ 10"].join(nl)) === null)
   console.assert(extractTitle(["Kit Ventoinha 3x120mm ARGB Preto", "R$ 74"].join(nl)) === "Kit Ventoinha 3x120mm ARGB Preto")
+  console.assert(guessCategory("Bloodborne Hits - PlayStation 4") === "games")
+  console.assert(guessCategory("Processador AMD Ryzen 5 8400F") === "eletronicos")
+  console.assert(guessCategory("Escrivaninha Industrial em L 2 Pecas") === "casa")
+  console.assert(guessCategory("Whisky Johnnie Walker Red Label 1L") === null)
+  console.assert(guessCategory("Whey Protein 900g") === "suplementos")
   console.log("message-parser ok")
 }
