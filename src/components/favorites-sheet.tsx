@@ -159,7 +159,7 @@ export function FavoritesSheet() {
                       exit={{ opacity: 0, x: 24, height: 0 }}
                       transition={{ duration: 0.25, ease: "easeOut" }}
                       className={cn(
-                        "flex gap-3 overflow-hidden rounded-xl border border-border bg-card p-3",
+                        "flex shrink-0 gap-3 overflow-hidden rounded-xl border border-border bg-card p-3",
                         isClearing && "pointer-events-none",
                       )}
                     >
