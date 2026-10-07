@@ -16,6 +16,8 @@ export interface OfferRow {
   product_id: string | null
   rating: number | null
   popularity: number | null
+  seller_state?: string | null
+  seller_city?: string | null
 }
 
 const credibleOriginalPrice = (price: number, original: number | null) =>
@@ -55,6 +57,8 @@ export function rowToProduct(row: OfferRow, recentPrices: number[] = []): Produc
     productId: row.product_id ?? undefined,
     rating: row.rating ? Number(row.rating) : undefined,
     popularity: row.popularity ? Number(row.popularity) : undefined,
+    sellerState: row.seller_state ?? undefined,
+    sellerCity: row.seller_city ?? undefined,
     priceHistory: hasHistory ? prices : undefined,
     // A real drop: 3% to 50% below the previous recorded price. Under 3% is cent-level noise;
     // over 50% is a glitch (a R$ 9.999 placeholder price, or the cheapest seller changing).

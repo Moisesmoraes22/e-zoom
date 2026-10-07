@@ -316,6 +316,14 @@ export function ProductDetail({
                   <dd className="text-foreground">Grátis</dd>
                 </>
               )}
+              {product.sellerState && (
+                <>
+                  <dt className="text-muted-foreground">Vendedor em</dt>
+                  <dd className="text-foreground">
+                    {product.sellerCity ? `${product.sellerCity}, ${product.sellerState}` : product.sellerState}
+                  </dd>
+                </>
+              )}
             </dl>
           </details>
         </div>

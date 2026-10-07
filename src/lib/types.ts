@@ -38,6 +38,9 @@ export interface Product {
   priceHistory?: number[]
   /** ISO time the offer was last seen by the collector; shown next to the price. */
   seenAt?: string
+  /** Where the seller ships from (Mercado Livre only, as reported); shown as "Minas Gerais". */
+  sellerState?: string
+  sellerCity?: string
   /** ISO time the offer first entered the catalog ("recent offers" ordering). */
   createdAt?: string
   /**

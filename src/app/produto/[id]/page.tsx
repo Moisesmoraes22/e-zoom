@@ -9,6 +9,9 @@ import { ALL_PRODUCTS, getProductOffers, STORES } from "@/lib/mock-data"
 import type { Product } from "@/lib/types"
 import { formatCurrency } from "@/lib/utils"
 import { getCatalog, getPriceStats } from "@/lib/offers"
+import { productJsonLd, serializeJsonLd } from "@/lib/structured-data"
+
+const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://e-zoom.vercel.app"
 
 export const revalidate = 300
 
@@ -38,6 +41,7 @@ export async function generateMetadata({
   return {
     title: product.title,
     description: `${product.title} por ${formatCurrency(product.price)} em ${STORES[product.store].name}. Veja o histórico de preço e vá direto para a loja.`,
+    alternates: { canonical: `/produto/${product.id}` },
     openGraph: { images: [product.image] },
   }
 }
@@ -82,6 +86,13 @@ export default async function ProdutoPage({
 
   return (
     <main id="conteudo" className="min-h-screen bg-background">
+      {/* Structured data only for real offers, never for the sample catalogue. */}
+      {isLive && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(productJsonLd(product, SITE)) }}
+        />
+      )}
       <ProductDetail product={product} offers={offers} stats={stats} />
       {similar.length >= 3 && (
         <DealsCarousel

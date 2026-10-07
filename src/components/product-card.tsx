@@ -3,10 +3,9 @@
 import { AnimatePresence, motion } from "framer-motion"
 import { useRef } from "react"
 import Link from "next/link"
-import { ArrowRight, Bookmark, Star, Truck } from "lucide-react"
+import { ArrowRight, Bookmark, MapPin, Star, Truck } from "lucide-react"
 
 import { OfferLink } from "@/components/offer-link"
-import { PriceSparkline } from "@/components/price-sparkline"
 import { StoreBadge } from "@/components/store-badge"
 import { Badge } from "@/components/ui/badge"
 import { discountOf } from "@/lib/deals"
@@ -15,7 +14,6 @@ import { cardImage } from "@/lib/image-url"
 import { unitPrice } from "@/lib/unit-price"
 import type { Product } from "@/lib/types"
 import {
-  calculateDiscountPercent,
   cn,
   formatCurrency,
   formatReviewCount,
@@ -106,18 +104,12 @@ export function ProductCard({
                   </span>
                 )}
               </div>
-              {product.isPriceDrop && product.priceHistory && (
-                <span className="flex items-center gap-2 text-xs font-medium text-brand">
-                  <PriceSparkline values={product.priceHistory} className="h-5 w-14" />
-                  Caiu {formatCurrency(product.priceHistory.at(-2)! - product.price)} ({calculateDiscountPercent(product.price, product.priceHistory.at(-2)!)}%)
-                </span>
-              )}
-              {!(product.isPriceDrop && product.priceHistory) && unit && (
+              {unit && (
                 <span className="text-xs font-medium text-muted-foreground">
                   {formatCurrency(unit.value)}/{unit.unit}
                 </span>
               )}
-              {!(product.isPriceDrop && product.priceHistory) && !unit && product.installments && (
+              {!unit && product.installments && (
                 <span className="text-xs text-muted-foreground">
                   em {product.installments.count}x de{" "}
                   {formatCurrency(product.installments.value)}
@@ -125,7 +117,7 @@ export function ProductCard({
               )}
             </div>
 
-            {(product.rating || product.isFreeShipping) && (
+            {(product.rating || product.isFreeShipping || product.sellerState) && (
               <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 pt-1 text-xs">
                 {product.rating && (
                   <span className="flex items-center gap-1 text-muted-foreground">
@@ -138,6 +130,12 @@ export function ProductCard({
                   <span className="flex items-center gap-1 font-medium text-success">
                     <Truck className="h-3.5 w-3.5" aria-hidden />
                     Frete grátis
+                  </span>
+                )}
+                {product.sellerState && (
+                  <span className="flex items-center gap-1 text-muted-foreground">
+                    <MapPin className="h-3.5 w-3.5" aria-hidden />
+                    {product.sellerState}
                   </span>
                 )}
               </div>

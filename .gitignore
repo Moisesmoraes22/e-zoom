@@ -42,3 +42,6 @@ next-env.d.ts
 
 # local Claude Code settings
 .claude/
+
+# generated post for social channels
+/ofertas-do-dia.txt
