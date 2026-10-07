@@ -5,13 +5,13 @@ import { SiteFooter } from "@/components/site-footer"
 import { InterestsSection } from "@/components/interests-section"
 import { RecommendedSection } from "@/components/recommended-section"
 import { PriceRangesSection } from "@/components/price-ranges-section"
-import { StatsStrip } from "@/components/stats-strip"
 import { StoresSection } from "@/components/stores-section"
 import { CommerceHero } from "@/components/ui/commerce-hero"
+import { FeaturedDeal } from "@/components/ui/hero-card"
 import { discountOf, byClicks, byFeatured, dropsInLast, byFinds, byRelevance, capPerCategory, byPriceDrop, byRecent, categoryCounts, countByStoreId } from "@/lib/deals"
+import { STORES } from "@/lib/mock-data"
 import { toHeroOffer } from "@/lib/hero"
 import { selectHeroOffers } from "@/lib/hero-select"
-import { STORES } from "@/lib/mock-data"
 import { getCatalog, getPriceStats } from "@/lib/offers"
 import type { Product } from "@/lib/types"
 
@@ -20,6 +20,7 @@ export const revalidate = 300
 const SECTION_SIZE = 9
 const SHELVES = 2
 const SHOWCASE_SIZE = 6
+const LENS_SIZE = 10
 const ALL_SIZE = 12
 const POOL_PER_CATEGORY = 24
 /** A section with fewer cards than this looks broken, so it is left out. */
@@ -31,11 +32,9 @@ export default async function Home() {
   // Each product appears in one section only. Nothing is padded: a section with
   // no real data behind it simply disappears.
   // The hero only showcases real offers: with sample data it stays text and search.
-  // Chosen once per render/revalidation; the slides rotate in the browser only.
   const heroProducts = live ? selectHeroOffers(products) : []
   const heroStats = await Promise.all(heroProducts.map((p) => getPriceStats(p.id)))
   const hero = heroProducts.map((p, i) => toHeroOffer(p, heroStats[i]))
-
   // Every hero slide is reserved, so the sections below never repeat any of them.
   const used = new Set<string>(heroProducts.map((p) => p.id))
   // Biggest recorded discounts, as a strip inside the hero (first screen, phones included).
@@ -46,6 +45,14 @@ export default async function Home() {
         .slice(0, SHOWCASE_SIZE)
     : []
   showcase.forEach((p) => used.add(p.id))
+  // The next best discounts slide under the hero's magnifying glass (desktop).
+  const lens = live
+    ? products
+        .filter((p) => !used.has(p.id) && discountOf(p))
+        .sort((a, b) => (discountOf(b) ?? 0) - (discountOf(a) ?? 0))
+        .slice(0, LENS_SIZE)
+    : []
+  lens.forEach((p) => used.add(p.id))
   const take = (list: Product[], size = SECTION_SIZE) => {
     const picked = list.filter((p) => !used.has(p.id)).slice(0, size)
     if (picked.length < MIN_SECTION) return [] // not shown, so its products stay available
@@ -81,8 +88,14 @@ export default async function Home() {
 
   return (
     <main id="conteudo" className="bg-background">
-      <CommerceHero storeNames={storeNames} offers={hero} showcase={showcase} />
-      {live && <StatsStrip offers={products.length} drops={dropsInLast(products, 24)} stores={storeNames.length} />}
+      <CommerceHero
+        storeNames={storeNames}
+        showcase={showcase}
+        lens={lens}
+        drops={dropsInLast(products, 24)}
+        categories={categoryCounts(products).slice(0, 5)}
+      />
+      {hero.length > 0 && <FeaturedDeal offers={hero} />}
       <CategoryGrid categories={categoryCounts(products).slice(0, 8)} showCounts={live} />
       {hot.length > 0 && (
         <ProductRow

@@ -111,7 +111,8 @@ export function SearchBar({
       rows.splice(MAX_IDLE_ROWS)
     } else if (index.status === "ready") {
       const groups = queryGroups(query)
-      index.items
+      // Nothing searchable typed ("!!!"): no suggestions (matchTier would let everything in).
+      ;(groups.length ? index.items : [])
         .map((item) => ({ item, tier: matchTier(item.title, groups) }))
         .filter((e) => e.tier > 0)
         .sort((a, b) => b.tier - a.tier) // stable: same tier keeps catalog order

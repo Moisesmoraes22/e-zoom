@@ -5,12 +5,15 @@ import { byRelevance } from "@/lib/deals"
 import type { Product, SortOption, StoreSource } from "@/lib/types"
 import { calculateDiscountPercent } from "@/lib/utils"
 
-/** Lowercase without accents, so "relogio" finds "Relógio". */
+/**
+ * Lowercase without accents, so "relogio" finds "Relógio". NFKD (not NFD) also folds full-width
+ * letters ("ＦＯＮＥ") and ligatures ("ﬁlme") into plain ones.
+ */
 export const normalizeText = (text: string) =>
-  text.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase()
+  text.normalize("NFKD").replace(/\p{M}/gu, "").toLowerCase()
 
 /** Words people use for the same thing; searching one finds the others. */
-const SYNONYMS = [
+export const SYNONYMS = [
   ["whey", "proteina"],
   ["celular", "smartphone", "iphone", "galaxy"],
   ["fone", "headset", "headphone", "earbuds"],
@@ -30,15 +33,49 @@ const CATEGORY_HINTS: Record<string, string> = Object.fromEntries(
   ["whey", "proteina", "creatina", "bcaa", "suplemento", "colageno", "multivitaminico", "termogenico", "pretreino", "hipercalorico", "albumina"].map((w) => [w, "suplementos"]),
 )
 
-/** One list of acceptable spellings per typed word (plural, synonyms), accents removed. */
+/** Synonym terms made of several words ("air fryer"), longest first, so a typed phrase is matched as one unit. */
+const PHRASES = SYNONYMS.flatMap((group) =>
+  group.filter((term) => term.includes(" ")).map((term) => ({ words: term.split(" "), group })),
+).sort((x, y) => y.words.length - x.words.length)
+
+/** The word as typed plus its likely singular forms: "celulares" -> celular, "botoes" -> botao, "jornais" -> jornal, "luzes" -> luz. */
+function singularForms(word: string): string[] {
+  const forms = [word]
+  if (word.length > 3 && word.endsWith("s")) forms.push(word.slice(0, -1))
+  if (word.length > 4 && /(oes|aes)$/.test(word)) forms.push(`${word.slice(0, -3)}ao`)
+  if (word.length > 4 && /(res|zes)$/.test(word)) forms.push(word.slice(0, -2)) // celulares, mulheres, luzes
+  if (word.length > 5 && word.endsWith("ais")) forms.push(`${word.slice(0, -3)}al`)
+  return forms
+}
+
+/**
+ * One list of acceptable spellings per typed word (plural, synonyms), accents removed. A
+ * synonym of several words ("air fryer", "playstation 5") is matched when those words are
+ * typed next to each other, and becomes one entry; synonyms are also found from the singular
+ * form ("celulares" finds "smartphone").
+ */
 export function queryGroups(query: string): string[][] {
   const words = normalizeText(query).replace(/[^a-z0-9 ]+/g, " ").split(/\s+/).filter(Boolean)
-  return words.map((word) => {
-    const alts = new Set([word])
-    if (word.length > 3 && word.endsWith("s")) alts.add(word.slice(0, -1))
-    for (const group of SYNONYMS) if (group.includes(word)) group.forEach((g) => alts.add(g))
-    return [...alts]
-  })
+  const groups: string[][] = []
+  for (let i = 0; i < words.length; ) {
+    const phrase = PHRASES.find(({ words: parts }) => {
+      if (i + parts.length > words.length) return false
+      const typed = words.slice(i, i + parts.length)
+      const last = typed.length - 1
+      return parts.every((part, k) => (k === last ? singularForms(typed[k]).includes(part) : typed[k] === part))
+    })
+    if (phrase) {
+      groups.push([...new Set([words.slice(i, i + phrase.words.length).join(" "), ...phrase.group])])
+      i += phrase.words.length
+      continue
+    }
+    const forms = singularForms(words[i])
+    const alts = new Set(forms)
+    for (const group of SYNONYMS) if (forms.some((f) => group.includes(f))) group.forEach((g) => alts.add(g))
+    groups.push([...alts])
+    i += 1
+  }
+  return groups
 }
 
 /**
@@ -97,6 +134,8 @@ export function filterProducts(
   filters: ProductFilters,
 ): Product[] {
   const groups = queryGroups(filters.query ?? "")
+  // Something was typed but nothing in it is searchable ("日本語", "!!!"): no results, not the whole catalogue.
+  if (groups.length === 0 && (filters.query ?? "").trim() !== "") return []
 
   return products.filter((product) => {
     if (groups.length && matchTier(product.title, groups) === 0) return false
@@ -199,7 +238,7 @@ export function countByPriceRange(products: Product[]) {
 }
 
 /** Edit distance counting a swap of two neighbouring letters as one change ("wehy" -> "whey"). */
-function editDistance(a: string, b: string) {
+export function editDistance(a: string, b: string) {
   const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)])
   for (let j = 1; j <= b.length; j++) d[0][j] = j
   for (let i = 1; i <= a.length; i++) {

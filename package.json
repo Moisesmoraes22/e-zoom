@@ -11,7 +11,7 @@
     "engine:tg": "node --env-file=.env.local engine/run.ts telegram",
     "engine:tg-login": "node --env-file=.env.local engine/telegram-login.ts",
     "engine:audit": "node --env-file=.env.local engine/audit-categories.ts",
-    "test:engine": "node --test engine/tests/*.test.ts"
+    "test:engine": "node --import ./engine/tests/alias.mjs --test engine/tests/*.test.ts"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.2.6",
