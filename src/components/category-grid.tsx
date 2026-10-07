@@ -53,7 +53,7 @@ export function CategoryGrid({
                   alt={category.name}
                   width={64}
                   height={64}
-                  loading={index < 4 ? undefined : "lazy"}
+                  loading="lazy"
                   decoding="async"
                   className="h-full w-full object-cover transition-transform duration-500 motion-safe:group-hover:scale-110"
                 />

@@ -186,14 +186,14 @@ function Showcase({ offers }: { offers: Product[] }) {
           <Flame className="h-5 w-5 shrink-0 text-discount" aria-hidden />
           Maiores descontos agora
         </h2>
-        <Link href="/busca?ordenacao=desconto" className="shrink-0 whitespace-nowrap text-sm font-semibold text-foreground hover:underline">
+        <Link href="/busca?ordenacao=desconto" prefetch={false} className="shrink-0 whitespace-nowrap text-sm font-semibold text-foreground hover:underline">
           Ver todas
         </Link>
       </div>
       <ul className="-mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-1 [scrollbar-width:none] sm:-mx-10 sm:px-10 lg:mx-0 lg:grid lg:grid-cols-6 lg:overflow-visible lg:px-0 [&::-webkit-scrollbar]:hidden">
-        {offers.map((offer) => (
+        {offers.map((offer, i) => (
           <li key={offer.id} className="w-[46%] shrink-0 snap-start sm:w-[30%] lg:w-auto">
-            <ProductCard product={offer} compact />
+            <ProductCard product={offer} compact priority={i < 2} />
           </li>
         ))}
       </ul>

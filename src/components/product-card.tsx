@@ -26,11 +26,14 @@ export function ProductCard({
   className,
   label,
   compact = false,
+  priority = false,
 }: {
   product: Product
   className?: string
   /** Tighter padding and type, for rows with 5-6 cards side by side. */
   compact?: boolean
+  /** Above-the-fold card: load the photo right away with high priority (it can be the LCP). */
+  priority?: boolean
   /** Small tag above the title, e.g. "Achado E-Zoom". */
   label?: string
 }) {
@@ -72,7 +75,8 @@ export function ProductCard({
             <img
               src={cardImage(product.image)}
               alt={product.title}
-              loading="lazy"
+              loading={priority ? "eager" : "lazy"}
+              fetchPriority={priority ? "high" : undefined}
               decoding="async"
               onError={(e) => {
                 if (e.currentTarget.src !== product.image) e.currentTarget.src = product.image
