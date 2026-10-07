@@ -12,6 +12,9 @@ export interface OfferRow {
   url: string
   affiliate_url: string | null
   is_free_shipping: boolean
+  /** Where the seller ships from; only set by sources that really report it (Mercado Livre). */
+  seller_state?: string | null
+  seller_city?: string | null
   source: "api" | "telegram" | "manual"
   /** Store rating, 0-5. Only set by sources that really have it (Shopee). */
   rating?: number | null

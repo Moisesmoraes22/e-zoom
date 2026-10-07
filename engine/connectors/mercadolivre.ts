@@ -1,5 +1,6 @@
 import { refineCategory } from "../lib/categories.ts"
 import { isDj } from "../lib/dj.ts"
+import { mlSellerLocation, type SellerLocation } from "../lib/location.ts"
 import { isSupplement } from "../lib/supplements.ts"
 import type { Connector, OfferRow } from "../types.ts"
 
@@ -52,6 +53,7 @@ interface MlProductItem {
   original_price: number | null
   condition?: string
   shipping?: { free_shipping?: boolean }
+  seller_address?: { city?: { name?: string | null } | null; state?: { name?: string | null } | null } | null
 }
 
 async function getToken(clientId: string, clientSecret: string) {
@@ -113,6 +115,7 @@ export function createMercadoLivreConnector(env: NodeJS.ProcessEnv): Connector {
         const category = supplement ? "suplementos" : dj ? "dj" : refineCategory(product.name, categoryIn)
 
         const url = `https://www.mercadolivre.com.br/p/${id}`
+        const location: SellerLocation = mlSellerLocation(best.seller_address)
         offers.set(id, {
           store_id: "mercado_livre",
           external_id: id,
@@ -129,6 +132,8 @@ export function createMercadoLivreConnector(env: NodeJS.ProcessEnv): Connector {
             ? ML_AFFILIATE_URL_TEMPLATE.replace("{url}", url)
             : null,
           is_free_shipping: best.shipping?.free_shipping ?? false,
+          seller_state: location.state,
+          seller_city: location.city,
           source: "api",
         })
       }

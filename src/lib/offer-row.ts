@@ -26,7 +26,7 @@ const credibleOriginalPrice = (price: number, original: number | null) =>
     : undefined
 
 export const OFFER_COLUMNS =
-  "id, store_id, title, image, category_slug, price, original_price, affiliate_url, is_free_shipping, last_seen_at, created_at, product_id, rating, popularity"
+  "id, store_id, title, image, category_slug, price, original_price, affiliate_url, is_free_shipping, last_seen_at, created_at, product_id, rating, popularity, seller_state, seller_city"
 
 /**
  * A "previous price" implying more than this much off is not believable (stores, and
