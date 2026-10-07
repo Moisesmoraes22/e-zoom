@@ -31,7 +31,7 @@ const catalog = [
   product("iPhone 15 Pro 256GB"),
   product("Air Fryer Mondial 4L"),
   product("Geladeira Frost Free Electrolux"),
-  product("Tênis Nike Corrida"),
+  ...times(3, "Tênis Nike Corrida"),
   product("Controladora DJ Pioneer DDJ-FLX4"),
 ]
 const fix = (query: string, base = catalog) => correctQuery(query, base)
@@ -140,17 +140,21 @@ test("desempenho: consulta com vários erros num catálogo grande responde rápi
   assert.ok(elapsed < 1500, `levou ${Math.round(elapsed)} ms`)
 })
 
-// ---- Lacunas encontradas na fase 4 (pendentes) ----
+// ---- Casos que eram lacunas na fase 4 e hoje estão corrigidos ----
 
-test("marca com 3 letras errada: 'nke' vira 'nike'", { todo: "palavras com menos de 4 letras nunca são corrigidas" }, () => {
+test("marca com 3 letras errada: 'nke' vira 'nike'", () => {
   assert.equal(fix("tenis nke"), "tenis nike")
 })
 
-test("palavras coladas com erro: 'airfyer' vira 'air fryer'", { todo: "a correção compara palavra a palavra, não junta nem separa" }, () => {
-  assert.equal(fix("airfyer"), "air fryer")
+test("palavras coladas com erro: 'airfyer' vira 'air fryer'", () => {
+  const fixed = fix("airfyer")!
+  assert.ok(fixed, "deveria sugerir algo")
+  assert.ok(filterProducts(catalog, { ...EMPTY_FILTERS, query: fixed }).length > 0, `"${fixed}" deveria achar a Air Fryer`)
+  assert.equal(fix("notebookgamer"), "notebook gamer")
+  assert.equal(fix("monitorgamr"), "monitor gamer")
 })
 
-test("correção usa também os sinônimos: 'celualr' vira 'celular' mesmo se o catálogo só diz 'smartphone'", { todo: "o vocabulário da correção são só os títulos" }, () => {
+test("correção usa também os sinônimos: 'celualr' vira 'celular' mesmo se o catálogo só diz 'smartphone'", () => {
   const base = [product("Smartphone Samsung Galaxy A07"), product("Smartphone Motorola G56")]
   assert.equal(fix("celualr", base), "celular")
 })

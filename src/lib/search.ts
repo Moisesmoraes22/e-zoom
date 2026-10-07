@@ -12,10 +12,9 @@ import { calculateDiscountPercent } from "@/lib/utils"
 export const normalizeText = (text: string) =>
   text.normalize("NFKD").replace(/\p{M}/gu, "").toLowerCase()
 
-/** Words people use for the same thing; searching one finds the others. */
+/** Words people use for the same thing; searching one finds the others (both ways). */
 export const SYNONYMS = [
-  ["whey", "proteina"],
-  ["celular", "smartphone", "iphone", "galaxy"],
+  ["celular", "smartphone"],
   ["fone", "headset", "headphone", "earbuds"],
   ["tv", "televisao"],
   ["notebook", "laptop"],
@@ -24,9 +23,21 @@ export const SYNONYMS = [
   ["ps5", "playstation 5", "playstation5"],
   ["ps4", "playstation 4", "playstation4"],
   ["tenis", "sapatilha"],
-  ["relogio", "smartwatch"],
   ["pretreino", "pre treino"],
 ]
+
+/**
+ * One-way expansions: the general word also finds the specific things ("celular" finds an
+ * iPhone), but not the other way round ("iphone" must not bring a Galaxy, "smartwatch" must
+ * not bring a plain watch, "whey" must not bring shampoo with protein).
+ */
+export const NARROWER: Record<string, string[]> = {
+  celular: ["iphone", "galaxy"],
+  smartphone: ["iphone", "galaxy"],
+  relogio: ["smartwatch"],
+  proteina: ["whey"],
+  playstation: ["ps5", "ps4", "playstation 5", "playstation 4"],
+}
 
 /** Words that clearly mean one category: results from it come first ("proteína" -> supplements, not hair care). */
 const CATEGORY_HINTS: Record<string, string> = Object.fromEntries(
@@ -38,26 +49,75 @@ const PHRASES = SYNONYMS.flatMap((group) =>
   group.filter((term) => term.includes(" ")).map((term) => ({ words: term.split(" "), group })),
 ).sort((x, y) => y.words.length - x.words.length)
 
+/** Units that may be glued to a number or typed apart: "500g" = "500 g". */
+const UNITS = new Set(["g", "kg", "mg", "ml", "l", "gb", "tb", "mb", "w", "v", "cm", "mm", "m", "un"])
+
 /** The word as typed plus its likely singular forms: "celulares" -> celular, "botoes" -> botao, "jornais" -> jornal, "luzes" -> luz. */
 function singularForms(word: string): string[] {
   const forms = [word]
   if (word.length > 3 && word.endsWith("s")) forms.push(word.slice(0, -1))
+  if (word.length === 3 && /[^aeiou]s$/.test(word)) forms.push(word.slice(0, -1)) // tvs, pcs, hds
   if (word.length > 4 && /(oes|aes)$/.test(word)) forms.push(`${word.slice(0, -3)}ao`)
   if (word.length > 4 && /(res|zes)$/.test(word)) forms.push(word.slice(0, -2)) // celulares, mulheres, luzes
   if (word.length > 5 && word.endsWith("ais")) forms.push(`${word.slice(0, -3)}al`)
   return forms
 }
 
+/** "cadeira" <-> "cadeirinha": the diminutive swaps the last vowel for -inha/-zinha (and back). */
+function diminutiveForms(word: string): string[] {
+  const forms: string[] = []
+  if (word.length >= 4 && /[ao]$/.test(word)) {
+    const stem = word.slice(0, -1)
+    const vowel = word.slice(-1)
+    forms.push(`${stem}inh${vowel}`, `${stem}zinh${vowel}`)
+  }
+  const back = word.match(/^(.{3,}?)z?inh([ao])$/)
+  if (back) forms.push(back[1] + back[2])
+  return forms
+}
+
+/** Every acceptable spelling of one typed word: plural, diminutive, two-way synonyms and one-way expansions. */
+function expand(word: string): string[] {
+  const forms = singularForms(word)
+  const base = [...new Set(forms.flatMap((f) => [f, ...diminutiveForms(f)]))]
+  const alts = new Set(base)
+  for (const group of SYNONYMS) if (forms.some((f) => group.includes(f))) group.forEach((g) => alts.add(g))
+  for (const f of forms) if (Object.hasOwn(NARROWER, f)) NARROWER[f].forEach((g) => alts.add(g)) // not "constructor", "toString"...
+  return [...alts]
+}
+
 /**
- * One list of acceptable spellings per typed word (plural, synonyms), accents removed. A
- * synonym of several words ("air fryer", "playstation 5") is matched when those words are
- * typed next to each other, and becomes one entry; synonyms are also found from the singular
- * form ("celulares" finds "smartphone").
+ * One list of acceptable spellings per typed word, accents removed. A synonym of several
+ * words ("air fryer", "playstation 5") is matched when those words are typed next to each
+ * other, and becomes one entry. A letter-digit hyphen ("ps-5") and a number with its unit
+ * ("500g" / "500 g") match both spellings.
  */
 export function queryGroups(query: string): string[][] {
-  const words = normalizeText(query).replace(/[^a-z0-9 ]+/g, " ").split(/\s+/).filter(Boolean)
+  const text = normalizeText(query)
+    .replace(/([a-z])-(\d)/g, "$1§$2") // keeps the hyphen of "ps-5" apart from ordinary separators
+    .replace(/(\d)-([a-z])/g, "$1§$2")
+    .replace(/[^a-z0-9 §]+/g, " ")
+  const words = text.split(/\s+/).filter(Boolean)
   const groups: string[][] = []
   for (let i = 0; i < words.length; ) {
+    const word = words[i]
+    if (word.includes("§")) {
+      const [a, b] = word.split("§")
+      groups.push([...new Set([...expand(a + b), `${a} ${b}`])])
+      i += 1
+      continue
+    }
+    const glued = word.match(/^(\d+)([a-z]{1,2})$/)
+    if (glued && UNITS.has(glued[2])) {
+      groups.push([word, `${glued[1]} ${glued[2]}`])
+      i += 1
+      continue
+    }
+    if (/^\d+$/.test(word) && UNITS.has(words[i + 1] ?? "")) {
+      groups.push([`${word} ${words[i + 1]}`, `${word}${words[i + 1]}`])
+      i += 2
+      continue
+    }
     const phrase = PHRASES.find(({ words: parts }) => {
       if (i + parts.length > words.length) return false
       const typed = words.slice(i, i + parts.length)
@@ -69,10 +129,7 @@ export function queryGroups(query: string): string[][] {
       i += phrase.words.length
       continue
     }
-    const forms = singularForms(words[i])
-    const alts = new Set(forms)
-    for (const group of SYNONYMS) if (forms.some((f) => group.includes(f))) group.forEach((g) => alts.add(g))
-    groups.push([...alts])
+    groups.push(expand(word))
     i += 1
   }
   return groups
@@ -126,7 +183,8 @@ export const EMPTY_FILTERS: ProductFilters = {
 
 function matchesPriceRange(price: number, value: PriceRange) {
   const range = PRICE_RANGES.find((r) => r.value === value)!
-  return price > range.min && price <= range.max
+  // The lowest bucket includes R$ 0, so a free item is not left out of every price filter.
+  return (price > range.min || (range.min === 0 && price >= 0)) && price <= range.max
 }
 
 export function filterProducts(
@@ -252,8 +310,10 @@ export function editDistance(a: string, b: string) {
 
 /**
  * For a search that found nothing: the same words with typos replaced by the closest
- * (then most common) word that appears in the catalog's titles, or null when no word
- * needed fixing or none is close enough. Words under 4 letters are left alone.
+ * (then most common) word that appears in the catalog's titles or in the synonym lists, or
+ * null when no word needed fixing or none is close enough. Words under 4 letters are only
+ * fixed to a common word ("nke" -> "nike"); a word that is really two run together
+ * ("airfyer") is split ("air fryer").
  */
 export function correctQuery(query: string, products: Product[]): string | null {
   const words = normalizeText(query).replace(/[^a-z0-9 ]+/g, " ").split(/\s+/).filter(Boolean)
@@ -263,19 +323,47 @@ export function correctQuery(query: string, products: Product[]): string | null 
       if (w.length >= 3) freq.set(w, (freq.get(w) ?? 0) + 1)
     }
   }
-  let changed = false
-  const fixed = words.map((word) => {
-    if (word.length < 4 || [...freq.keys()].some((k) => k.startsWith(word))) return word
-    const limit = word.length >= 7 ? 2 : 1
-    let best: { w: string; dist: number; n: number } | null = null
+  // Words people type that no title may use ("celular" when titles say "smartphone"): known,
+  // but rarer than any word that really appears in a title.
+  for (const term of [...SYNONYMS.flat(), ...Object.keys(NARROWER)]) {
+    for (const w of term.split(" ")) if (w.length >= 3 && !freq.has(w)) freq.set(w, 0.5)
+  }
+
+  type Hit = { w: string; dist: number; n: number }
+  const nearest = (word: string, limit: number, minCount = 0, minLength = 0): Hit | null => {
+    let best: Hit | null = null
     for (const [w, n] of freq) {
-      if (Math.abs(w.length - word.length) > limit) continue
+      if (n < minCount || w.length < minLength || Math.abs(w.length - word.length) > limit) continue
       const dist = editDistance(word, w)
       if (dist <= limit && (!best || dist < best.dist || (dist === best.dist && n > best.n))) best = { w, dist, n }
     }
-    if (!best) return word
+    return best
+  }
+  /** One typed word that is really two ("airfyer"): each half exact or one typo away, two changes at most. */
+  const split = (word: string): string | null => {
+    let best: { text: string; dist: number; n: number } | null = null
+    for (let i = 3; i <= word.length - 3; i++) {
+      const left = freq.has(word.slice(0, i)) ? { w: word.slice(0, i), dist: 0, n: freq.get(word.slice(0, i))! } : nearest(word.slice(0, i), 1)
+      const right = freq.has(word.slice(i)) ? { w: word.slice(i), dist: 0, n: freq.get(word.slice(i))! } : nearest(word.slice(i), 1)
+      if (!left || !right || left.dist + right.dist > 2) continue
+      const dist = left.dist + right.dist
+      const n = left.n + right.n
+      if (!best || dist < best.dist || (dist === best.dist && n > best.n)) best = { text: `${left.w} ${right.w}`, dist, n }
+    }
+    return best?.text ?? null
+  }
+
+  let changed = false
+  const fixed = words.map((word) => {
+    if (word.length < 3 || /^\d+$/.test(word) || [...freq.keys()].some((k) => k.startsWith(word))) return word
+    const hit =
+      word.length === 3
+        ? nearest(word, 1, 3, 4) // short words: only to a common, longer word
+        : nearest(word, word.length >= 7 ? 2 : 1)
+    const text = hit?.w ?? (word.length >= 6 ? split(word) : null)
+    if (!text) return word
     changed = true
-    return best.w
+    return text
   })
   return changed ? fixed.join(" ") : null
 }

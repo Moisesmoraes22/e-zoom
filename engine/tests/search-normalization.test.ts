@@ -90,7 +90,7 @@ test("palavras de até 3 letras não perdem o 's' final", () => {
   assert.deepEqual(queryGroups("pés")[0], ["pes"])
 })
 
-// ---- Lacunas encontradas na fase 2 (pendentes: viram falha se alguém quebrar, mas não travam a suíte) ----
+// ---- Casos que eram lacunas na fase 2 e hoje estão corrigidos ----
 
 test("letras largas e ligaduras (NFKD): 'ＦＯＮＥ' e 'ﬁlme'", () => {
   assert.ok(queryGroups("ＦＯＮＥ").length > 0, "consulta com letras largas some e passa a casar com tudo")
@@ -102,15 +102,29 @@ test("plural -ões / -ais / -éis: 'botões' acha 'botão'", () => {
   assert.ok(finds("Jornal Diário", "jornais"))
 })
 
-test("plural de sigla curta: 'tvs' acha 'tv'", { todo: "palavras com 3 letras não perdem o s" }, () => {
+test("plural de sigla curta: 'tvs' acha 'tv'", () => {
   assert.ok(finds("TV 50 polegadas", "tvs"))
 })
 
-test("hífen entre letra e número: 'ps-5' acha 'PS5'", { todo: "o hífen separa 'ps' de '5'" }, () => {
+test("hífen entre letra e número: 'ps-5' acha 'PS5'", () => {
   assert.ok(finds("Console PS5 Slim", "ps-5"))
 })
 
-test("unidade colada ou separada: '500g' acha '500 g'", { todo: "'500g' e '500 g' são palavras diferentes" }, () => {
+test("unidade colada ou separada: '500g' acha '500 g'", () => {
   assert.ok(finds("Whey 500 g Baunilha", "500g"))
   assert.ok(finds("Whey 500g Baunilha", "500 g"))
+})
+
+test("unidade colada ou separada se encontram nos dois sentidos, e '500' sozinho não vira unidade", () => {
+  assert.ok(finds("Whey 500 g Baunilha", "500g"))
+  assert.ok(finds("Whey 500g Baunilha", "500 g"))
+  assert.ok(finds("Fonte 12v 2a", "12v"))
+  assert.ok(!finds("Whey 900g", "500g"))
+})
+
+test("hífen entre letra e número: 'ps-5' acha 'PS5', 'PS 5' e 'PS-5'", () => {
+  assert.ok(finds("Console PS 5 Slim", "ps-5"))
+  assert.ok(finds("Console PS-5 Slim", "ps-5"))
+  assert.ok(finds("Console PS5 Slim", "ps-5"))
+  assert.ok(!finds("Console PS4 Slim", "ps-5"))
 })

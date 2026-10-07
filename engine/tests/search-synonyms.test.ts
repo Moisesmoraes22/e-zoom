@@ -26,7 +26,7 @@ test("lista de sinônimos: uma palavra não aparece em dois grupos (misturaria a
   }
 })
 
-test("sinônimos simples valem nos dois sentidos", () => {
+test("sinônimos simples valem nos dois sentidos (e os de uma via, na direção certa)", () => {
   const pairs: [string, string][] = [
     ["Smartphone Samsung A07", "celular"],
     ["Celular Motorola G56", "smartphone"],
@@ -47,8 +47,11 @@ test("sinônimos simples valem nos dois sentidos", () => {
     ["Tênis de Corrida", "sapatilha"],
     ["Smartwatch Fit Pro", "relogio"],
     ["Relógio Smartwatch", "smartwatch"],
-    ["Proteína Vegetal 500g", "whey"],
     ["Whey Protein Isolado", "proteina"],
+    ["iPhone 15 Pro", "celular"],
+    ["Galaxy A07 128GB", "smartphone"],
+    ["Console PS5 Slim", "playstation"],
+    ["Controle PS4 Dualshock", "playstation"],
   ]
   for (const [title, query] of pairs) assert.ok(finds(title, query), `"${query}" deveria achar "${title}"`)
 })
@@ -81,7 +84,7 @@ test("sinônimos não vazam para assuntos diferentes", () => {
   assert.ok(!finds("Smartphone Samsung", "tv"))
 })
 
-// ---- Lacunas encontradas na fase 3 (ainda pendentes) ----
+// ---- Casos que eram lacunas na fase 3 e hoje estão corrigidos ----
 
 test("sinônimo + plural: 'celulares' acha 'Smartphone'", () => {
   assert.ok(finds("Smartphone Samsung A07", "celulares"))
@@ -97,20 +100,20 @@ test("sinônimo de duas palavras digitado separado: 'air fryer' acha 'Airfryer'"
   assert.ok(finds("Pretreino Black", "pre treino"))
 })
 
-test("'playstation' sozinho acha 'PS5' e 'PS4'", { todo: "só 'playstation 5' e 'playstation 4' estão nos grupos" }, () => {
+test("'playstation' sozinho acha 'PS5' e 'PS4'", () => {
   assert.ok(finds("Console PS5 Slim", "playstation"))
 })
 
-test("marca específica não acha marca concorrente: 'iphone' não acha 'Galaxy'", { todo: "iphone e galaxy estão no mesmo grupo de 'celular'" }, () => {
+test("marca específica não acha marca concorrente: 'iphone' não acha 'Galaxy'", () => {
   assert.ok(!finds("Smartphone Samsung Galaxy A07", "iphone"))
   assert.ok(!finds("Celular Motorola G56", "iphone"))
   assert.ok(!finds("iPhone 15 Pro", "galaxy"))
 })
 
-test("'smartwatch' não acha relógio comum", { todo: "relogio e smartwatch são tratados como iguais" }, () => {
+test("'smartwatch' não acha relógio comum", () => {
   assert.ok(!finds("Relógio Masculino Clássico Analógico", "smartwatch"))
 })
 
-test("'whey' não acha xampu com proteína", { todo: "whey e proteina são sinônimos; só a ordem esconde o xampu" }, () => {
+test("'whey' não acha xampu com proteína", () => {
   assert.ok(!finds("Shampoo com Proteína de Trigo", "whey"))
 })

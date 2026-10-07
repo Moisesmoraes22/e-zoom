@@ -29,10 +29,20 @@ test("matchTier: 0 sem correspondência, 1 prefixo, 2 palavra inteira, 3 título
   assert.equal(tier("Monitor Gamer 27 polegadas", "monitor"), 3)
 })
 
-// Achado da fase 1: o comentário de matchTier promete que "cadeira" acha "cadeirinha", mas o diminutivo
-// troca a letra final ("cadeir-A" x "cadeir-INHA"), então o prefixo não bate. Marcado como pendente.
-test("diminutivos: 'cadeira' acha 'cadeirinha'", { todo: "diminutivo troca a vogal final" }, () => {
+test("diminutivos: 'cadeira' acha 'cadeirinha'", () => {
   assert.notEqual(tier("Cadeirinha de Bebê para Carro", "cadeira"), 0)
+  assert.notEqual(tier("Carrinho de Bebê", "carro"), 0)
+  assert.notEqual(tier("Bolsinha Feminina", "bolsa"), 0)
+})
+
+test("diminutivos: 'cadeirinha' também acha 'cadeira'", () => {
+  assert.notEqual(tier("Cadeira Gamer Preta", "cadeirinha"), 0)
+  assert.notEqual(tier("Casa de Boneca", "casinha"), 0)
+})
+
+test("diminutivo não cria resultado sem sentido", () => {
+  assert.equal(tier("Monitor Gamer", "cadeira"), 0)
+  assert.equal(tier("Linha de Costura", "lima"), 0)
 })
 
 test("uma palavra nunca casa pelo meio de outra", () => {
@@ -95,9 +105,9 @@ test("relevância: título que começa com a palavra vem antes de acessório", (
 })
 
 test("relevância: palavra inteira vem antes de prefixo", () => {
-  const catalog = [product("Cadeirinha para Carro Bebê"), product("Cadeira Gamer Preta")]
-  const ranked = sortProducts(catalog, "relevance", "cadeira").map((p) => p.title)
-  assert.equal(ranked[0], "Cadeira Gamer Preta")
+  const catalog = [product("Notebooks Gamer Potentes"), product("Notebook Gamer Slim")]
+  const ranked = sortProducts(catalog, "relevance", "notebook").map((p) => p.title)
+  assert.equal(ranked[0], "Notebook Gamer Slim")
 })
 
 test("dica de categoria: 'proteína' põe suplementos antes de cosméticos", () => {
