@@ -182,7 +182,7 @@ function Showcase({ offers }: { offers: Product[] }) {
   return (
     <div className="relative px-5 pb-6 sm:px-10 sm:pb-10">
       <div className="mb-3 flex items-center justify-between gap-3">
-        <h2 className="flex items-center gap-2 text-xl font-bold text-foreground sm:text-2xl">
+        <h2 className="flex items-center gap-2 text-lg font-bold text-foreground sm:text-2xl">
           <Flame className="h-5 w-5 shrink-0 text-discount" aria-hidden />
           Maiores descontos agora
         </h2>
