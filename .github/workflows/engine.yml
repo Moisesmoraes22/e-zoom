@@ -53,6 +53,26 @@ jobs:
           ML_AFFILIATE_URL_TEMPLATE: "{url}?matt_tool=36590912&matt_word=moraesmoises20230303173936"
           ML_WIDE: "1" # modo amplo: mais vendidos de cada subcategoria (até 1.200 ofertas)
 
+  # Shopee pela API oficial de afiliados. Precisa dos segredos SHOPEE_APP_ID e SHOPEE_APP_SECRET;
+  # uma falha aqui não derruba as outras coletas.
+  shopee:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: node engine/run.ts shopee
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          SHOPEE_APP_ID: ${{ secrets.SHOPEE_APP_ID }}
+          SHOPEE_APP_SECRET: ${{ secrets.SHOPEE_APP_SECRET }}
+
   # Cupons do canal de afiliados do Mercado Livre. Precisa do segredo TELEGRAM_COUPON_INVITE;
   # uma falha aqui não derruba as outras coletas.
   cupons:

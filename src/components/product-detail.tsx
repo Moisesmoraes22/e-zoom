@@ -18,6 +18,7 @@ import { useEffect, useRef } from "react"
 import { OfferLink } from "@/components/offer-link"
 import { PriceSparkline } from "@/components/price-sparkline"
 import { ProductGallery } from "@/components/product-gallery"
+import { ShareButton } from "@/components/share-button"
 import { StoreBadge } from "@/components/store-badge"
 import { TimeAgo } from "@/components/time-ago"
 import { Badge } from "@/components/ui/badge"
@@ -224,6 +225,7 @@ export function ProductDetail({
                 {favorited ? "Favoritado" : "Favoritar"}
               </motion.button>
             </div>
+            <ShareButton id={product.id} title={product.title} price={product.price} storeName={STORES[bestOffer.store].name} />
             <p className="mt-3 text-sm">
               <OfferLink
                 product={product}

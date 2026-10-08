@@ -12,7 +12,6 @@ import { discountOf } from "@/lib/deals"
 import { useFavorites } from "@/lib/favorites-context"
 import { cardImage } from "@/lib/image-url"
 import { SELLER_LEADER_LABEL } from "@/lib/seller-leader"
-import { unitPrice } from "@/lib/unit-price"
 import type { Product } from "@/lib/types"
 import {
   cn,
@@ -40,7 +39,6 @@ export function ProductCard({
   const favorited = isFavorite(product.id)
   const buttonRef = useRef<HTMLButtonElement>(null)
   const discount = discountOf(product)
-  const unit = product.category === "suplementos" ? unitPrice(product.title, product.price) : null
 
   const handleToggle = (event: React.MouseEvent) => {
     event.preventDefault()
@@ -105,12 +103,7 @@ export function ProductCard({
                   </span>
                 )}
               </div>
-              {unit && (
-                <span className="text-xs font-medium text-muted-foreground">
-                  {formatCurrency(unit.value)}/{unit.unit}
-                </span>
-              )}
-              {!unit && product.installments && (
+              {product.installments && (
                 <span className="text-xs text-muted-foreground">
                   em {product.installments.count}x de{" "}
                   {formatCurrency(product.installments.value)}

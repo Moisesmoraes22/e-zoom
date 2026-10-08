@@ -5,7 +5,7 @@ import type { Connector, OfferRow } from "../types.ts"
 
 const ENDPOINT = "https://open-api.affiliate.shopee.com.br/graphql"
 const PER_KEYWORD = 50
-const MAX_OFFERS = 600
+const MAX_OFFERS = 1300 // all 8 categories (about 1.2k after the quality filter); 600 stopped at "calcados"
 
 /** Best sellers per search term, filed under the site's own category slugs. */
 const KEYWORDS: Record<string, string[]> = {

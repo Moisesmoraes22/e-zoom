@@ -5,7 +5,7 @@ import { ArrowRight, TrendingDown } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { PriceSparkline } from "@/components/price-sparkline";
+import { PriceTrend } from "@/components/price-sparkline";
 import type { HeroOffer } from "@/lib/hero";
 import { cn, formatCurrency } from "@/lib/utils";
 
@@ -171,11 +171,14 @@ function Slide({ offer, active }: { offer: HeroOffer; active: boolean }) {
         {offer.insight && (
           <div className="absolute bottom-3 left-3 flex items-center gap-2 rounded-2xl border border-border bg-card px-3 py-2 text-xs font-medium text-card-foreground shadow-lg shadow-foreground/10 sm:text-sm">
             {offer.priceHistory && offer.priceHistory.length >= 2 ? (
-              <PriceSparkline values={offer.priceHistory} className="h-5 w-10 text-brand" />
+              <PriceTrend values={offer.priceHistory} className="shrink-0 text-success" />
             ) : (
-              <TrendingDown className="h-4 w-4 text-brand" aria-hidden />
+              <TrendingDown className="h-4 w-4 text-success" aria-hidden />
             )}
-            {offer.insight}
+            <span className="flex flex-col leading-tight">
+              <span className="text-[10px] font-semibold uppercase tracking-wide text-success">Histórico de preço</span>
+              {offer.insight}
+            </span>
           </div>
         )}
         {offer.discount && (

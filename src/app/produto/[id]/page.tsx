@@ -43,7 +43,17 @@ export async function generateMetadata({
     title: product.title,
     description: `${product.title} por ${formatCurrency(product.price)} em ${STORES[product.store].name}. Veja o histórico de preço e vá direto para a loja.`,
     alternates: { canonical: `/produto/${product.id}` },
-    openGraph: { images: [product.image] },
+    // What WhatsApp, Telegram and Facebook show when the page is shared.
+    openGraph: {
+      type: "website",
+      siteName: "E-Zoom",
+      locale: "pt_BR",
+      url: `/produto/${product.id}`,
+      title: product.title,
+      description: `${formatCurrency(product.price)} em ${STORES[product.store].name}. Veja o histórico de preço no E-Zoom.`,
+      images: [product.image],
+    },
+    twitter: { card: "summary_large_image" },
   }
 }
 

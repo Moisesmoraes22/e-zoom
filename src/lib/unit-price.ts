@@ -4,6 +4,8 @@ const WEIGHT = /(\d+(?:[.,]\d+)?)\s?(kg|g)\b/gi
 const COUNT = /(\d{1,4})\s?(?:c[aá]psulas?|caps|comprimidos?|comps|tabletes?|gomas|sach[eê]s?|softgels?|doses?)/gi
 // "2x200g" (count x size) and "Kit 2 ..." / "Kit 6x ..." (count of identical packs).
 const COUNT_TIMES_SIZE = /(\d{1,2})\s?x\s?(\d+(?:[.,]\d+)?)\s?(kg|g)\b/i
+// "12 Unidades", "6 barras": a pack of several pieces, so the size in the title is of ONE piece.
+const PIECES = /(\d{1,4})\s?(?:unidades?|unids?|unds?|barras?|pacotes?|potes?|sach[eê]s?)\b/gi
 const KIT = /\b(?:kit|combo|pack)\s*(?:com\s*)?(\d{1,2})x?\b/i
 
 const num = (s: string) => Number(s.replace(",", "."))
@@ -26,6 +28,8 @@ export function unitPrice(title: string, price: number): UnitPrice | null {
   )
   const hasCount = new RegExp(COUNT.source, "i").test(title)
   if (grams.size > 0 && hasCount) return null // "15kg 30 comprimidos": which one is the content?
+  // "54g ... 12 Unidades": the price is of the box but the weight is of one bar, so no safe R$/kg.
+  if (grams.size > 0 && [...title.matchAll(PIECES)].some((m) => Number(m[1]) > 1)) return null
   if (grams.size === 1) {
     const total = [...grams][0] * (times ? Number(times[1]) : kit)
     const perKg = (price / total) * 1000
@@ -51,5 +55,7 @@ if (process.argv[1]?.endsWith("unit-price.ts")) {
   eq(unitPrice("Creatina Monohidratada Pura 1kg, 500g, 600, 300g e 150g", 40), null) // several sizes
   eq(unitPrice("Pele 15kg 30 Comprimidos", 80), null) // weight and count together
   eq(unitPrice("Suplemento sem tamanho no título", 40), null)
+  eq(unitPrice("Barra Proteína Amendoim E Chocolate 54g Winstage 12 Unidades", 133.3), null) // box of 12 bars
+  eq(unitPrice("Barra Proteína Banana/chocolate Sem Açúcar Winstage 54g", 15.9), 15.9 / 0.054) // one bar: kept
   console.log("unit-price ok")
 }
