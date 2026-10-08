@@ -9,5 +9,5 @@ export async function proxy(request: NextRequest) {
 // Account routes only. Public pages (/, /busca, /categorias, /produto/...) never run
 // this, so they stay statically cached and carry no session cookies or private data.
 export const config = {
-  matcher: ["/conta/:path*", "/login", "/cadastro", "/recuperar-senha", "/redefinir-senha", "/auth/:path*"],
+  matcher: ["/conta/:path*", "/admin/:path*", "/login", "/cadastro", "/recuperar-senha", "/redefinir-senha", "/auth/:path*"],
 }
