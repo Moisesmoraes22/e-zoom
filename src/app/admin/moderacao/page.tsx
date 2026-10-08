@@ -25,12 +25,12 @@ interface Row {
   reports_count: number
   created_at: string
   offers: { id: string; title: string } | null
-  comment_media: { path: string }[]
+  comment_media: { path: string; kind: "photo" | "video" }[]
   comment_reports: { reason: string }[]
 }
 
 const SELECT =
-  "id, author_name, body, status, reports_count, created_at, offers(id, title), comment_media(path), comment_reports(reason)"
+  "id, author_name, body, status, reports_count, created_at, offers(id, title), comment_media(path, kind), comment_reports(reason)"
 
 export default async function ModeracaoPage({ searchParams }: { searchParams: Promise<{ ver?: string }> }) {
   const { ver } = await searchParams
@@ -46,7 +46,8 @@ export default async function ModeracaoPage({ searchParams }: { searchParams: Pr
   const query = supabase.from("comments").select(SELECT).order("created_at", { ascending: false }).limit(100)
   const { data } = await (all ? query : query.or("status.eq.hidden,reports_count.gt.0"))
   const rows = (data ?? []) as unknown as Row[]
-  const photoUrl = (path: string) => supabase.storage.from("comment-media").getPublicUrl(path).data.publicUrl
+  const mediaUrl = (m: { path: string; kind: string }) =>
+    supabase.storage.from(m.kind === "video" ? "comment-videos" : "comment-media").getPublicUrl(m.path).data.publicUrl
 
   const tab = (active: boolean) =>
     cn(
@@ -103,17 +104,21 @@ export default async function ModeracaoPage({ searchParams }: { searchParams: Pr
 
                 {row.comment_media.length > 0 && (
                   <div className="mt-3 flex flex-wrap gap-2">
-                    {row.comment_media.map((m) => (
-                      <a key={m.path} href={photoUrl(m.path)} target="_blank" rel="noopener noreferrer">
-                        {/* eslint-disable-next-line @next/next/no-img-element -- user photo, already resized by the uploader */}
-                        <img
-                          src={photoUrl(m.path)}
-                          alt="Foto do comentário"
-                          loading="lazy"
-                          className="h-24 w-24 rounded-lg border border-border object-cover"
-                        />
-                      </a>
-                    ))}
+                    {row.comment_media.map((m) =>
+                      m.kind === "video" ? (
+                        <video key={m.path} src={mediaUrl(m)} controls preload="none" className="max-h-56 max-w-full rounded-lg border border-border" />
+                      ) : (
+                        <a key={m.path} href={mediaUrl(m)} target="_blank" rel="noopener noreferrer">
+                          {/* eslint-disable-next-line @next/next/no-img-element -- user photo, already resized by the uploader */}
+                          <img
+                            src={mediaUrl(m)}
+                            alt="Foto do comentário"
+                            loading="lazy"
+                            className="h-24 w-24 rounded-lg border border-border object-cover"
+                          />
+                        </a>
+                      ),
+                    )}
                   </div>
                 )}
 

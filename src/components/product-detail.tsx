@@ -17,6 +17,7 @@ import { useEffect, useRef } from "react"
 
 import { OfferLink } from "@/components/offer-link"
 import { PriceSparkline } from "@/components/price-sparkline"
+import { ProductGallery } from "@/components/product-gallery"
 import { StoreBadge } from "@/components/store-badge"
 import { TimeAgo } from "@/components/time-ago"
 import { Badge } from "@/components/ui/badge"
@@ -43,11 +44,14 @@ export function ProductDetail({
   product,
   offers,
   stats,
+  images,
 }: {
   product: Product
   offers: ProductOffer[]
   /** Full recorded price history (live products only). */
   stats: PriceStats | null
+  /** All photos of the product, cover first. */
+  images: string[]
 }) {
   const { toggleFavorite, isFavorite, launchFlight } = useFavorites()
   const favorited = isFavorite(product.id)
@@ -100,18 +104,16 @@ export function ProductDetail({
       </nav>
 
       <div className="grid gap-8 md:grid-cols-2 md:gap-10">
-        <div className="relative aspect-square self-start overflow-hidden rounded-2xl border border-border bg-muted">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={product.image}
+        <div className="self-start">
+          <ProductGallery
+            images={images}
             alt={product.title}
-            className="h-full w-full object-cover"
+            badge={
+              discount ? (
+                <Badge className="bg-discount text-discount-foreground hover:bg-discount">-{discount}%</Badge>
+              ) : undefined
+            }
           />
-          {discount && (
-            <Badge className="absolute left-3 top-3 bg-discount text-discount-foreground hover:bg-discount">
-              -{discount}%
-            </Badge>
-          )}
         </div>
 
         <div className="flex flex-col gap-5">

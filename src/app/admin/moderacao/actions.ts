@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache"
 import { createClient } from "@/lib/supabase/server"
 
 const BUCKET = "comment-media"
+const VIDEO_BUCKET = "comment-videos"
 
 /**
  * Both actions run with the admin's own session: the database policies (public.admins) decide.
@@ -22,9 +23,10 @@ export async function setCommentStatus(formData: FormData) {
 export async function deleteComment(formData: FormData) {
   const id = String(formData.get("id") ?? "")
   const supabase = await createClient()
-  const { data: media } = await supabase.from("comment_media").select("path").eq("comment_id", id)
-  const paths = (media ?? []).map((m) => m.path)
-  if (paths.length) await supabase.storage.from(BUCKET).remove(paths)
+  const { data: media } = await supabase.from("comment_media").select("path, kind").eq("comment_id", id)
+  const pathsOf = (kind: string) => (media ?? []).filter((m) => m.kind === kind).map((m) => m.path)
+  if (pathsOf("photo").length) await supabase.storage.from(BUCKET).remove(pathsOf("photo"))
+  if (pathsOf("video").length) await supabase.storage.from(VIDEO_BUCKET).remove(pathsOf("video"))
   await supabase.from("comments").delete().eq("id", id)
   revalidatePath("/admin/moderacao")
 }

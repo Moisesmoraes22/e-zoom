@@ -9,7 +9,7 @@ import { byDiscount, sameCategory } from "@/lib/deals"
 import { ALL_PRODUCTS, getProductOffers, STORES } from "@/lib/mock-data"
 import type { Product } from "@/lib/types"
 import { formatCurrency } from "@/lib/utils"
-import { getCatalog, getPriceStats } from "@/lib/offers"
+import { getCatalog, getOfferImages, getPriceStats } from "@/lib/offers"
 import { productJsonLd, serializeJsonLd } from "@/lib/structured-data"
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://e-zoom.vercel.app"
@@ -61,6 +61,7 @@ export default async function ProdutoPage({
 
   const isLive = live && products.includes(product)
   const stats = isLive ? await getPriceStats(product.id) : null
+  const images = isLive ? await getOfferImages(product.id, product.image) : [product.image]
   const toOffer = (p: Product) => ({
     store: p.store,
     price: p.price,
@@ -94,7 +95,7 @@ export default async function ProdutoPage({
           dangerouslySetInnerHTML={{ __html: serializeJsonLd(productJsonLd(product, SITE)) }}
         />
       )}
-      <ProductDetail product={product} offers={offers} stats={stats} />
+      <ProductDetail product={product} offers={offers} stats={stats} images={images} />
       {/* Comments need a real offer row (a uuid in the database); the sample catalogue has none. */}
       {isLive && (
         <section className="page-container pb-8">

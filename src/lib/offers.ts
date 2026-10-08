@@ -128,3 +128,18 @@ export const getPriceStats = cache(async (offerId: string): Promise<PriceStats |
     since: points[0].at,
   }
 })
+
+/**
+ * Every photo of one offer (cover first), for the product page. Read apart from the catalog so the
+ * lists do not carry several URLs per offer. Falls back to the cover alone while the offer has no
+ * extra photos (or the column is not there yet).
+ */
+export const getOfferImages = cache(async (offerId: string, cover: string): Promise<string[]> => {
+  const { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } = process.env
+  if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) return [cover]
+
+  const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, { auth: { persistSession: false } })
+  const { data } = await supabase.from("offers").select("images").eq("id", offerId).maybeSingle()
+  const extra = Array.isArray(data?.images) ? (data.images as unknown[]).filter((u): u is string => typeof u === "string" && /^https:\/\//.test(u)) : []
+  return [...new Set([cover, ...extra])].slice(0, 8)
+})

@@ -1,16 +1,17 @@
 "use client"
 
-import { Camera, Flag, Loader2, MessageSquare, Trash2, X } from "lucide-react"
+import { Camera, Flag, Loader2, MessageSquare, Trash2, Video, X } from "lucide-react"
 import Link from "next/link"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 import { useAuth } from "@/components/auth-provider"
 import { Button } from "@/components/ui/button"
-import { MAX_PHOTOS, photoProblem, toCleanJpeg } from "@/lib/comment-media"
+import { MAX_PHOTOS, MAX_VIDEO_SECONDS, photoProblem, toCleanJpeg, toCleanVideo, videoProblem, videoSeconds } from "@/lib/comment-media"
 import { createClient, supabaseConfigured } from "@/lib/supabase/client"
 import { formatSeenAt } from "@/lib/utils"
 
 const BUCKET = "comment-media"
+const VIDEO_BUCKET = "comment-videos"
 const MAX_BODY = 1000
 
 interface CommentRow {
@@ -19,7 +20,7 @@ interface CommentRow {
   author_name: string
   body: string
   created_at: string
-  comment_media: { path: string }[]
+  comment_media: { path: string; kind: "photo" | "video" }[]
 }
 
 const REPORT_REASONS = [
@@ -30,7 +31,7 @@ const REPORT_REASONS = [
 ] as const
 
 /**
- * Comments from signed-in buyers, with up to 3 photos. Everything that matters is enforced by
+ * Comments from signed-in buyers, with up to 3 photos and 1 video. Everything that matters is enforced by
  * the database (policies, limits, who the author is); this component only reads and writes
  * through the visitor's own session. Public pages stay static: the list loads after the page.
  */
@@ -44,7 +45,7 @@ export function ProductComments({ offerId }: { offerId: string }) {
     if (!supabase) return
     const { data, error } = await supabase
       .from("comments")
-      .select("id, user_id, author_name, body, created_at, comment_media(path)")
+      .select("id, user_id, author_name, body, created_at, comment_media(path, kind)")
       .eq("offer_id", offerId)
       .order("created_at", { ascending: false })
       .limit(30)
@@ -64,7 +65,8 @@ export function ProductComments({ offerId }: { offerId: string }) {
 
   if (!supabase) return null
 
-  const photoUrl = (path: string) => supabase.storage.from(BUCKET).getPublicUrl(path).data.publicUrl
+  const mediaUrl = (media: { path: string; kind: "photo" | "video" }) =>
+    supabase.storage.from(media.kind === "video" ? VIDEO_BUCKET : BUCKET).getPublicUrl(media.path).data.publicUrl
 
   return (
     <section aria-labelledby="comentarios" className="rounded-2xl border border-border bg-card p-5">
@@ -84,7 +86,7 @@ export function ProductComments({ offerId }: { offerId: string }) {
           <Link href="/cadastro" className="font-semibold text-brand hover:underline">
             crie uma conta
           </Link>{" "}
-          para comentar e enviar fotos.
+          para comentar e enviar fotos e vídeo.
         </p>
       ) : null}
 
@@ -96,7 +98,7 @@ export function ProductComments({ offerId }: { offerId: string }) {
           <CommentItem
             key={comment.id}
             comment={comment}
-            photoUrl={photoUrl}
+            mediaUrl={mediaUrl}
             ownerId={auth.status === "authenticated" ? auth.user.id : null}
             onChanged={load}
           />
@@ -110,11 +112,28 @@ function CommentForm({ offerId, userId, onSent }: { offerId: string; userId: str
   const supabase = useMemo(() => createClient(), [])
   const [body, setBody] = useState("")
   const [files, setFiles] = useState<File[]>([])
+  const [video, setVideo] = useState<File | null>(null)
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
   const input = useRef<HTMLInputElement>(null)
+  const videoInput = useRef<HTMLInputElement>(null)
   const previews = useMemo(() => files.map((file) => URL.createObjectURL(file)), [files])
   useEffect(() => () => previews.forEach((url) => URL.revokeObjectURL(url)), [previews])
+  const videoPreview = useMemo(() => (video ? URL.createObjectURL(video) : null), [video])
+  useEffect(() => () => { if (videoPreview) URL.revokeObjectURL(videoPreview) }, [videoPreview])
+
+  const pickVideo = async (list: FileList | null) => {
+    const file = list?.[0]
+    if (videoInput.current) videoInput.current.value = ""
+    if (!file) return
+    const problem = videoProblem(file)
+    if (problem) return setMessage(problem)
+    const seconds = await videoSeconds(file)
+    if (seconds === null) return setMessage("Este navegador não consegue ler esse vídeo. Tente outro arquivo.")
+    if (seconds > MAX_VIDEO_SECONDS) return setMessage(`O vídeo pode ter até ${MAX_VIDEO_SECONDS} segundos.`)
+    setMessage(null)
+    setVideo(file)
+  }
 
   const pick = (list: FileList | null) => {
     if (!list) return
@@ -145,6 +164,7 @@ function CommentForm({ offerId, userId, onSent }: { offerId: string; userId: str
     setBusy(true)
     setMessage(null)
     const uploaded: string[] = []
+    const uploadedVideos: string[] = []
     try {
       for (const file of files) {
         const blob = await toCleanJpeg(file)
@@ -153,19 +173,35 @@ function CommentForm({ offerId, userId, onSent }: { offerId: string; userId: str
         if (error) throw error
         uploaded.push(path)
       }
+      if (video) {
+        const clean = await toCleanVideo(video)
+        if (!clean) {
+          setMessage("Esse arquivo não parece ser um vídeo MP4 ou MOV.")
+          if (uploaded.length) await supabase.storage.from(BUCKET).remove(uploaded)
+          return
+        }
+        const path = `${userId}/${crypto.randomUUID()}.mp4`
+        const { error } = await supabase.storage.from(VIDEO_BUCKET).upload(path, clean, { contentType: "video/mp4" })
+        if (error) throw error
+        uploadedVideos.push(path)
+      }
       const { data, error } = await supabase.from("comments").insert({ offer_id: offerId, body: text }).select("id").single()
       if (error) throw error
-      if (uploaded.length) {
-        const { error: mediaError } = await supabase
-          .from("comment_media")
-          .insert(uploaded.map((path) => ({ comment_id: data.id, path })))
-        if (mediaError) setMessage("O comentário foi enviado, mas as fotos não puderam ser anexadas.")
+      const media = [
+        ...uploaded.map((path) => ({ comment_id: data.id, path, kind: "photo" })),
+        ...uploadedVideos.map((path) => ({ comment_id: data.id, path, kind: "video" })),
+      ]
+      if (media.length) {
+        const { error: mediaError } = await supabase.from("comment_media").insert(media)
+        if (mediaError) setMessage("O comentário foi enviado, mas as fotos ou o vídeo não puderam ser anexados.")
       }
       setBody("")
       setFiles([])
+      setVideo(null)
       onSent()
     } catch (error) {
       if (uploaded.length) await supabase.storage.from(BUCKET).remove(uploaded)
+      if (uploadedVideos.length) await supabase.storage.from(VIDEO_BUCKET).remove(uploadedVideos)
       const text = error instanceof Error ? error.message : ""
       setMessage(
         text.includes("comment_rate_limit")
@@ -209,11 +245,29 @@ function CommentForm({ offerId, userId, onSent }: { offerId: string; userId: str
           ))}
         </ul>
       )}
+      {videoPreview && (
+        <div className="relative w-fit">
+          <video src={videoPreview} controls muted playsInline preload="metadata" className="max-h-40 rounded-lg border border-border" />
+          <button
+            type="button"
+            aria-label="Remover vídeo"
+            onClick={() => setVideo(null)}
+            className="absolute -right-2 -top-2 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-foreground text-background"
+          >
+            <X className="h-3.5 w-3.5" aria-hidden />
+          </button>
+        </div>
+      )}
       <div className="flex flex-wrap items-center gap-2">
+        <input ref={videoInput} type="file" accept="video/mp4,video/quicktime" hidden onChange={(e) => pickVideo(e.target.files)} />
         <input ref={input} type="file" accept="image/jpeg,image/png,image/webp" multiple hidden onChange={(e) => pick(e.target.files)} />
         <Button type="button" variant="outline" size="sm" className="gap-1.5 rounded-full" onClick={() => input.current?.click()} disabled={busy || files.length >= MAX_PHOTOS}>
           <Camera className="h-4 w-4" aria-hidden />
           Adicionar foto
+        </Button>
+        <Button type="button" variant="outline" size="sm" className="gap-1.5 rounded-full" onClick={() => videoInput.current?.click()} disabled={busy || video !== null}>
+          <Video className="h-4 w-4" aria-hidden />
+          Adicionar vídeo
         </Button>
         <Button type="submit" size="sm" className="gap-1.5 rounded-full" disabled={busy || body.trim().length < 3}>
           {busy && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
@@ -227,7 +281,7 @@ function CommentForm({ offerId, userId, onSent }: { offerId: string; userId: str
         </p>
       )}
       <p className="text-xs text-muted-foreground">
-        Seja respeitoso e não publique dados pessoais. As fotos são reenviadas sem a localização. Ao enviar, você aceita os{" "}
+        Seja respeitoso e não publique dados pessoais. As fotos são reenviadas sem a localização e o vídeo (MP4 ou MOV, até 20 s e 15 MB) tem a localização apagada do arquivo. Ao enviar, você aceita os{" "}
         <Link href="/termos" className="underline">
           Termos de Uso
         </Link>
@@ -239,12 +293,12 @@ function CommentForm({ offerId, userId, onSent }: { offerId: string; userId: str
 
 function CommentItem({
   comment,
-  photoUrl,
+  mediaUrl,
   ownerId,
   onChanged,
 }: {
   comment: CommentRow
-  photoUrl: (path: string) => string
+  mediaUrl: (media: { path: string; kind: "photo" | "video" }) => string
   ownerId: string | null
   onChanged: () => void
 }) {
@@ -255,8 +309,9 @@ function CommentItem({
 
   const remove = async () => {
     if (!window.confirm("Excluir este comentário?")) return
-    const paths = comment.comment_media.map((m) => m.path)
-    if (paths.length) await supabase.storage.from(BUCKET).remove(paths)
+    const pathsOf = (kind: "photo" | "video") => comment.comment_media.filter((m) => m.kind === kind).map((m) => m.path)
+    if (pathsOf("photo").length) await supabase.storage.from(BUCKET).remove(pathsOf("photo"))
+    if (pathsOf("video").length) await supabase.storage.from(VIDEO_BUCKET).remove(pathsOf("video"))
     const { error } = await supabase.from("comments").delete().eq("id", comment.id)
     if (error) setNote("Não foi possível excluir agora.")
     else onChanged()
@@ -281,10 +336,14 @@ function CommentItem({
         <ul className="mt-3 flex flex-wrap gap-2">
           {comment.comment_media.map((media) => (
             <li key={media.path}>
-              <a href={photoUrl(media.path)} target="_blank" rel="noopener noreferrer">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={photoUrl(media.path)} alt={`Foto enviada por ${comment.author_name}`} loading="lazy" className="h-24 w-24 rounded-lg border border-border object-cover" />
-              </a>
+              {media.kind === "video" ? (
+                <video src={mediaUrl(media)} controls playsInline preload="none" className="max-h-64 max-w-full rounded-lg border border-border" />
+              ) : (
+                <a href={mediaUrl(media)} target="_blank" rel="noopener noreferrer">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={mediaUrl(media)} alt={`Foto enviada por ${comment.author_name}`} loading="lazy" className="h-24 w-24 rounded-lg border border-border object-cover" />
+                </a>
+              )}
             </li>
           ))}
         </ul>

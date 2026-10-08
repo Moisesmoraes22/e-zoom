@@ -146,6 +146,7 @@ export function createMercadoLivreConnector(env: NodeJS.ProcessEnv): Connector {
           seller_state: location.state,
           seller_city: location.city,
           seller_leader: await leaderOf(best.seller_id),
+          images: (product.pictures ?? []).map((p) => p.url.replace(/^http:/, "https:")).slice(0, 8),
           source: "api",
         })
       }
