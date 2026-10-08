@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto"
 
 import { refineCategory } from "../lib/categories.ts"
+import { shopeeShopBadge } from "../lib/seller.ts"
 import type { Connector, OfferRow } from "../types.ts"
 
 const ENDPOINT = "https://open-api.affiliate.shopee.com.br/graphql"
@@ -29,6 +30,7 @@ interface Node {
   offerLink?: string | null
   ratingStar?: string | null
   sales?: number | null
+  shopType?: number[] | null
 }
 
 /** Signature = sha256(appId + timestamp + body + secret), sent as the Authorization header. */
@@ -71,7 +73,7 @@ export function createShopeeConnector(env: NodeJS.ProcessEnv): Connector {
           const { productOfferV2 } = await query<{ productOfferV2: { nodes: Node[] } }>(
             env,
             `{ productOfferV2(keyword: "${keyword}", sortType: 2, page: 1, limit: ${PER_KEYWORD}) {
-              nodes { itemId shopId productName priceMin priceDiscountRate imageUrl offerLink ratingStar sales }
+              nodes { itemId shopId productName priceMin priceDiscountRate imageUrl offerLink ratingStar sales shopType }
             } }`,
           )
           for (const node of productOfferV2.nodes) {
@@ -97,6 +99,7 @@ export function createShopeeConnector(env: NodeJS.ProcessEnv): Connector {
               affiliate_url: node.offerLink,
               is_free_shipping: false,
               popularity: node.sales ?? null,
+              seller_leader: shopeeShopBadge(node.shopType),
               source: "api",
             })
           }

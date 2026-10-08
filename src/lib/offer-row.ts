@@ -60,7 +60,7 @@ export function rowToProduct(row: OfferRow, recentPrices: number[] = []): Produc
     popularity: row.popularity ? Number(row.popularity) : undefined,
     sellerState: row.seller_state ?? undefined,
     sellerCity: row.seller_city ?? undefined,
-    sellerLeader: row.seller_leader === "silver" || row.seller_leader === "gold" || row.seller_leader === "platinum" ? row.seller_leader : undefined,
+    sellerLeader: ["silver", "gold", "platinum", "official", "preferred"].includes(row.seller_leader ?? "") ? (row.seller_leader as Product["sellerLeader"]) : undefined,
     priceHistory: hasHistory ? prices : undefined,
     // A real drop: 3% to 50% below the previous recorded price. Under 3% is cent-level noise;
     // over 50% is a glitch (a R$ 9.999 placeholder price, or the cheapest seller changing).

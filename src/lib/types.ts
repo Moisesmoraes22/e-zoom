@@ -42,7 +42,7 @@ export interface Product {
   sellerState?: string
   sellerCity?: string
   /** Mercado Livre MercadoLíder badge of the seller (as reported); never set for other stores. */
-  sellerLeader?: "silver" | "gold" | "platinum"
+  sellerLeader?: "silver" | "gold" | "platinum" | "official" | "preferred"
   /** ISO time the offer first entered the catalog ("recent offers" ordering). */
   createdAt?: string
   /**
