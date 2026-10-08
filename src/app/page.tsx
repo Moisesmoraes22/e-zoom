@@ -96,7 +96,7 @@ export default async function Home() {
         categories={categoryCounts(products).slice(0, 5)}
       />
       {hero.length > 0 && <FeaturedDeal offers={hero} />}
-      <CategoryGrid categories={categoryCounts(products).slice(0, 8)} showCounts={live} />
+      <CategoryGrid categories={categoryCounts(products, true).slice(0, 8)} showCounts={live} />
       {hot.length > 0 && (
         <ProductRow
           title="Bombando agora"

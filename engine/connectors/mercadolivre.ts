@@ -1,4 +1,4 @@
-import { refineCategory } from "../lib/categories.ts"
+import { isTool, refineCategory } from "../lib/categories.ts"
 import { isDj } from "../lib/dj.ts"
 import { mlSellerLocation, type SellerLocation } from "../lib/location.ts"
 import { mlSellerLeader, type SellerLeader } from "../lib/seller.ts"
@@ -25,6 +25,13 @@ const DJ_TERMS = [
   "fone de ouvido profissional estudio", "cabo xlr", "cabo p10", "cabo rca", "interface de audio",
   "microfone dinamico", "caixa ativa", "moving head", "maquina de fumaça", "pedestal caixa de som",
   "mesa de som", "monitor de estudio", "behringer", "rekordbox", "case controladora dj",
+]
+/** Tools niche: power and hand tools, measuring, air and cutting; the highlights alone give too few. */
+const TOOL_TERMS = [
+  "furadeira de impacto", "parafusadeira sem fio", "furadeira parafusadeira", "esmerilhadeira angular", "serra circular",
+  "serra tico tico", "lixadeira", "jogo de chaves", "jogo de soquetes", "maleta de ferramentas", "kit de ferramentas",
+  "alicate", "trena a laser", "multímetro", "nível a laser", "compressor de ar", "soprador térmico", "chave de impacto",
+  "tupia", "politriz", "morsa", "martelo", "chave de fenda", "caixa de ferramentas",
 ]
 const PER_TERM = 25 // offers kept per term
 // Most catalog hits have no active seller (items -> 404), so we scan a few pages per term.
@@ -129,7 +136,7 @@ export function createMercadoLivreConnector(env: NodeJS.ProcessEnv): Connector {
         return leaders.get(sellerId) ?? null
       }
 
-      const buildOffer = async (id: string, categoryIn: string, only?: "suplementos" | "dj") => {
+      const buildOffer = async (id: string, categoryIn: string, only?: "suplementos" | "dj" | "ferramentas") => {
         // Supplement search hits are mostly sellerless: check listings first, skip the rest.
         const { results } = await get<{ results: MlProductItem[] }>(`/products/${id}/items?limit=10`)
         const product = await get<MlProduct>(`/products/${id}`)
@@ -147,6 +154,8 @@ export function createMercadoLivreConnector(env: NodeJS.ProcessEnv): Connector {
         const dj = !supplement && isDj(product.name)
         if (only === "suplementos" && !supplement) return
         if (only === "dj" && !dj) return
+        // A catalog search for "alicate" also finds nail clippers: keep only what is named as a tool.
+        if (only === "ferramentas" && !isTool(product.name)) return
         const category = supplement ? "suplementos" : dj ? "dj" : refineCategory(product.name, categoryIn)
 
         const url = `https://www.mercadolivre.com.br/p/${id}`
@@ -213,6 +222,21 @@ export function createMercadoLivreConnector(env: NodeJS.ProcessEnv): Connector {
           }
         }
         console.log(`[mercadolivre] dj/${term}: ${offers.size} ofertas até agora`)
+      }
+
+      // Tools niche: same catalog search, one pass per term (ML_ONLY=ferramentas runs just this).
+      for (const term of !only || only === "ferramentas" ? TOOL_TERMS : []) {
+        const before = offers.size
+        for (let page = 0; page < SEARCH_PAGES && offers.size - before < PER_TERM; page++) {
+          const { results = [] } = await get<{ results: { id: string }[] }>(
+            `/products/search?status=active&site_id=MLB&limit=${SEARCH_PAGE_SIZE}&offset=${page * SEARCH_PAGE_SIZE}&q=${encodeURIComponent(term)}`,
+          ).catch(() => ({ results: [] }))
+          const ids = results.map((r) => r.id).filter((id) => !offers.has(id))
+          for (let i = 0; i < ids.length && offers.size - before < PER_TERM; i += 10) {
+            await Promise.allSettled(ids.slice(i, i + 10).map((id) => buildOffer(id, "ferramentas", "ferramentas")))
+          }
+        }
+        console.log(`[mercadolivre] ferramentas/${term}: ${offers.size} ofertas até agora`)
       }
 
       for (const [category, mlIds] of Object.entries(only ? {} : CATEGORIES)) {

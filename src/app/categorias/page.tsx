@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 
 export default async function CategoriasPage() {
   const { products, live } = await getCatalog()
-  const categories = categoryCounts(products)
+  const categories = categoryCounts(products, true)
 
   return (
     <main id="conteudo" className="min-h-screen bg-background">

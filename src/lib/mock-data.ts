@@ -8,15 +8,14 @@ export const STORES: Record<StoreSource, Store> = {
 }
 
 /**
- * The marketplace's own root categories (same names), plus our niches (Suplementos, DJ). Ones without a
- * photo here show the photo of their best-selling offer instead; ones with no offers are hidden.
+ * The marketplace's own root categories (same names), plus our niches (Suplementos, DJ). No static
+ * photo: the covers are made from the category's best-ranked offers; ones with few offers are hidden.
  */
 export const CATEGORIES: Category[] = [
   {
     slug: "eletronicos",
     name: "Eletrônicos, Áudio e Vídeo",
     icon: "Tv",
-    image: "/categorias/eletronicos.jpg",
   },
   {
     slug: "informatica",
@@ -32,7 +31,6 @@ export const CATEGORIES: Category[] = [
     slug: "casa",
     name: "Casa, Móveis e Decoração",
     icon: "Sofa",
-    image: "/categorias/casa.jpg",
   },
   {
     slug: "eletrodomesticos",
@@ -43,13 +41,11 @@ export const CATEGORIES: Category[] = [
     slug: "moda",
     name: "Calçados, Roupas e Bolsas",
     icon: "Shirt",
-    image: "/categorias/moda.jpg",
   },
   {
     slug: "beleza",
     name: "Beleza e Cuidado Pessoal",
     icon: "Sparkles",
-    image: "/categorias/beleza.jpg",
   },
   {
     slug: "saude",
@@ -60,25 +56,21 @@ export const CATEGORIES: Category[] = [
     slug: "esporte",
     name: "Esportes e Fitness",
     icon: "Dumbbell",
-    image: "/categorias/esporte.jpg",
   },
   {
     slug: "suplementos",
     name: "Suplementos",
     icon: "Pill",
-    image: "/categorias/suplementos.jpg",
   },
   {
     slug: "dj",
     name: "DJ",
     icon: "Disc3",
-    image: "/categorias/dj.jpg",
   },
   {
     slug: "games",
     name: "Games",
     icon: "Gamepad2",
-    image: "/categorias/games.jpg",
   },
   {
     slug: "bebes",
@@ -89,7 +81,6 @@ export const CATEGORIES: Category[] = [
     slug: "brinquedos",
     name: "Brinquedos e Hobbies",
     icon: "Puzzle",
-    image: "/categorias/infantil.jpg",
   },
   {
     slug: "acessorios-veiculos",

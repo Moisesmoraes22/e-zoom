@@ -1,12 +1,12 @@
 import { createHash } from "node:crypto"
 
-import { refineCategory } from "../lib/categories.ts"
+import { isTool, refineCategory } from "../lib/categories.ts"
 import { shopeeShopBadge } from "../lib/seller.ts"
 import type { Connector, OfferRow } from "../types.ts"
 
 const ENDPOINT = "https://open-api.affiliate.shopee.com.br/graphql"
 const PER_KEYWORD = 50
-const MAX_OFFERS = 1300 // all 8 categories (about 1.2k after the quality filter); 600 stopped at "calcados"
+const MAX_OFFERS = 1900 // every category (about 1.5k after the quality filter); a low cap stops the last ones empty
 
 /** Best sellers per search term, filed under the site's own category slugs. */
 const KEYWORDS: Record<string, string[]> = {
@@ -16,6 +16,7 @@ const KEYWORDS: Record<string, string[]> = {
   beleza: ["skincare", "perfume", "secador de cabelo"],
   esporte: ["whey protein", "garrafa termica", "tapete yoga"],
   games: ["controle gamer", "headset gamer", "mouse gamer"],
+  ferramentas: ["furadeira", "parafusadeira", "jogo de ferramentas", "trena", "alicate", "esmerilhadeira", "multimetro", "jogo de chaves", "maleta de ferramentas"],
   brinquedos: ["brinquedo infantil"],
   bebes: ["fralda", "mamadeira"],
 }
@@ -81,6 +82,8 @@ export function createShopeeConnector(env: NodeJS.ProcessEnv): Connector {
             // Quality floor: real photo, our affiliate link, sane price, proven seller.
             if (!node.imageUrl || !node.offerLink || !(price >= 5)) continue
             if (Number(node.ratingStar) < 4.3 || (node.sales ?? 0) < 50) continue
+            // A search for "multimetro" also brings cables and meters: the tools shelf keeps only named tools.
+            if (category === "ferramentas" && !isTool(node.productName)) continue
 
             const externalId = `${node.shopId}.${node.itemId}`
             if (offers.has(externalId)) continue

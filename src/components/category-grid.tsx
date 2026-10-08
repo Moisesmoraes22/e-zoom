@@ -2,9 +2,11 @@
 
 import { motion } from "framer-motion"
 import Link from "next/link"
+import { createElement } from "react"
 
 import { SectionHeader } from "@/components/section-header"
 import { categoryIcon } from "@/lib/category-icons"
+import { cardImage } from "@/lib/image-url"
 import type { CategoryCount } from "@/lib/deals"
 
 export function CategoryGrid({
@@ -47,25 +49,7 @@ export function CategoryGrid({
               href={`/categoria/${category.slug}`}
               className="group flex h-full flex-col items-center gap-3 rounded-2xl border border-border bg-card p-4 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95"
             >
-              <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-muted ring-2 ring-transparent transition-all duration-300 group-hover:ring-primary/50">
-                {category.image ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={category.image}
-                    alt={category.name}
-                    width={64}
-                    height={64}
-                    loading="lazy"
-                    decoding="async"
-                    className="h-full w-full object-cover transition-transform duration-500 motion-safe:group-hover:scale-110"
-                  />
-                ) : (
-                  (() => {
-                    const Icon = categoryIcon(category.slug)
-                    return <Icon className="h-7 w-7 text-brand" aria-hidden />
-                  })()
-                )}
-              </div>
+              <CategoryCover covers={category.covers} slug={category.slug} name={category.name} />
               <span className="flex flex-col gap-0.5">
                 <span className="text-xs font-medium text-foreground sm:text-sm">
                   {category.name}
@@ -81,5 +65,42 @@ export function CategoryGrid({
         ))}
       </div>
     </section>
+  )
+}
+
+/**
+ * A category's cover: its four best-ranked offers in a 2x2 board on white, all in the same style
+ * (never stock art), or the category icon while there are not enough photos.
+ */
+function CategoryCover({ covers = [], slug, name }: { covers?: string[]; slug: string; name: string }) {
+  return (
+    <div
+      role="img"
+      aria-label={name}
+      className="h-24 w-24 shrink-0 overflow-hidden rounded-2xl bg-muted p-1.5 sm:h-28 sm:w-28 ring-2 ring-transparent transition-all duration-300 group-hover:ring-primary/50"
+    >
+      {covers.length >= 4 ? (
+        <div className="grid h-full w-full grid-cols-2 gap-1.5">
+          {covers.slice(0, 4).map((src) => (
+            <span key={src} className="overflow-hidden rounded-lg bg-white">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={cardImage(src)}
+                alt=""
+                width={48}
+                height={48}
+                loading="lazy"
+                decoding="async"
+                className="h-full w-full object-contain p-0.5 transition-transform duration-500 motion-safe:group-hover:scale-110"
+              />
+            </span>
+          ))}
+        </div>
+      ) : (
+        <span className="flex h-full w-full items-center justify-center rounded-lg bg-white">
+          {createElement(categoryIcon(slug), { className: "h-8 w-8 text-brand", "aria-hidden": true })}
+        </span>
+      )}
+    </div>
   )
 }

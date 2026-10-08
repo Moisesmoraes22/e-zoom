@@ -66,7 +66,6 @@ export interface Category {
   slug: string
   name: string
   icon: string
-  image?: string
 }
 
 /** Every recorded price of one offer, oldest first. Recorded by the DB only when the price changes. */

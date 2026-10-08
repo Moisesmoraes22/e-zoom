@@ -6,26 +6,39 @@ import { calculateDiscountPercent } from "@/lib/utils"
 export interface CategoryCount {
   slug: string
   name: string
-  image?: string
+  /** Up to 4 photos of the category's best-ranked offers, for its cover (only when asked for). */
+  covers?: string[]
   count: number
 }
 
-/** Known categories that have at least one offer right now, biggest first. */
-export function categoryCounts(products: Product[]): CategoryCount[] {
+/** The photos of a category's four best-ranked offers (distinct photos, the same ranking as "relevance"). */
+function coverPhotos(products: Product[]): string[] {
+  const photos: string[] = []
+  for (const p of byRelevance(products)) {
+    if (p.image && !photos.includes(p.image)) photos.push(p.image)
+    if (photos.length === 4) break
+  }
+  return photos
+}
+
+/** A category with only a handful of offers looks abandoned, so it stays out of menus and lists until it fills. */
+const MIN_CATEGORY_OFFERS = 8
+
+/** Known categories with enough offers right now, biggest first. */
+export function categoryCounts(products: Product[], withCovers = false): CategoryCount[] {
   const counts = new Map<string, number>()
-  const cover = new Map<string, string>()
+  const groups = new Map<string, Product[]>()
   for (const p of products) {
     counts.set(p.category, (counts.get(p.category) ?? 0) + 1)
-    // A category without its own photo shows the first offer's (the catalog comes newest first).
-    if (p.image && !cover.has(p.category)) cover.set(p.category, p.image)
+    if (withCovers) groups.set(p.category, [...(groups.get(p.category) ?? []), p])
   }
   return CATEGORIES.map((c) => ({
     slug: c.slug,
     name: c.name,
-    image: c.image ?? cover.get(c.slug) ?? "",
+    ...(withCovers && { covers: coverPhotos(groups.get(c.slug) ?? []) }),
     count: counts.get(c.slug) ?? 0,
   }))
-    .filter((c) => c.count > 0)
+    .filter((c) => c.count >= MIN_CATEGORY_OFFERS)
     .sort((a, b) => b.count - a.count)
 }
 
