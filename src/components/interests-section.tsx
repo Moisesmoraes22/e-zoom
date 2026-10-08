@@ -28,7 +28,7 @@ const INTERESTS: Interest[] = [
   { label: "Fones de ouvido", icon: Headphones, query: "fone", lead: ["fone", "headset", "headphone", "earphone", "airpods"] },
   { label: "Cadeiras e home office", icon: Armchair, query: "cadeira", lead: ["cadeira", "poltrona"] },
   { label: "Relógios", icon: Watch, query: "relogio", lead: ["relogio", "smartwatch"] },
-  { label: "Fitness e treino", icon: Dumbbell, category: "esporte", lead: ["halter", "esteira", "anilha", "kettlebell", "colchonete", "elastico", "supino", "barra", "corda", "luva", "tapete"], not: /bicicleta|bike|aro |bola|raquete|pesca/ },
+  { label: "Fitness e treino", icon: Dumbbell, category: "esporte", lead: ["halter", "kettlebell", "esteira", "anilha"], not: /bicicleta|bike|aro |bola|raquete|pesca/ },
 ]
 /** A shortcut that opens a near-empty list looks broken, so it is left out. */
 const MIN_RESULTS = 8
