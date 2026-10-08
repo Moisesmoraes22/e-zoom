@@ -13,11 +13,16 @@ export interface CategoryCount {
 /** Known categories that have at least one offer right now, biggest first. */
 export function categoryCounts(products: Product[]): CategoryCount[] {
   const counts = new Map<string, number>()
-  for (const p of products) counts.set(p.category, (counts.get(p.category) ?? 0) + 1)
+  const cover = new Map<string, string>()
+  for (const p of products) {
+    counts.set(p.category, (counts.get(p.category) ?? 0) + 1)
+    // A category without its own photo shows the first offer's (the catalog comes newest first).
+    if (p.image && !cover.has(p.category)) cover.set(p.category, p.image)
+  }
   return CATEGORIES.map((c) => ({
     slug: c.slug,
     name: c.name,
-    image: c.image,
+    image: c.image ?? cover.get(c.slug) ?? "",
     count: counts.get(c.slug) ?? 0,
   }))
     .filter((c) => c.count > 0)

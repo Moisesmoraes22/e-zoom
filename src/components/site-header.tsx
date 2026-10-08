@@ -40,6 +40,9 @@ import { cn } from "@/lib/utils";
  * "Ofertas" entries are sorted views of /busca (`?ordenacao=`). Each one can
  * become its own page later without changing the menu.
  */
+/** The menus show the biggest categories only; "Ver todas as categorias" has the rest. */
+const MENU_CATEGORIES = 12;
+
 const OFFER_VIEWS: { label: string; href: string; icon: LucideIcon; hint: string }[] = [
   { label: "Melhores ofertas", href: "/busca?ordenacao=relevancia", icon: Flame, hint: "Com desconto real primeiro" },
   { label: "Maiores descontos", href: "/busca?ordenacao=desconto", icon: TrendingDown, hint: "Ordenadas pelo desconto" },
@@ -97,7 +100,7 @@ export function SiteHeader({
           <Menu active={activeMenu} setActive={setActiveMenu}>
             <MenuItem setActive={setActiveMenu} active={activeMenu} item="Categorias">
               <div className="grid w-[26rem] grid-cols-2 gap-1">
-                {categories.map((category) => {
+                {categories.slice(0, MENU_CATEGORIES).map((category) => {
                   const Icon = categoryIcon(category.slug);
                   return (
                     <MenuLink key={category.slug} href={`/categoria/${category.slug}`}>
@@ -227,7 +230,7 @@ export function SiteHeader({
                     Categorias
                   </h2>
                   <div className="-mx-3 grid grid-cols-2 gap-1">
-                    {categories.map((category) => {
+                    {categories.slice(0, MENU_CATEGORIES).map((category) => {
                       const Icon = categoryIcon(category.slug);
                       return (
                         <MenuLink

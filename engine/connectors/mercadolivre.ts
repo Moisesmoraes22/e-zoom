@@ -6,10 +6,12 @@ import { isSupplement } from "../lib/supplements.ts"
 import type { Connector, OfferRow } from "../types.ts"
 
 const API = "https://api.mercadolibre.com"
-const PER_CATEGORY = 15
-// Wide mode (ML_WIDE=1): also read the best sellers of every sub-category, a few per node.
-const PER_NODE = 6
-const WIDE_MAX = 1700
+const PER_CATEGORY = 20
+// Wide mode (ML_WIDE=1): also read the best sellers of every sub-category, a few per node, up to a
+// ceiling PER CATEGORY so the last categories of the list are never left empty by the first ones.
+const PER_NODE = 4
+const WIDE_PER_CATEGORY = 60
+const WIDE_MAX = 3300
 
 /** Supplement niche: catalog search (not best sellers), so we get far more than 20 per node. */
 const SUPPLEMENT_TERMS = [
@@ -30,18 +32,40 @@ const SEARCH_PAGES = 3
 const SEARCH_PAGE_SIZE = 50
 
 /**
- * Our category slug -> Mercado Livre category ids. We read each category's
- * best sellers (/highlights): the public keyword search (/sites/MLB/search)
- * answers 403 for new apps, while highlights and catalog endpoints work.
+ * Our category slug -> Mercado Livre category ids: the same root categories the marketplace shows,
+ * each filled with its best sellers (/highlights). The public keyword search (/sites/MLB/search)
+ * answers 403 for new apps, while highlights and catalog endpoints work. Not collected: Carros e Motos,
+ * Imóveis, Ingressos and Serviços (no highlights, not products), and "Mais categorias" (a grab bag).
+ * Supplements and DJ are our own niches, filled by the catalog searches below.
  */
 const CATEGORIES: Record<string, string[]> = {
-  eletronicos: ["MLB1000", "MLB1648", "MLB1051"],
-  casa: ["MLB1574", "MLB5726"],
+  eletronicos: ["MLB1000"],
+  informatica: ["MLB1648"],
+  celulares: ["MLB1051"],
+  casa: ["MLB1574"],
+  eletrodomesticos: ["MLB5726"],
   moda: ["MLB1430"],
   beleza: ["MLB1246"],
+  saude: ["MLB264586"],
   esporte: ["MLB1276"],
   games: ["MLB1144"],
-  infantil: ["MLB1384", "MLB1132"],
+  bebes: ["MLB1384"],
+  brinquedos: ["MLB1132"],
+  "acessorios-veiculos": ["MLB5672"],
+  agro: ["MLB271599"],
+  "alimentos-bebidas": ["MLB1403"],
+  animais: ["MLB1071"],
+  antiguidades: ["MLB1367"],
+  "arte-papelaria": ["MLB1368"],
+  cameras: ["MLB1039"],
+  construcao: ["MLB1500"],
+  ferramentas: ["MLB263532"],
+  festas: ["MLB12404"],
+  industria: ["MLB1499"],
+  instrumentos: ["MLB1182"],
+  "joias-relogios": ["MLB3937"],
+  livros: ["MLB1196"],
+  "musica-filmes": ["MLB1168"],
 }
 
 interface MlProduct {
@@ -191,8 +215,9 @@ export function createMercadoLivreConnector(env: NodeJS.ProcessEnv): Connector {
         console.log(`[mercadolivre] dj/${term}: ${offers.size} ofertas até agora`)
       }
 
-      const full = () => wide && offers.size >= WIDE_MAX
       for (const [category, mlIds] of Object.entries(only ? {} : CATEGORIES)) {
+        const startedAt = offers.size
+        const full = () => wide && (offers.size >= WIDE_MAX || offers.size - startedAt >= WIDE_PER_CATEGORY)
         for (const top of mlIds) {
           if (full()) break
           for (const mlId of await nodesOf(top)) {

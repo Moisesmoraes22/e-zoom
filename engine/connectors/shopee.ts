@@ -11,12 +11,12 @@ const MAX_OFFERS = 1300 // all 8 categories (about 1.2k after the quality filter
 const KEYWORDS: Record<string, string[]> = {
   eletronicos: ["fone bluetooth", "carregador turbo", "smartwatch", "caixa de som bluetooth", "cabo usb c"],
   casa: ["air fryer", "organizador casa", "luminaria led", "panela antiaderente"],
-  moda: ["camiseta masculina", "mochila", "bolsa feminina"],
-  calcados: ["tenis masculino", "chinelo", "sandalia feminina"],
+  moda: ["camiseta masculina", "mochila", "bolsa feminina", "tenis masculino", "chinelo", "sandalia feminina", "mochila infantil"],
   beleza: ["skincare", "perfume", "secador de cabelo"],
   esporte: ["whey protein", "garrafa termica", "tapete yoga"],
   games: ["controle gamer", "headset gamer", "mouse gamer"],
-  infantil: ["brinquedo infantil", "mochila infantil", "fralda"],
+  brinquedos: ["brinquedo infantil"],
+  bebes: ["fralda", "mamadeira"],
 }
 
 interface Node {

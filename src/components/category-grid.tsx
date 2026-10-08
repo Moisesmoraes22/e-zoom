@@ -4,6 +4,7 @@ import { motion } from "framer-motion"
 import Link from "next/link"
 
 import { SectionHeader } from "@/components/section-header"
+import { categoryIcon } from "@/lib/category-icons"
 import type { CategoryCount } from "@/lib/deals"
 
 export function CategoryGrid({
@@ -46,17 +47,24 @@ export function CategoryGrid({
               href={`/categoria/${category.slug}`}
               className="group flex h-full flex-col items-center gap-3 rounded-2xl border border-border bg-card p-4 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95"
             >
-              <div className="h-16 w-16 overflow-hidden rounded-full bg-muted ring-2 ring-transparent transition-all duration-300 group-hover:ring-primary/50">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={category.image}
-                  alt={category.name}
-                  width={64}
-                  height={64}
-                  loading="lazy"
-                  decoding="async"
-                  className="h-full w-full object-cover transition-transform duration-500 motion-safe:group-hover:scale-110"
-                />
+              <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-muted ring-2 ring-transparent transition-all duration-300 group-hover:ring-primary/50">
+                {category.image ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={category.image}
+                    alt={category.name}
+                    width={64}
+                    height={64}
+                    loading="lazy"
+                    decoding="async"
+                    className="h-full w-full object-cover transition-transform duration-500 motion-safe:group-hover:scale-110"
+                  />
+                ) : (
+                  (() => {
+                    const Icon = categoryIcon(category.slug)
+                    return <Icon className="h-7 w-7 text-brand" aria-hidden />
+                  })()
+                )}
               </div>
               <span className="flex flex-col gap-0.5">
                 <span className="text-xs font-medium text-foreground sm:text-sm">

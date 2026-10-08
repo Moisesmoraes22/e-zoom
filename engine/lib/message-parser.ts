@@ -108,10 +108,10 @@ export function extractTitle(text: string): string | null {
 // Matched against the title without accents, first match wins (order = priority).
 const CATEGORY_KEYWORDS: [string, RegExp][] = [
   ["games", /\b(ps5|ps4|playstation[0-9]?|xbox|nintendo|switch|gamer|controle|headset|console)\b/],
-  ["infantil", /\b(infantil|bebe|crianca|brinquedo|boneca|lego|pokemon|hot wheels|transformers|figura|pelucia)\b/],
+  ["bebes", /\b(bebe|mamadeira|fralda|chupeta|babador)\b/],
+  ["brinquedos", /\b(infantil|crianca|brinquedo|boneca|lego|pokemon|hot wheels|transformers|figura|pelucia)\b/],
   ["beleza", /\b(perfume|shampoo|condicionador|creme|maquiagem|skincare|secador|batom|serum|hidratante|aparador|barbeador|oneblade|caspa|elixir|bio oil|kerastase|armani|desodorante|gillette|barbear|tonico|argan|oleo (reparador|capilar)|cosmetics)\b/],
-  ["calcados", /\b(tenis|sapat\w*|chinelo|sandalia|bota)\b/],
-  ["moda", /\b(camisas?|camisetas?|bermudas?|polo|jaquetas?|calcas?|vestidos?|mochilas?|bolsas?|relogios?|oculos)\b/],
+  ["moda", /\b(tenis|sapat\w*|chinelo|sandalia|bota|camisas?|camisetas?|bermudas?|polo|jaquetas?|calcas?|vestidos?|mochilas?|bolsas?|relogios?|oculos)\b/],
   ["esporte", /\b(bicicleta|esteira|halter|academia|fitness|garrafa termica|copo termico)\b/],
   ["casa", /\b(air ?fryer|fritadeira|aspirador|cadeira|colchao|sofa|poltrona|mesa|escrivaninha|panela|frigideira|geladeira|microondas|micro-ondas|forno|cafeteira|sanduicheira|sorveteira|liquidificador|ventilador|ar-condicionado|ar condicionado|lampada|ferramentas|parafusadeira|furadeira|vaporizador|sabao|detergente|amaciante|papel higienico|lava roupas|omo)\b/],
   ["eletronicos", /\b(fone|smartwatch|celular|smartphone|iphone|galaxy|kindle|echo|alexa|soundbar|notebook|tablet|tv|monitor|carregador|adaptador|cabo|bateria|ssd|camera|bluetooth|caixa de som|teclado|mouse|mousepad|microfone|processador|ryzen|placa mae|placa de video|placa grafica|placa principal|rtx|radeon|geforce|cooler|water cooler|ventoinhas?|fans?|fonte|gabinete|impressora|suporte articulado|suporte de mesa|suporte fixo)\b/],

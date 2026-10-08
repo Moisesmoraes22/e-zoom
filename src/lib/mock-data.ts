@@ -7,76 +7,164 @@ export const STORES: Record<StoreSource, Store> = {
   telegram: { id: "telegram", name: "Telegram", color: "#26A5E4" },
 }
 
+/**
+ * The marketplace's own root categories (same names), plus our niches (Suplementos, DJ). Ones without a
+ * photo here show the photo of their best-selling offer instead; ones with no offers are hidden.
+ */
 export const CATEGORIES: Category[] = [
   {
     slug: "eletronicos",
-    name: "Eletrônicos",
+    name: "Eletrônicos, Áudio e Vídeo",
+    icon: "Tv",
+    image: "/categorias/eletronicos.jpg",
+  },
+  {
+    slug: "informatica",
+    name: "Informática",
+    icon: "Laptop",
+  },
+  {
+    slug: "celulares",
+    name: "Celulares e Telefones",
     icon: "Smartphone",
-    image:
-      "/categorias/eletronicos.jpg",
   },
   {
     slug: "casa",
-    name: "Casa e Decoração",
+    name: "Casa, Móveis e Decoração",
     icon: "Sofa",
-    image:
-      "/categorias/casa.jpg",
+    image: "/categorias/casa.jpg",
+  },
+  {
+    slug: "eletrodomesticos",
+    name: "Eletrodomésticos",
+    icon: "Refrigerator",
   },
   {
     slug: "moda",
-    name: "Moda",
+    name: "Calçados, Roupas e Bolsas",
     icon: "Shirt",
-    image:
-      "/categorias/moda.jpg",
-  },
-  {
-    slug: "calcados",
-    name: "Calçados",
-    icon: "Footprints",
-    image:
-      "/categorias/calcados.jpg",
+    image: "/categorias/moda.jpg",
   },
   {
     slug: "beleza",
-    name: "Beleza",
+    name: "Beleza e Cuidado Pessoal",
     icon: "Sparkles",
-    image:
-      "/categorias/beleza.jpg",
+    image: "/categorias/beleza.jpg",
+  },
+  {
+    slug: "saude",
+    name: "Saúde",
+    icon: "HeartPulse",
   },
   {
     slug: "esporte",
-    name: "Esporte e Fitness",
+    name: "Esportes e Fitness",
     icon: "Dumbbell",
-    image:
-      "/categorias/esporte.jpg",
+    image: "/categorias/esporte.jpg",
   },
   {
     slug: "suplementos",
     name: "Suplementos",
     icon: "Pill",
-    image:
-      "/categorias/suplementos.jpg",
+    image: "/categorias/suplementos.jpg",
   },
   {
     slug: "dj",
     name: "DJ",
     icon: "Disc3",
-    image:
-      "/categorias/dj.jpg",
+    image: "/categorias/dj.jpg",
   },
   {
     slug: "games",
     name: "Games",
     icon: "Gamepad2",
-    image:
-      "/categorias/games.jpg",
+    image: "/categorias/games.jpg",
   },
   {
-    slug: "infantil",
-    name: "Infantil",
+    slug: "bebes",
+    name: "Bebês",
     icon: "Baby",
-    image:
-      "/categorias/infantil.jpg",
+  },
+  {
+    slug: "brinquedos",
+    name: "Brinquedos e Hobbies",
+    icon: "Puzzle",
+    image: "/categorias/infantil.jpg",
+  },
+  {
+    slug: "acessorios-veiculos",
+    name: "Acessórios para Veículos",
+    icon: "Car",
+  },
+  {
+    slug: "agro",
+    name: "Agro",
+    icon: "Tractor",
+  },
+  {
+    slug: "alimentos-bebidas",
+    name: "Alimentos e Bebidas",
+    icon: "UtensilsCrossed",
+  },
+  {
+    slug: "animais",
+    name: "Animais",
+    icon: "PawPrint",
+  },
+  {
+    slug: "antiguidades",
+    name: "Antiguidades e Coleções",
+    icon: "Gem",
+  },
+  {
+    slug: "arte-papelaria",
+    name: "Arte, Papelaria e Armarinho",
+    icon: "Palette",
+  },
+  {
+    slug: "cameras",
+    name: "Câmeras e Acessórios",
+    icon: "Camera",
+  },
+  {
+    slug: "construcao",
+    name: "Construção",
+    icon: "HardHat",
+  },
+  {
+    slug: "ferramentas",
+    name: "Ferramentas",
+    icon: "Wrench",
+  },
+  {
+    slug: "festas",
+    name: "Festas e Lembrancinhas",
+    icon: "PartyPopper",
+  },
+  {
+    slug: "industria",
+    name: "Indústria e Comércio",
+    icon: "Factory",
+  },
+  {
+    slug: "instrumentos",
+    name: "Instrumentos Musicais",
+    icon: "Guitar",
+  },
+  {
+    slug: "joias-relogios",
+    name: "Joias e Relógios",
+    icon: "Watch",
+  },
+  {
+    slug: "livros",
+    name: "Livros, Revistas e Comics",
+    icon: "BookOpen",
+  },
+  {
+    slug: "musica-filmes",
+    name: "Música, Filmes e Seriados",
+    icon: "Clapperboard",
   },
 ]
 
@@ -155,7 +243,7 @@ export const DEALS: Product[] = [
     rating: 4.4,
     reviewsCount: 312,
     store: "shopee",
-    category: "calcados",
+    category: "moda",
     affiliateUrl: "#",
     discountLabel: "-45%",
   },
@@ -283,7 +371,7 @@ export const FEATURED_PRODUCTS: Product[] = [
     rating: 4.4,
     reviewsCount: 98,
     store: "shopee",
-    category: "infantil",
+    category: "brinquedos",
     affiliateUrl: "#",
   },
   {
