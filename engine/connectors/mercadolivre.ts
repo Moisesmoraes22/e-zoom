@@ -1,6 +1,7 @@
 import { refineCategory } from "../lib/categories.ts"
 import { isDj } from "../lib/dj.ts"
 import { mlSellerLocation, type SellerLocation } from "../lib/location.ts"
+import { mlSellerLeader, type SellerLeader } from "../lib/seller.ts"
 import { isSupplement } from "../lib/supplements.ts"
 import type { Connector, OfferRow } from "../types.ts"
 
@@ -49,6 +50,7 @@ interface MlProduct {
 }
 
 interface MlProductItem {
+  seller_id?: number
   price: number
   original_price: number | null
   condition?: string
@@ -93,6 +95,15 @@ export function createMercadoLivreConnector(env: NodeJS.ProcessEnv): Connector {
       }
 
       const offers = new Map<string, OfferRow>()
+      // One /users call per seller and run: many offers share a seller. A failed call just means no badge.
+      const leaders = new Map<number, SellerLeader | null>()
+      const leaderOf = async (sellerId?: number) => {
+        if (!sellerId) return null
+        if (!leaders.has(sellerId)) {
+          leaders.set(sellerId, await get<Parameters<typeof mlSellerLeader>[0]>(`/users/${sellerId}`).then(mlSellerLeader).catch(() => null))
+        }
+        return leaders.get(sellerId) ?? null
+      }
 
       const buildOffer = async (id: string, categoryIn: string, only?: "suplementos" | "dj") => {
         // Supplement search hits are mostly sellerless: check listings first, skip the rest.
@@ -134,6 +145,7 @@ export function createMercadoLivreConnector(env: NodeJS.ProcessEnv): Connector {
           is_free_shipping: best.shipping?.free_shipping ?? false,
           seller_state: location.state,
           seller_city: location.city,
+          seller_leader: await leaderOf(best.seller_id),
           source: "api",
         })
       }

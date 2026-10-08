@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion"
 import { useRef } from "react"
 import Link from "next/link"
-import { ArrowRight, Bookmark, MapPin, Star, Truck } from "lucide-react"
+import { ArrowRight, BadgeCheck, Bookmark, MapPin, Star, Truck } from "lucide-react"
 
 import { OfferLink } from "@/components/offer-link"
 import { StoreBadge } from "@/components/store-badge"
@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge"
 import { discountOf } from "@/lib/deals"
 import { useFavorites } from "@/lib/favorites-context"
 import { cardImage } from "@/lib/image-url"
+import { SELLER_LEADER_LABEL } from "@/lib/seller-leader"
 import { unitPrice } from "@/lib/unit-price"
 import type { Product } from "@/lib/types"
 import {
@@ -117,7 +118,7 @@ export function ProductCard({
               )}
             </div>
 
-            {(product.rating || product.isFreeShipping || product.sellerState) && (
+            {(product.rating || product.isFreeShipping || product.sellerState || product.sellerLeader) && (
               <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 pt-1 text-xs">
                 {product.rating && (
                   <span className="flex items-center gap-1 text-muted-foreground">
@@ -130,6 +131,12 @@ export function ProductCard({
                   <span className="flex items-center gap-1 font-medium text-success">
                     <Truck className="h-3.5 w-3.5" aria-hidden />
                     Frete grátis
+                  </span>
+                )}
+                {product.sellerLeader && (
+                  <span className="flex items-center gap-1 font-medium text-brand">
+                    <BadgeCheck className="h-3.5 w-3.5" aria-hidden />
+                    {SELLER_LEADER_LABEL[product.sellerLeader]}
                   </span>
                 )}
                 {product.sellerState && (

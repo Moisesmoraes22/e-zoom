@@ -11,6 +11,7 @@ import {
   Menu as MenuIcon,
   Search,
   Tag,
+  Ticket,
   TrendingDown,
   type LucideIcon,
 } from "lucide-react";
@@ -44,6 +45,7 @@ const OFFER_VIEWS: { label: string; href: string; icon: LucideIcon; hint: string
   { label: "Maiores descontos", href: "/busca?ordenacao=desconto", icon: TrendingDown, hint: "Ordenadas pelo desconto" },
   { label: "Menor preço", href: "/busca?ordenacao=preco", icon: Tag, hint: "Do mais barato ao mais caro" },
   { label: "Recém-encontradas", href: "/busca?ordenacao=recente", icon: Clock, hint: "Encontradas há pouco" },
+  { label: "Cupons", href: "/cupons", icon: Ticket, hint: "Cupons do Mercado Livre" },
 ];
 
 export function SiteHeader({

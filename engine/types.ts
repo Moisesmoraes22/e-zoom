@@ -15,6 +15,8 @@ export interface OfferRow {
   /** Where the seller ships from; only set by sources that really report it (Mercado Livre). */
   seller_state?: string | null
   seller_city?: string | null
+  /** Mercado Livre MercadoLider badge of the seller: silver, gold or platinum. */
+  seller_leader?: string | null
   source: "api" | "telegram" | "manual"
   /** Store rating, 0-5. Only set by sources that really have it (Shopee). */
   rating?: number | null

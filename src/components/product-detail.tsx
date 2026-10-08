@@ -7,6 +7,7 @@ import {
   ChevronDown,
   Bookmark,
   LineChart,
+  MessageSquareText,
   Star,
   TrendingDown,
   Truck,
@@ -23,8 +24,12 @@ import { Button } from "@/components/ui/button"
 import { discountOf, savingsOf } from "@/lib/deals"
 import { useFavorites } from "@/lib/favorites-context"
 import { recordProduct } from "@/lib/interest-profile"
+import { SELLER_LEADER_LABEL } from "@/lib/seller-leader"
 import { CATEGORIES, STORES } from "@/lib/mock-data"
 import type { PriceStats, Product, ProductOffer } from "@/lib/types"
+
+/** "no Mercado Livre", "na Shopee", "na Amazon": the preposition follows the store's gender. */
+const IN_STORE: Partial<Record<Product["store"], string>> = { mercado_livre: "no", shopee: "na", amazon: "na" }
 import {
   calculateDiscountPercent,
   cn,
@@ -217,6 +222,17 @@ export function ProductDetail({
                 {favorited ? "Favoritado" : "Favoritar"}
               </motion.button>
             </div>
+            <p className="mt-3 text-sm">
+              <OfferLink
+                product={product}
+                store={bestOffer.store}
+                affiliateUrl={bestOffer.affiliateUrl}
+                className="inline-flex items-center gap-1.5 font-medium text-brand hover:underline"
+              >
+                <MessageSquareText className="h-4 w-4" aria-hidden />
+                Ver avaliações de compradores {IN_STORE[bestOffer.store] ?? "em"} {STORES[bestOffer.store].name}
+              </OfferLink>
+            </p>
             <p className="mt-3 text-xs text-muted-foreground">
               Ao clicar em “Ver oferta” você é levado à página da loja para
               finalizar a compra por lá.
@@ -314,6 +330,12 @@ export function ProductDetail({
                 <>
                   <dt className="text-muted-foreground">Frete</dt>
                   <dd className="text-foreground">Grátis</dd>
+                </>
+              )}
+              {product.sellerLeader && (
+                <>
+                  <dt className="text-muted-foreground">Selo do vendedor</dt>
+                  <dd className="text-foreground">{SELLER_LEADER_LABEL[product.sellerLeader]}</dd>
                 </>
               )}
               {product.sellerState && (

@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
 import { DealsCarousel } from "@/components/deals-carousel"
+import { ProductComments } from "@/components/product-comments"
 import { ProductDetail } from "@/components/product-detail"
 import { SiteFooter } from "@/components/site-footer"
 import { byDiscount, sameCategory } from "@/lib/deals"
@@ -94,6 +95,12 @@ export default async function ProdutoPage({
         />
       )}
       <ProductDetail product={product} offers={offers} stats={stats} />
+      {/* Comments need a real offer row (a uuid in the database); the sample catalogue has none. */}
+      {isLive && (
+        <section className="page-container pb-8">
+          <ProductComments offerId={product.id} />
+        </section>
+      )}
       {similar.length >= 3 && (
         <DealsCarousel
           products={similar}

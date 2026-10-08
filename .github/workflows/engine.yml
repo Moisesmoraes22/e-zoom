@@ -53,6 +53,29 @@ jobs:
           ML_AFFILIATE_URL_TEMPLATE: "{url}?matt_tool=36590912&matt_word=moraesmoises20230303173936"
           ML_WIDE: "1" # modo amplo: mais vendidos de cada subcategoria (até 1.200 ofertas)
 
+  # Cupons do canal de afiliados do Mercado Livre. Precisa do segredo TELEGRAM_COUPON_INVITE;
+  # uma falha aqui não derruba as outras coletas.
+  cupons:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: node engine/coupons.ts
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          TELEGRAM_API_ID: ${{ secrets.TELEGRAM_API_ID }}
+          TELEGRAM_API_HASH: ${{ secrets.TELEGRAM_API_HASH }}
+          TELEGRAM_SESSION: ${{ secrets.TELEGRAM_SESSION }}
+          TELEGRAM_COUPON_INVITE: ${{ secrets.TELEGRAM_COUPON_INVITE }}
+          ML_AFFILIATE_URL_TEMPLATE: "{url}?matt_tool=36590912&matt_word=moraesmoises20230303173936"
+
   # After both collections: fixes known category mistakes still in the catalog and lists the
   # new suspicious ones in this run's summary (Actions tab) for a human to review.
   revisao:
