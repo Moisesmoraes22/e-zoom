@@ -5,6 +5,7 @@ import { useState } from "react"
 
 import { Field, FormMessage, SubmitButton } from "@/components/auth/auth-ui"
 import { passwordProblem, resetPasswordMessage } from "@/lib/auth/validate"
+import { isLeakedPassword, LEAKED_PASSWORD_MESSAGE } from "@/lib/auth/pwned"
 import { createClient } from "@/lib/supabase/client"
 
 /** Shown only with the short session that the e-mailed recovery link creates. */
@@ -28,6 +29,11 @@ export function ResetPasswordForm() {
     if (nextErrors.password || nextErrors.confirm) return
 
     setBusy(true)
+    if (await isLeakedPassword(password)) {
+      setErrors({ password: LEAKED_PASSWORD_MESSAGE })
+      setBusy(false)
+      return
+    }
     const { error } = await createClient().auth.updateUser({ password })
     if (error) {
       setFormError(resetPasswordMessage(error))

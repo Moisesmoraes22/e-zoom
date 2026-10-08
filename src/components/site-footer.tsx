@@ -1,5 +1,7 @@
 import Link from "next/link"
 
+import { CookiePreferencesButton } from "@/components/cookie-consent"
+
 import { categoryCounts, countByStoreId } from "@/lib/deals"
 import { STORES } from "@/lib/mock-data"
 import { getCatalog } from "@/lib/offers"
@@ -108,6 +110,9 @@ export async function SiteFooter() {
                 >
                   Termos de Uso
                 </Link>
+              </li>
+              <li>
+                <CookiePreferencesButton className="cursor-pointer text-left transition-colors hover:text-brand" />
               </li>
             </ul>
           </div>

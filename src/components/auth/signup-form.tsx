@@ -7,6 +7,7 @@ import { useState } from "react"
 
 import { Field, FormMessage, SubmitButton } from "@/components/auth/auth-ui"
 import { isEmail, passwordProblem, signUpMessage } from "@/lib/auth/validate"
+import { isLeakedPassword, LEAKED_PASSWORD_MESSAGE } from "@/lib/auth/pwned"
 import { createClient } from "@/lib/supabase/client"
 
 export function SignUpForm() {
@@ -35,6 +36,11 @@ export function SignUpForm() {
     if (Object.values(nextErrors).some(Boolean)) return
 
     setBusy(true)
+    if (await isLeakedPassword(password)) {
+      setErrors({ ...nextErrors, password: LEAKED_PASSWORD_MESSAGE })
+      setBusy(false)
+      return
+    }
     const { data, error } = await createClient().auth.signUp({
       email: email.trim(),
       password,

@@ -6,6 +6,7 @@ import { MotionConfig } from "framer-motion";
 import Script from "next/script";
 import "./globals.css";
 import { AuthProvider } from "@/components/auth-provider";
+import { ClarityLoader, CookieBanner } from "@/components/cookie-consent";
 import { FavoritesFlightLayer } from "@/components/favorites-flight-layer";
 import { FavoritesSheet } from "@/components/favorites-sheet";
 import { SiteHeader } from "@/components/site-header";
@@ -69,9 +70,8 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         </ThemeProvider>
         <Analytics />
         <SpeedInsights />
-        <Script id="clarity" strategy="afterInteractive">
-          {`(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window,document,"clarity","script","ytokdbgssy");`}
-        </Script>
+        <ClarityLoader />
+        <CookieBanner />
       </body>
     </html>
   );
