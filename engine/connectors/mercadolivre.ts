@@ -32,7 +32,24 @@ const TOOL_TERMS = [
   "serra tico tico", "lixadeira", "jogo de chaves", "jogo de soquetes", "maleta de ferramentas", "kit de ferramentas",
   "alicate", "trena a laser", "multímetro", "nível a laser", "compressor de ar", "soprador térmico", "chave de impacto",
   "tupia", "politriz", "morsa", "martelo", "chave de fenda", "caixa de ferramentas",
+  "martelete", "rompedor", "furadeira bosch", "furadeira makita", "parafusadeira dewalt", "serra mármore", "serra sabre",
+  "lixadeira orbital", "plaina elétrica", "furadeira de bancada", "jogo de brocas", "disco de corte", "chave de roda",
+  "macaco hidráulico", "torquímetro", "grampeador pneumático", "ferro de solda", "estação de solda", "máquina de solda inversora",
+  "serrote", "formão", "chave de grifo", "bancada de trabalho", "carrinho de ferramentas", "kit parafusadeira com bateria",
 ]
+/** Thin categories get a catalog search too (best sellers alone give about 60); ML_ONLY=<slug> runs just one. */
+const CATEGORY_TERMS: Record<string, string[]> = {
+  celulares: ["smartphone", "iphone", "samsung galaxy", "xiaomi redmi", "motorola moto g", "carregador portátil", "capa para celular", "película de vidro", "fone bluetooth", "cabo usb c"],
+  informatica: ["notebook", "ssd", "memória ram", "mouse sem fio", "teclado mecânico", "monitor", "roteador wifi", "webcam", "hd externo", "pen drive", "impressora", "tablet"],
+  eletrodomesticos: ["air fryer", "liquidificador", "aspirador de pó", "cafeteira", "micro-ondas", "geladeira", "fogão", "lava e seca", "robô aspirador", "ferro de passar"],
+  cameras: [
+    "kit cftv 4 câmeras", "kit cftv 8 câmeras", "kit cftv 16 câmeras", "dvr intelbras", "gravador de vídeo mhdx", "câmera intelbras",
+    "câmera ip wifi", "câmera de segurança externa", "câmera speed dome", "nvr", "hd para dvr", "fonte para câmera cftv",
+    "cabo coaxial", "balun", "alarme residencial", "central de alarme", "videoporteiro", "câmera de segurança",
+    "câmera instantânea", "gopro", "tripé", "ring light", "cartão de memória", "drone",
+  ],
+  saude: ["termômetro digital", "aparelho de pressão", "oxímetro", "massageador", "balança digital", "colchão ortopédico"],
+}
 const PER_TERM = 25 // offers kept per term
 // Most catalog hits have no active seller (items -> 404), so we scan a few pages per term.
 const SEARCH_PAGES = 3
@@ -237,6 +254,22 @@ export function createMercadoLivreConnector(env: NodeJS.ProcessEnv): Connector {
           }
         }
         console.log(`[mercadolivre] ferramentas/${term}: ${offers.size} ofertas até agora`)
+      }
+
+      for (const [slug, terms] of Object.entries(CATEGORY_TERMS)) {
+        for (const term of !only || only === slug ? terms : []) {
+          const before = offers.size
+          for (let page = 0; page < SEARCH_PAGES && offers.size - before < PER_TERM; page++) {
+            const { results = [] } = await get<{ results: { id: string }[] }>(
+              `/products/search?status=active&site_id=MLB&limit=${SEARCH_PAGE_SIZE}&offset=${page * SEARCH_PAGE_SIZE}&q=${encodeURIComponent(term)}`,
+            ).catch(() => ({ results: [] }))
+            const ids = results.map((r) => r.id).filter((id) => !offers.has(id))
+            for (let i = 0; i < ids.length && offers.size - before < PER_TERM; i += 10) {
+              await Promise.allSettled(ids.slice(i, i + 10).map((id) => buildOffer(id, slug)))
+            }
+          }
+          console.log(`[mercadolivre] ${slug}/${term}: ${offers.size} ofertas até agora`)
+        }
       }
 
       for (const [category, mlIds] of Object.entries(only ? {} : CATEGORIES)) {

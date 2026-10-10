@@ -22,7 +22,12 @@ const CASES: [string, string, string][] = [
   // electronics filed as games / home
   ["SSD Kingston NV3 500GB M2 2280 NVME PCIe 4.0", "games", "informatica"],
   ["Microfone Hollyland Lark A1 Duo Usb-c cor Preto", "games", "eletronicos"],
-  ["Câmera de Segurança Inteligente Intelbras iM3 C Branca", "casa", "eletronicos"],
+  ["Câmera de Segurança Inteligente Intelbras iM3 C Branca", "casa", "cameras"],
+  ["Kit Cftv 4 Câmeras Intelbras Full Hd com Dvr 1tb", "eletronicos", "cameras"],
+  ["Gravador De Vídeo De Câmeras Mhdx 3116 16 Canais", "eletronicos", "cameras"],
+  ["Câmera Ip Wifi Externa Prova D'água Visão Noturna", "casa", "cameras"],
+  ["Martelete Rompedor Bosch Gbh 2-24 Dre", "casa", "ferramentas"],
+  ["Estação de Solda Digital 60w Hikari", "eletronicos", "ferramentas"],
   ["Tv Smart 43 Polegadas Aoc Roku Hd Wi-fi", "casa", "eletronicos"],
   ["Fones de ouvido para jogos sem fio Redragon H510-PRO", "games", "games"],
   ["Rack Suspenso para TV até 55 Polegadas 160cm", "casa", "casa"],

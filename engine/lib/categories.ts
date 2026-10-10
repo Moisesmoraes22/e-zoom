@@ -14,7 +14,7 @@ const NOT_SHOE = /(bola|raquete|mesa|beach|padel|pickleball|overgrip|bolinha|pin
 
 // Power and hand tools, named for what they are (never a word like "serra" or "broca" alone).
 const TOOL = word(
-  "furadeira|parafusadeira|esmerilhadeira|lixadeira|politriz|tupia|plaina|ma[çc]arico|multiferramenta|motosserra|torno de bancada|morsa|brocas?|soquetes? (sextavados?|estriados?|de impacto)|grampeador pneum[aá]tico|pinador|finca pino|discos? (de corte|diamantados?)|grampo (sargento|de marceneiro)|serra (circular|tico[- ]tico|m[aá]rmore|sabre|copo|fita|manual|de arco|dobr[aá]vel)|alicates?|jogo (de )?chaves?|macaco hidr[aá]ulico|chaves? (de fenda|philips|inglesa|allen|torx|catraca|combinadas?|de combina[cç][aã]o|estrela|biela|de impacto|de roda|de teste|multifuncional|teste)|martelo|marreta|trena|n[ií]vel (a laser|de bolha)|mult[ií]metro|detectora? de tens[aã]o|term[oô]metro infravermelho|(maleta|jogo|kit|caixa|conjunto) (de |para )?ferramentas?|(jogo|kit|conjunto) de (chaves|soquetes|brocas|machos?|limas?)|jogo de macho|lima (agulha|chata|redonda)|pistola (de fixa[çc][aã]o|de pregos)|soprador t[eé]rmico|compressor de ar|torqu[ií]metro",
+  "furadeira|parafusadeira|esmerilhadeira|lixadeira|politriz|tupia|plaina|martelete|rompedor|serrote|form[aã]o|torqu[eê]s|estilson|ferro de solda|esta[cç][aã]o de solda|m[aá]quina de solda|inversora de solda|ma[çc]arico|multiferramenta|motosserra|torno de bancada|morsa|brocas?|soquetes? (sextavados?|estriados?|de impacto)|grampeador pneum[aá]tico|pinador|finca pino|discos? (de corte|diamantados?)|grampo (sargento|de marceneiro)|serra (circular|tico[- ]tico|m[aá]rmore|sabre|copo|fita|manual|de arco|dobr[aá]vel)|alicates?|jogo (de )?chaves?|macaco hidr[aá]ulico|chaves? (de fenda|philips|inglesa|allen|torx|catraca|combinadas?|de combina[cç][aã]o|estrela|biela|de impacto|de roda|de teste|multifuncional|teste)|martelo|marreta|trena|n[ií]vel (a laser|de bolha)|mult[ií]metro|detectora? de tens[aã]o|term[oô]metro infravermelho|(maleta|jogo|kit|caixa|conjunto) (de |para )?ferramentas?|(jogo|kit|conjunto) de (chaves|soquetes|brocas|machos?|limas?)|jogo de macho|lima (agulha|chata|redonda)|pistola (de fixa[çc][aã]o|de pregos)|soprador t[eé]rmico|compressor de ar|torqu[ií]metro",
 )
 // Look-alikes: toys, books, plush, nail and manicure kits, cleaning and painting gear, magnets, fans.
 const NOT_TOOL = /(brinquedo|infantil|alicate (de |para |cortador de |mola dupla de cortar )?unhas?|cortador de unhas?|unhas|alongamento|desencravador|cut[ií]cula|manicure|cutelaria|pet|boneco|pel[uú]cia|bicho|partida|pneu|ve[ií]culo|livro|capit[aã]o|ventilador|snow foam|pulverizador|borrifador|pistola de pintura|lavadora|im[aã]s? (de )?neod[ií]mio|arame|assoprador|soprador (de ar|turbo)|tigela|trenó|higr[oô]metro|cabo (usb|6a)|termostato|timer|temporizador|controlador|carregador|teclado|ovos)/i
@@ -30,6 +30,9 @@ export const isTool = (title: string) =>
 const lead = (alts: string) => new RegExp(`^(?:(?:kit|conjunto|combo)\\s+)?(?:\\d+\\s*(?:pe[cç]as?|pcs?|pares?|un)?\\.?\\s+)?(?:${alts})(?![\\p{L}\\d])`, "iu")
 const LEAD_SHOE = lead("t[eê]nis(?! de mesa)|sand[aá]lias?|sapatilhas?|chinelos?|botinhas?|botas?|sapatos?")
 const PET = /(^(caminha|casinha|coleira|arranhador|comedouro|ra[cç][aã]o)\b|\bcama pet\b|\b(para|p\/|pra|de) (c[aã]es|c[aã]o|cachorros?|gatos?|pets?)\b)/i
+
+// Security cameras and CFTV kits: Mercado Livre files them under "Câmeras e Acessórios".
+const CFTV = word("cftv|dvr|nvr|gravador de v[ií]deo|mhdx|balun|video ?porteiro|c[aâ]meras? (ip|wi-?fi|de seguran[cç]a|de monitoramento|de vigil[aâ]ncia|speed dome|bullet|dome|inteligente|externa)|kit (de )?(c[aâ]meras?|cftv)|central de alarme|alarme (residencial|monitorado)")
 
 const RULES: { from: string[]; test: (t: string) => boolean; to: string }[] = [
   { from: ["brinquedos", "bebes", "esporte"], to: "moda", test: (t) => LEAD_SHOE.test(t) },
@@ -54,7 +57,8 @@ const RULES: { from: string[]; test: (t: string) => boolean; to: string }[] = [
   { from: ["beleza"], to: "moda", test: (t) => /cinta modeladora/i.test(t) },
   { from: ["games"], to: "informatica", test: (t) => word("ssd").test(t) && !/(jogos|gamer|gaming)/i.test(t) || /interno adata/i.test(t) },
   { from: ["games"], to: "eletronicos", test: (t) => word("microfone").test(t) && !/(jogos|gamer|gaming)/i.test(t) || /fone de ouvido com fio/i.test(t) },
-  { from: ["casa", "eletrodomesticos"], to: "eletronicos", test: (t) => /^tv /i.test(t) || /c[aâ]mera (inteligente|de seguran[cç]a)/i.test(t) },
+  { from: ["casa", "eletronicos", "eletrodomesticos", "informatica", "celulares", "acessorios-veiculos", "industria", "construcao"], to: "cameras", test: (t) => CFTV.test(t) },
+  { from: ["casa", "eletrodomesticos"], to: "eletronicos", test: (t) => /^tv /i.test(t) },
   { from: ["eletronicos", "informatica"], to: "casa", test: (t) => /^(escrivaninha|mesa multiuso|mesa para escrit|mesa em l|mesa diretor|escada dom|painel de natal|astronauta|marcador retroprojetor|caixa papel sulfite)/i.test(t) },
   { from: ["moda"], to: "casa", test: (t) => /balan[cç]a hardline/i.test(t) },
   { from: ["bebes", "brinquedos"], to: "casa", test: (t) => /(kit silicone para panelas|edredom casal queen coberdrom)/i.test(t) },
