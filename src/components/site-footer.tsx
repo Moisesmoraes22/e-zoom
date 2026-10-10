@@ -1,5 +1,6 @@
 import Link from "next/link"
 
+import { BrandMark } from "@/components/brand-mark"
 import { CookiePreferencesButton } from "@/components/cookie-consent"
 
 import { categoryCounts, countByStoreId } from "@/lib/deals"
@@ -20,8 +21,11 @@ export async function SiteFooter() {
       <div className="page-container py-12">
         <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
           <div className="col-span-2 sm:col-span-1">
-            <span className="text-lg font-semibold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-              E-Zoom
+            <span className="flex items-center gap-2">
+              <BrandMark className="h-6 w-auto text-primary" />
+              <span className="text-lg font-semibold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+                E-Zoom
+              </span>
             </span>
             <p className="mt-2 text-sm text-muted-foreground">
               Um hub que reúne ofertas do Mercado Livre, Shopee e Amazon para

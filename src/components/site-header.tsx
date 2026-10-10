@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+
+import { BrandMark } from "@/components/brand-mark";
 import {
   ArrowRight,
   Clock,
@@ -81,9 +83,12 @@ export function SiteHeader({
       <div className="page-container flex items-center gap-3">
         <Link
           href="/"
-          className="rounded-md bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-xl font-semibold text-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="flex items-center gap-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
-          E-Zoom
+          <BrandMark className="h-7 w-auto text-primary" />
+          <span className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-xl font-semibold text-transparent">
+            E-Zoom
+          </span>
         </Link>
 
         <div className="ml-6 hidden items-center gap-7 lg:flex">
@@ -207,8 +212,11 @@ export function SiteHeader({
               className="flex w-[300px] flex-col gap-0 overflow-y-auto border-r border-border p-0 sm:w-[360px]"
             >
               <SheetHeader className="border-b border-border p-5 text-left">
-                <SheetTitle className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-xl font-semibold text-transparent">
-                  E-Zoom
+                <SheetTitle className="flex items-center gap-2">
+                  <BrandMark className="h-7 w-auto text-primary" />
+                  <span className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-xl font-semibold text-transparent">
+                    E-Zoom
+                  </span>
                 </SheetTitle>
               </SheetHeader>
               <div className="p-5 pb-0">
