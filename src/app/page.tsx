@@ -25,6 +25,11 @@ const ALL_SIZE = 12
 const POOL_PER_CATEGORY = 24
 /** A section with fewer cards than this looks broken, so it is left out. */
 const MIN_SECTION = 3
+/** Security cameras, DVRs and CFTV kits: the highest-ticket, best-paying corner of the catalog. */
+const SECURITY = /cftv|\bdvr\b|\bnvr\b|intelbras|gravador de video|c[aâ]mera.*(seguranca|\bip\b|monitoramento|vigilancia|externa|dome)|alarme|videoporteiro|speed dome/
+const KIT = /kit|cftv|dvr|nvr|gravador/
+const NOT_SECURITY = /gopro|sport|acao|filmadora|instantanea|fotografica|webcam|dash ?cam|automotiv/
+const plain = (text: string) => text.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase()
 
 export default async function Home() {
   const { products, live } = await getCatalog()
@@ -59,6 +64,14 @@ export default async function Home() {
     picked.forEach((p) => used.add(p.id))
     return picked
   }
+  // First pick, so the featured security shelf gets its best offers before any other section.
+  const security = take(
+    // Kits and recorders first: they are the high-ticket items that pay the 12% commission.
+    byRelevance(products.filter((p) => p.category === "cameras" && SECURITY.test(plain(p.title)) && !NOT_SECURITY.test(plain(p.title)))).sort(
+      (a, b) => Number(KIT.test(plain(b.title))) - Number(KIT.test(plain(a.title))),
+    ),
+    ALL_SIZE,
+  )
   const hot = take(byClicks(products))
   const featured = take(capPerCategory(byFeatured(products), 3))
   const priceDrops = take(byPriceDrop(products))
@@ -97,6 +110,20 @@ export default async function Home() {
       />
       {hero.length > 0 && <FeaturedDeal offers={hero} />}
       <CategoryGrid categories={categoryCounts(products, true).slice(0, 8)} showCounts={live} />
+      {security.length > 0 && (
+        <ProductRow
+          title="Câmeras e Segurança"
+          products={security}
+          href="/categoria/cameras"
+          linkLabel="Ver todas as câmeras"
+          chips={[
+            { label: "Kit CFTV", href: "/busca?q=cftv" },
+            { label: "Intelbras", href: "/busca?q=intelbras" },
+            { label: "Câmera Wi-Fi", href: "/busca?q=camera%20wifi" },
+            { label: "Alarmes", href: "/busca?q=alarme" },
+          ]}
+        />
+      )}
       {hot.length > 0 && (
         <ProductRow
           title="Bombando agora"
