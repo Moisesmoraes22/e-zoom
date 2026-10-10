@@ -20,7 +20,7 @@ export function RecommendedSection({ pool }: { pool: Product[] }) {
   if (picks.length < 3) return null
   return (
     <section className="page-container section-y" aria-labelledby="recomendado-titulo">
-      <div className="mb-5 flex items-center justify-between gap-4">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
         <h2 id="recomendado-titulo" className="text-2xl font-bold text-foreground sm:text-3xl">
           Recomendado para você
         </h2>
