@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Redefina sua senha do E-Zoom</title>
+</head>
+<body style="margin:0;padding:0;background:#F4F6FB;">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">Use o botão para criar uma nova senha do E-Zoom.</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F4F6FB;">
+  <tr>
+    <td align="center" style="padding:32px 16px;">
+      <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="width:100%;max-width:560px;background:#FFFFFF;border:1px solid #D9E0EE;border-radius:16px;">
+        <tr>
+          <td style="padding:28px 32px 0 32px;">
+            <a href="https://e-zoom.vercel.app" style="text-decoration:none;">
+              <img src="https://e-zoom.vercel.app/brand/email-logo.png" width="210" height="55" alt="E-Zoom" style="display:block;border:0;outline:none;width:210px;height:55px;">
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:24px 32px 0 32px;font-family:Segoe UI,Helvetica,Arial,sans-serif;color:#0F1B3D;">
+            <h1 style="margin:0;font-size:24px;line-height:1.3;font-weight:700;color:#0F1B3D;">Redefina sua senha</h1>
+            <p style="margin:12px 0 0 0;font-size:16px;line-height:1.6;color:#58648A;">Recebemos um pedido para criar uma nova senha da sua conta no E-Zoom. Clique no botão abaixo para escolher a nova senha.</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:28px 32px 0 32px;">
+            <table role="presentation" cellpadding="0" cellspacing="0">
+              <tr>
+                <td align="center" bgcolor="#2F64C8" style="border-radius:10px;">
+                  <a href="{{ .ConfirmationURL }}" style="display:inline-block;padding:14px 28px;font-family:Segoe UI,Helvetica,Arial,sans-serif;font-size:16px;font-weight:700;color:#FFFFFF;text-decoration:none;border-radius:10px;">Criar nova senha</a>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:24px 32px 0 32px;font-family:Segoe UI,Helvetica,Arial,sans-serif;font-size:13px;line-height:1.6;color:#58648A;">
+            Se o botão não funcionar, copie este endereço e cole no navegador:<br>
+            <a href="{{ .ConfirmationURL }}" style="color:#1E4AA3;word-break:break-all;">{{ .ConfirmationURL }}</a>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:24px 32px 32px 32px;font-family:Segoe UI,Helvetica,Arial,sans-serif;font-size:13px;line-height:1.6;color:#58648A;">
+            Se você não pediu para redefinir a senha, ignore este e-mail: sua senha continua a mesma. O link expira em pouco tempo e só funciona uma vez.
+          </td>
+        </tr>
+      </table>
+      <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="width:100%;max-width:560px;">
+        <tr>
+          <td align="center" style="padding:20px 16px 0 16px;font-family:Segoe UI,Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6;color:#58648A;">
+            E-Zoom &middot; hub de ofertas do Mercado Livre, Shopee e Amazon<br>
+            <a href="https://e-zoom.vercel.app" style="color:#58648A;">e-zoom.vercel.app</a>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+</body>
+</html>
