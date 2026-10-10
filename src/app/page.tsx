@@ -28,6 +28,7 @@ const MIN_SECTION = 3
 /** Security cameras, DVRs and CFTV kits: the highest-ticket, best-paying corner of the catalog. */
 const SECURITY = /cftv|\bdvr\b|\bnvr\b|intelbras|gravador de video|c[aâ]mera.*(seguranca|\bip\b|monitoramento|vigilancia|externa|dome)|alarme|videoporteiro|speed dome/
 const KIT = /kit|cftv|dvr|nvr|gravador/
+const TOOL_KIT = /furadeira|parafusadeira|esmerilhadeira|serra|martelete|lixadeira|kit|maleta|jogo de/
 const NOT_SECURITY = /gopro|sport|acao|filmadora|instantanea|fotografica|webcam|dash ?cam|automotiv/
 const plain = (text: string) => text.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase()
 
@@ -69,6 +70,13 @@ export default async function Home() {
     // Kits and recorders first: they are the high-ticket items that pay the 12% commission.
     byRelevance(products.filter((p) => p.category === "cameras" && SECURITY.test(plain(p.title)) && !NOT_SECURITY.test(plain(p.title)))).sort(
       (a, b) => Number(KIT.test(plain(b.title))) - Number(KIT.test(plain(a.title))),
+    ),
+    ALL_SIZE,
+  )
+  // Tools: power tools and kits first (high ticket), then the rest by relevance.
+  const tools = take(
+    byRelevance(products.filter((p) => p.category === "ferramentas")).sort(
+      (a, b) => Number(TOOL_KIT.test(plain(b.title))) - Number(TOOL_KIT.test(plain(a.title))),
     ),
     ALL_SIZE,
   )
@@ -121,6 +129,20 @@ export default async function Home() {
             { label: "Intelbras", href: "/busca?q=intelbras" },
             { label: "Câmera Wi-Fi", href: "/busca?q=camera%20wifi" },
             { label: "Alarmes", href: "/busca?q=alarme" },
+          ]}
+        />
+      )}
+      {tools.length > 0 && (
+        <ProductRow
+          title="Ferramentas"
+          products={tools}
+          href="/categoria/ferramentas"
+          linkLabel="Ver todas as ferramentas"
+          chips={[
+            { label: "Furadeira", href: "/busca?q=furadeira" },
+            { label: "Parafusadeira", href: "/busca?q=parafusadeira" },
+            { label: "Kit de ferramentas", href: "/busca?q=kit%20ferramentas" },
+            { label: "Esmerilhadeira", href: "/busca?q=esmerilhadeira" },
           ]}
         />
       )}
