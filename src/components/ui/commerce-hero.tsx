@@ -7,11 +7,15 @@ import { useSyncExternalStore } from "react";
 
 import { ProductCard } from "@/components/product-card";
 import { SearchBar } from "@/components/search-bar";
+import { StoreLogo } from "@/components/store-logo";
+import { STORES } from "@/lib/mock-data";
 import type { CategoryCount } from "@/lib/deals";
 import type { Product } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 // Desktop-only and client-only: phones never download the lens or its cards.
+const storeIdOf = (name: string) => Object.values(STORES).find((s) => s.name === name)?.id;
+
 const HeroLens = dynamic(() => import("@/components/ui/hero-lens").then((m) => m.HeroLens), { ssr: false });
 
 /** From here the hero gets the dark panel with the magnifying glass; below it is text, search and the strip. */
@@ -100,6 +104,7 @@ export function CommerceHero({
                   <span>Ofertas de</span>
                   {storeNames.map((name, i) => (
                     <span key={name} className="flex items-center gap-2">
+                      {storeIdOf(name) && <StoreLogo store={storeIdOf(name)!} className="h-6 w-10 rounded-md p-0.5" />}
                       <span className="font-medium text-foreground">{name}</span>
                       {i < storeNames.length - 1 && <span aria-hidden>·</span>}
                     </span>
@@ -131,7 +136,7 @@ function Showcase({ offers }: { offers: Product[] }) {
       </div>
       <ul className="-mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-1 [scrollbar-width:none] sm:-mx-10 sm:px-10 lg:mx-0 lg:grid lg:grid-cols-6 lg:overflow-visible lg:px-0 [&::-webkit-scrollbar]:hidden">
         {offers.map((offer, i) => (
-          <li key={offer.id} className="w-[46%] shrink-0 snap-start sm:w-[30%] lg:w-auto">
+          <li key={offer.id} className="w-[62%] shrink-0 snap-start min-[375px]:w-[46%] sm:w-[30%] lg:w-auto">
             <ProductCard product={offer} compact priority={i < 2} />
           </li>
         ))}

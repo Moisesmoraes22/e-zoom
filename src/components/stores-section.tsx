@@ -2,6 +2,7 @@ import { ArrowRight } from "lucide-react"
 import Link from "next/link"
 
 import { SectionHeader } from "@/components/section-header"
+import { StoreLogo } from "@/components/store-logo"
 import { STORES } from "@/lib/mock-data"
 
 const ORDER = ["mercado_livre", "amazon", "shopee"] as const
@@ -28,11 +29,7 @@ export function StoresSection({ counts }: { counts: Record<string, number> }) {
               href={`/busca?loja=${id}`}
               className="group flex items-center gap-4 rounded-2xl border border-border bg-card p-5 transition-colors hover:border-primary/40 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
-              <span
-                aria-hidden
-                className="h-3 w-3 shrink-0 rounded-full"
-                style={{ backgroundColor: STORES[id].color }}
-              />
+              <StoreLogo store={id} className="h-14 w-24 p-2" />
               <span className="flex flex-1 flex-col">
                 <span className="text-lg font-semibold text-foreground">
                   {STORES[id].name}

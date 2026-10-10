@@ -83,7 +83,7 @@ export function SiteHeader({
       <div className="page-container flex items-center gap-3">
         <Link
           href="/"
-          className="flex items-center gap-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="-my-2 flex items-center gap-2 rounded-md py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <BrandMark className="h-7 w-auto text-primary" />
           <span className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-xl font-semibold text-transparent">

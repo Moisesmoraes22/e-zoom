@@ -25,7 +25,7 @@ export function ProductCarousel({
     <Carousel opts={{ align: "start", loop: items.length > 7 }} className="w-full" aria-label="Ofertas">
       <CarouselContent>
         {items.map(({ product, label }) => (
-          <CarouselItem key={product.id} className="basis-[40%] sm:basis-[40%] md:basis-[28.57%] lg:basis-[22.22%] xl:basis-[18.18%] 2xl:basis-[15.38%]">
+          <CarouselItem key={product.id} className="basis-[60%] min-[375px]:basis-[50%] min-[480px]:basis-[40%] md:basis-[28.57%] lg:basis-[22.22%] xl:basis-[18.18%] 2xl:basis-[15.38%]">
             <div className="h-full">
               <ProductCard product={product} label={label} className={cardClassName} compact />
             </div>
