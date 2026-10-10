@@ -28,11 +28,20 @@ const MIN_SECTION = 3
 /** Security cameras, DVRs and CFTV kits: the highest-ticket, best-paying corner of the catalog. */
 const SECURITY = /cftv|\bdvr\b|\bnvr\b|intelbras|gravador de video|c[aâ]mera.*(seguranca|\bip\b|monitoramento|vigilancia|externa|dome)|alarme|videoporteiro|speed dome/
 /** Children's Day (12 Oct) shelf: shown from 1 to 13 October, then it disappears by itself. */
+/** Fishing gear lives inside "esporte" (as at Mercado Livre): picked by title. */
+const FISHING = /pesca|pescar|pescaria|anzol|\bisca\b|\biscas\b|vara.*(carretilha|molinete)|(carretilha|molinete).*(vara|linha|drag|libras)/
+const NOT_FISHING = /pet|cachorro|gato|roupa|camisa|boneco|brinquedo|anemometro|sorvete|poco|polia|roldana|colher|inox/
 const NOT_TOY = /cesto|organizador|caixa organizadora|armario|prateleira|nicho/
 const isKidsDay = (now: Date) => now.getMonth() === 9 && now.getDate() <= 13
-const KIT = /kit|cftv|dvr|nvr|gravador/
-const TOOL_KIT = /furadeira|parafusadeira|esmerilhadeira|serra|martelete|lixadeira|kit|maleta|jogo de/
-const NOT_SECURITY = /gopro|sport|acao|filmadora|instantanea|fotografica|webcam|dash ?cam|automotiv/
+const KIT = /kit|cftv|\bdvr\b|\bnvr\b|gravador/
+const securityScore = (title: string) => {
+  const t = plain(title)
+  return Number(KIT.test(t)) - Number(SECURITY_PART.test(t))
+}
+const TOOL_KIT =/furadeira|parafusadeira|esmerilhadeira|serra|martelete|lixadeira|kit|maleta|jogo de/
+const NOT_SECURITY = /gopro|sport|acao|filmadora|instantanea|fotografica|webcam|dash ?cam|automotiv|uber|veicular/
+/** Cables, power supplies and connectors belong to the shelf, but never lead it. */
+const SECURITY_PART = /\bcabo\b|conector|fonte|balun|suporte/
 const plain = (text: string) => text.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase()
 
 export default async function Home() {
@@ -76,7 +85,7 @@ export default async function Home() {
   const security = take(
     // Kits and recorders first: they are the high-ticket items that pay the 12% commission.
     byRelevance(products.filter((p) => p.category === "cameras" && SECURITY.test(plain(p.title)) && !NOT_SECURITY.test(plain(p.title)))).sort(
-      (a, b) => Number(KIT.test(plain(b.title))) - Number(KIT.test(plain(a.title))),
+      (a, b) => securityScore(b.title) - securityScore(a.title),
     ),
     ALL_SIZE,
   )
@@ -84,6 +93,12 @@ export default async function Home() {
   const tools = take(
     byRelevance(products.filter((p) => p.category === "ferramentas")).sort(
       (a, b) => Number(TOOL_KIT.test(plain(b.title))) - Number(TOOL_KIT.test(plain(a.title))),
+    ),
+    ALL_SIZE,
+  )
+  const fishing = take(
+    byRelevance(
+      products.filter((p) => p.category === "esporte" && FISHING.test(plain(p.title)) && !NOT_FISHING.test(plain(p.title))),
     ),
     ALL_SIZE,
   )
@@ -165,6 +180,21 @@ export default async function Home() {
             { label: "Parafusadeira", href: "/busca?q=parafusadeira" },
             { label: "Kit de ferramentas", href: "/busca?q=kit%20ferramentas" },
             { label: "Esmerilhadeira", href: "/busca?q=esmerilhadeira" },
+          ]}
+        />
+      )}
+      {fishing.length > 0 && (
+        <ProductRow
+          title="Pesca"
+          products={fishing}
+          href="/busca?q=pesca"
+          linkLabel="Ver todo o material de pesca"
+          chips={[
+            { label: "Vara de pesca", href: "/busca?q=vara%20de%20pesca" },
+            { label: "Molinete", href: "/busca?q=molinete" },
+            { label: "Carretilha", href: "/busca?q=carretilha" },
+            { label: "Isca artificial", href: "/busca?q=isca%20artificial" },
+            { label: "Kit pesca", href: "/busca?q=kit%20pesca" },
           ]}
         />
       )}

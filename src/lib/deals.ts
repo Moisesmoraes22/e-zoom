@@ -148,7 +148,7 @@ export const variantKey = (title: string) =>
     .normalize("NFD")
     .replace(/\p{M}/gu, "")
     .toLowerCase()
-    .replace(/sabor.*$/, "")
+    .replace(/\bsabor\b.*$/, "")
     .replace(/[^a-z0-9]+/g, "")
     .slice(0, 32)
 
