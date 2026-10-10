@@ -83,8 +83,12 @@ export const getCatalog = cache(async (): Promise<{ products: Product[]; live: b
     clicks: clicksByOffer.get(row.id),
     dropAt: dropAtByOffer.get(row.id),
   }))
-  return { products: withVariants(products), live: true }
+  // Unset fields are dropped, not sent as "$undefined": ~80k of them were ~25% of the /busca payload.
+  return { products: withVariants(products).map(withoutUndefined), live: true }
 })
+
+const withoutUndefined = <T extends object>(item: T): T =>
+  Object.fromEntries(Object.entries(item).filter(([, value]) => value !== undefined)) as T
 
 function mockCatalog() {
   return { products: ALL_PRODUCTS, live: false }
