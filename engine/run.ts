@@ -64,15 +64,15 @@ async function main() {
       upserted += chunk.length
     }
 
-    // Offers that left the source stop showing after a grace period. Telegram prices are
-    // the post's, and Amazon moves them several times a day: 24h. APIs re-read every run: 48h.
+    // Offers that left the source stop showing after a grace period of 48h. Telegram prices are
+    // the post's and Amazon moves them several times a day, but the Telegram channel is the only
+    // source of Amazon offers: at 24h the store nearly vanished from the site.
     // Skipped on empty runs so a Telegram outage can't wipe the catalog.
     if (offers.length > 0) {
       // Only the stores this run brought: the Shopee and Mercado Livre APIs share source "api".
       const stores = [...new Set(offers.map((o) => o.store_id))]
       for (const source of new Set(offers.map((o) => o.source))) {
-        const hours = source === "telegram" ? 24 : 48
-        const cutoff = new Date(Date.now() - hours * 3600_000).toISOString()
+        const cutoff = new Date(Date.now() - 48 * 3600_000).toISOString()
         const { error } = await supabase
           .from("offers")
           .update({ is_active: false })
