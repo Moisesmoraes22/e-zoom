@@ -6,22 +6,23 @@ import type { Connector, OfferRow } from "../types.ts"
 
 const ENDPOINT = "https://open-api.affiliate.shopee.com.br/graphql"
 const PER_KEYWORD = 50
-const MAX_OFFERS = 3200 // every category (about 2.6k after the quality filter); a low cap stops the last ones empty
+const MAX_OFFERS = 4500 // every category (about 3.5k after the quality filter); a low cap stops the last ones empty
 
 /** Best sellers per search term, filed under the site's own category slugs. */
 const KEYWORDS: Record<string, string[]> = {
   eletronicos: ["fone bluetooth", "carregador turbo", "smartwatch", "caixa de som bluetooth", "cabo usb c"],
   celulares: ["smartphone", "capa celular", "pelicula celular", "suporte celular", "carregador portatil"],
   informatica: ["mouse sem fio", "teclado", "webcam", "hd externo", "pen drive", "roteador wifi"],
-  eletrodomesticos: ["liquidificador", "cafeteira", "aspirador de po", "ferro de passar", "ventilador"],
-  casa: ["air fryer", "organizador casa", "luminaria led", "panela antiaderente"],
+  eletrodomesticos: ["liquidificador", "cafeteira", "aspirador de po", "ferro de passar", "ventilador", "forno eletrico", "batedeira", "chaleira eletrica", "sanduicheira", "panela eletrica"],
+  casa: ["air fryer", "organizador casa", "luminaria led", "panela antiaderente", "estante", "sapateira", "rack tv", "escrivaninha", "guarda roupa", "cadeira escritorio"],
   moda: ["camiseta masculina", "mochila", "bolsa feminina", "tenis masculino", "chinelo", "sandalia feminina", "mochila infantil"],
   beleza: ["skincare", "perfume", "secador de cabelo"],
-  esporte: ["whey protein", "garrafa termica", "tapete yoga"],
+  esporte: ["whey protein", "garrafa termica", "tapete yoga", "vara de pesca", "molinete", "kit pesca", "isca artificial", "anzol", "carretilha"],
   games: ["controle gamer", "headset gamer", "mouse gamer"],
   ferramentas: ["furadeira", "parafusadeira", "jogo de ferramentas", "trena", "alicate", "esmerilhadeira", "multimetro", "jogo de chaves", "maleta de ferramentas", "martelete", "ferro de solda", "serra tico tico", "lixadeira", "chave de impacto", "nivel a laser", "compressor de ar", "jogo de brocas", "estacao de solda"],
   cameras: ["camera ip wifi", "camera de seguranca", "kit cftv", "dvr", "camera externa", "videoporteiro"],
-  brinquedos: ["brinquedo infantil"],
+  brinquedos: ["brinquedo infantil", "boneca", "lego", "hot wheels", "quebra cabeca", "massinha de modelar", "pelucia", "patinete infantil", "nerf"],
+  "acessorios-veiculos": ["som automotivo", "capa de banco carro", "tapete automotivo", "suporte celular carro", "aspirador automotivo", "camera de re", "carregador veicular"],
   bebes: ["fralda", "mamadeira"],
 }
 

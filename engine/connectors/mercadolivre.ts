@@ -41,7 +41,12 @@ const TOOL_TERMS = [
 const CATEGORY_TERMS: Record<string, string[]> = {
   celulares: ["smartphone", "iphone", "samsung galaxy", "xiaomi redmi", "motorola moto g", "carregador portátil", "capa para celular", "película de vidro", "fone bluetooth", "cabo usb c"],
   informatica: ["notebook", "ssd", "memória ram", "mouse sem fio", "teclado mecânico", "monitor", "roteador wifi", "webcam", "hd externo", "pen drive", "impressora", "tablet"],
-  eletrodomesticos: ["air fryer", "liquidificador", "aspirador de pó", "cafeteira", "micro-ondas", "geladeira", "fogão", "lava e seca", "robô aspirador", "ferro de passar"],
+  eletrodomesticos: [
+    "air fryer", "liquidificador", "aspirador de pó", "cafeteira", "micro-ondas", "geladeira", "fogão", "lava e seca",
+    "robô aspirador", "ferro de passar", "forno elétrico", "batedeira", "processador de alimentos", "sanduicheira",
+    "chaleira elétrica", "purificador de água", "máquina de lavar", "ar condicionado", "ventilador de coluna",
+    "climatizador", "cooktop", "adega climatizada", "freezer", "panela elétrica", "espremedor", "mixer",
+  ],
   cameras: [
     "kit cftv 4 câmeras", "kit cftv 8 câmeras", "kit cftv 16 câmeras", "dvr intelbras", "gravador de vídeo mhdx", "câmera intelbras",
     "câmera ip wifi", "câmera de segurança externa", "câmera speed dome", "nvr", "hd para dvr", "fonte para câmera cftv",
@@ -49,8 +54,30 @@ const CATEGORY_TERMS: Record<string, string[]> = {
     "câmera instantânea", "gopro", "tripé", "ring light", "cartão de memória", "drone",
   ],
   saude: ["termômetro digital", "aparelho de pressão", "oxímetro", "massageador", "balança digital", "colchão ortopédico"],
+  // Fishing lives inside "esporte" (as at Mercado Livre).
+  esporte: [
+    "vara de pesca", "molinete", "carretilha", "linha de pesca", "isca artificial", "kit pesca completo", "anzol",
+    "caixa de pesca", "cadeira de pesca", "vara telescópica", "puçá", "colete de pesca", "sonar de pesca",
+  ],
+  "acessorios-veiculos": [
+    "som automotivo", "central multimídia", "bateria automotiva", "tapete automotivo", "capa de banco automotivo",
+    "suporte celular carro", "câmera de ré", "aspirador automotivo", "compressor de ar portátil", "carregador veicular",
+    "kit lâmpada led farol", "cera automotiva", "película automotiva", "alarme automotivo", "capacete moto",
+    "capa para moto", "bagageiro", "limpador de para-brisa", "óleo de motor", "organizador de carro",
+  ],
+  brinquedos: [
+    "boneca", "hot wheels", "lego", "quebra-cabeça", "jogo de tabuleiro", "massinha de modelar", "pelúcia", "nerf",
+    "patinete infantil", "bicicleta infantil", "brinquedo educativo", "cozinha infantil", "bloco de montar",
+    "boneco de ação", "fantasia infantil", "carrinho de controle remoto", "piscina de bolinhas", "pista de carrinhos",
+  ],
+  casa: [
+    "sofá", "guarda-roupa", "cama box", "colchão", "rack para tv", "estante", "mesa de jantar", "poltrona", "cômoda",
+    "sapateira", "escrivaninha", "cadeira de escritório", "painel para tv", "mesa de centro", "criado mudo",
+    "armário de cozinha", "balcão", "penteadeira", "estante para livros", "prateleira",
+  ],
 }
 const PER_TERM = 25 // offers kept per term
+const CATEGORY_PER_TERM = 15 // same, for the category terms in the scheduled run (ML_ONLY runs use PER_TERM)
 // Most catalog hits have no active seller (items -> 404), so we scan a few pages per term.
 const SEARCH_PAGES = 3
 const SEARCH_PAGE_SIZE = 50
@@ -259,12 +286,13 @@ export function createMercadoLivreConnector(env: NodeJS.ProcessEnv): Connector {
       for (const [slug, terms] of Object.entries(CATEGORY_TERMS)) {
         for (const term of !only || only === slug ? terms : []) {
           const before = offers.size
-          for (let page = 0; page < SEARCH_PAGES && offers.size - before < PER_TERM; page++) {
+          const perTerm = only ? PER_TERM : CATEGORY_PER_TERM
+          for (let page = 0; page < SEARCH_PAGES && offers.size - before < perTerm; page++) {
             const { results = [] } = await get<{ results: { id: string }[] }>(
               `/products/search?status=active&site_id=MLB&limit=${SEARCH_PAGE_SIZE}&offset=${page * SEARCH_PAGE_SIZE}&q=${encodeURIComponent(term)}`,
             ).catch(() => ({ results: [] }))
             const ids = results.map((r) => r.id).filter((id) => !offers.has(id))
-            for (let i = 0; i < ids.length && offers.size - before < PER_TERM; i += 10) {
+            for (let i = 0; i < ids.length && offers.size - before < perTerm; i += 10) {
               await Promise.allSettled(ids.slice(i, i + 10).map((id) => buildOffer(id, slug)))
             }
           }

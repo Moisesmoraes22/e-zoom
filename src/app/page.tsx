@@ -27,6 +27,9 @@ const POOL_PER_CATEGORY = 24
 const MIN_SECTION = 3
 /** Security cameras, DVRs and CFTV kits: the highest-ticket, best-paying corner of the catalog. */
 const SECURITY = /cftv|\bdvr\b|\bnvr\b|intelbras|gravador de video|c[aâ]mera.*(seguranca|\bip\b|monitoramento|vigilancia|externa|dome)|alarme|videoporteiro|speed dome/
+/** Children's Day (12 Oct) shelf: shown from 1 to 13 October, then it disappears by itself. */
+const NOT_TOY = /cesto|organizador|caixa organizadora|armario|prateleira|nicho/
+const isKidsDay = (now: Date) => now.getMonth() === 9 && now.getDate() <= 13
 const KIT = /kit|cftv|dvr|nvr|gravador/
 const TOOL_KIT = /furadeira|parafusadeira|esmerilhadeira|serra|martelete|lixadeira|kit|maleta|jogo de/
 const NOT_SECURITY = /gopro|sport|acao|filmadora|instantanea|fotografica|webcam|dash ?cam|automotiv/
@@ -65,6 +68,10 @@ export default async function Home() {
     picked.forEach((p) => used.add(p.id))
     return picked
   }
+  // Seasonal shelf first, so it gets the best toys before any other section takes them.
+  const kids = isKidsDay(new Date())
+    ? take(byRelevance(products.filter((p) => p.category === "brinquedos" && !NOT_TOY.test(plain(p.title)))), ALL_SIZE)
+    : []
   // First pick, so the featured security shelf gets its best offers before any other section.
   const security = take(
     // Kits and recorders first: they are the high-ticket items that pay the 12% commission.
@@ -118,6 +125,21 @@ export default async function Home() {
       />
       {hero.length > 0 && <FeaturedDeal offers={hero} />}
       <CategoryGrid categories={categoryCounts(products, true).slice(0, 8)} showCounts={live} />
+      {kids.length > 0 && (
+        <ProductRow
+          title="Dia das Crianças"
+          products={kids}
+          href="/categoria/brinquedos"
+          linkLabel="Ver todos os brinquedos"
+          chips={[
+            { label: "Bonecas", href: "/busca?q=boneca" },
+            { label: "Lego", href: "/busca?q=lego" },
+            { label: "Hot Wheels", href: "/busca?q=hot%20wheels" },
+            { label: "Quebra-cabeça", href: "/busca?q=quebra-cabeca" },
+            { label: "Pelúcias", href: "/busca?q=pelucia" },
+          ]}
+        />
+      )}
       {security.length > 0 && (
         <ProductRow
           title="Câmeras e Segurança"
