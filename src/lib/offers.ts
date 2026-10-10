@@ -7,13 +7,13 @@ import { isCredibleDrop, OFFER_COLUMNS, rowToProduct, type OfferRow } from "@/li
 import type { PriceStats, Product } from "@/lib/types"
 
 /**
- * Safety ceiling for the public catalog. The cut drops the OLDEST prices first (the Shopee
- * feed snapshot), so it must stay well above the live count (3,3k today): at 3,000 the site
- * silently hid hundreds of real offers.
+ * Safety ceiling for the public catalog. The cut drops the offers seen LEAST recently (the
+ * Amazon ones, which only come from Telegram), so it must stay well above the live count
+ * (9,7k today): at 6,000 the site silently hid the whole Amazon store.
  */
-const MAX_OFFERS = 6000
-/** Same idea for price_history (3.5k rows today, growing with every price change). */
-const MAX_HISTORY_ROWS = 20_000
+const MAX_OFFERS = 15_000
+/** Same idea for price_history (14k rows today, growing with every price change). */
+const MAX_HISTORY_ROWS = 40_000
 
 /**
  * Live offers from Supabase (public read via RLS). Only offers with OUR
