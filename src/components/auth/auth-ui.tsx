@@ -1,8 +1,10 @@
 "use client"
 
 import { AlertCircle, CheckCircle2, Eye, EyeOff, Loader2 } from "lucide-react"
+import Link from "next/link"
 import { useId, useState } from "react"
 
+import { BrandMark } from "@/components/brand-mark"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
@@ -130,10 +132,17 @@ export function AuthCard({
   return (
     <div className="mx-auto w-full max-w-md px-4 py-10 sm:py-16">
       <div className="rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8">
-        <p className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-lg font-semibold text-transparent">
-          E-Zoom
-        </p>
-        <h1 className="mt-4 text-2xl font-bold tracking-tight text-foreground">{title}</h1>
+        <Link
+          href="/"
+          aria-label="E-Zoom, voltar para a página inicial"
+          className="flex w-fit items-center gap-2.5 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <BrandMark className="h-10 w-auto text-primary" />
+          <span className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-2xl font-semibold text-transparent">
+            E-Zoom
+          </span>
+        </Link>
+        <h1 className="mt-6 text-2xl font-bold tracking-tight text-foreground">{title}</h1>
         {description && <p className="mt-1.5 text-sm text-muted-foreground">{description}</p>}
         <div className="mt-6">{children}</div>
       </div>
