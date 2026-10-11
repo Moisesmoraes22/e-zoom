@@ -2,27 +2,16 @@ import { createClient } from "@supabase/supabase-js"
 
 import { searchMercadoLivre } from "../../../../engine/lib/ml-search.ts"
 import { normalizeTerm } from "@/lib/product-requests"
+import { clientIp, rateLimiter } from "@/lib/rate-limit"
 
 // "Peça este produto": registers a search that found nothing and, when Mercado Livre credentials
 // are configured, answers at once with what the Mercado Livre catalogue has for the term.
 // The result is NOT written to the database from here (the site holds no write key): the
 // collector brings it in on its next run, from the request this route records.
 
-const WINDOW_MS = 60_000
-const MAX_PER_WINDOW = 8
-const hits = new Map<string, { count: number; reset: number }>()
-
 // Per server instance (as in /api/click): a script can spread across instances, which only costs
 // a few extra Mercado Livre calls, each cached below.
-function allowed(ip: string, now = Date.now()) {
-  if (hits.size > 5000) hits.clear()
-  const bucket = hits.get(ip)
-  if (!bucket || bucket.reset < now) {
-    hits.set(ip, { count: 1, reset: now + WINDOW_MS })
-    return true
-  }
-  return ++bucket.count <= MAX_PER_WINDOW
-}
+const allowed = rateLimiter(8)
 
 const CACHE_MS = 10 * 60_000
 const cache = new Map<string, { at: number; offers: LiveOffer[] }>()
@@ -61,10 +50,8 @@ function client() {
   return createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, { auth: { persistSession: false } })
 }
 
-const ip = (request: Request) => request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown"
-
 export async function POST(request: Request) {
-  if (!allowed(ip(request))) return Response.json({ ok: false, reason: "slow-down" }, { status: 429 })
+  if (!allowed(clientIp(request))) return Response.json({ ok: false, reason: "slow-down" }, { status: 429 })
   const body = (await request.json().catch(() => null)) as { term?: unknown } | null
   const display = typeof body?.term === "string" ? body.term.trim().slice(0, 80) : ""
   const term = normalizeTerm(display)

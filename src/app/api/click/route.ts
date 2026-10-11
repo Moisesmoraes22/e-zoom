@@ -6,8 +6,8 @@ const BOT = /bot|crawl|spider|headless|preview|lighthouse/i
 
 // Best-effort limiter, per server instance: at most 30 clicks a minute per visitor, and the same
 // offer counts once every 30 s. It stops a script from inflating the ranking or filling the table;
-// ponytail: instances do not share memory, so a determined attacker can spread across them. A shared
-// store (Upstash/Supabase) is the upgrade if the click ranking ever feeds payouts.
+// Instances do not share memory, so the database function record_click caps the volume for all of
+// them (10 a minute per offer, 300 a minute overall).
 const WINDOW_MS = 60_000
 const MAX_PER_WINDOW = 30
 const SAME_OFFER_MS = 30_000
@@ -48,9 +48,10 @@ export async function POST(request: Request) {
   const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
     auth: { persistSession: false },
   })
-  await supabase.from("offer_clicks").insert({
-    offer_id: offerId,
-    origin: typeof origin === "string" && ORIGINS.has(origin) ? origin : "outro",
+  // Through the database function: it validates and caps the volume for every instance at once.
+  await supabase.rpc("record_click", {
+    p_offer: offerId,
+    p_origin: typeof origin === "string" && ORIGINS.has(origin) ? origin : "outro",
   })
   return done
 }
