@@ -170,7 +170,7 @@ export const PERSONALIZE_KEY = "ezoom:personalize"
 export const MAX_CLIMB = 12
 
 /** 0..1: how well an offer matches the profile (shared words weigh most, then a liked category). */
-function affinityOf(p: Product, profile: Profile): number {
+function affinityOf(p: Pick<Product, "title" | "category">, profile: Profile): number {
   const maxCat = Math.max(0, ...profile.categories.values())
   const maxTerm = Math.max(0, ...[...profile.terms.values()].map((t) => t.weight))
   const title = normalizeText(p.title)
@@ -185,7 +185,7 @@ function affinityOf(p: Product, profile: Profile): number {
  * places in proportion to its affinity. Same offers, same count; `boosted` are the ones
  * that moved up noticeably, so the page can say why.
  */
-export function personalizeOrder(list: Product[], profile: Profile): { ordered: Product[]; boosted: Set<string> } {
+export function personalizeOrder<T extends Pick<Product, "id" | "title" | "category">>(list: T[], profile: Profile): { ordered: T[]; boosted: Set<string> } {
   if (profile.total < MIN_PROFILE_WEIGHT) return { ordered: list, boosted: new Set() }
   const keyed = list.map((p, i) => ({ p, i, key: i - MAX_CLIMB * affinityOf(p, profile) }))
   const ordered = [...keyed].sort((a, b) => a.key - b.key || a.i - b.i)

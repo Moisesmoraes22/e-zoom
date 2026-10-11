@@ -23,6 +23,7 @@ import {
   countByStore,
   EMPTY_FILTERS,
   isPriceRange,
+  PAGE_SIZE,
   type PriceRange,
   filterProducts,
   SORT_PARAMS,
@@ -32,6 +33,7 @@ import {
 import type { CategoryCount } from "@/lib/deals"
 import { buildProfile, INTERESTS_KEY, MIN_PROFILE_WEIGHT, personalizeOrder, recordSearch } from "@/lib/interest-profile"
 import { usePersonalize } from "@/lib/use-interests"
+import { useCards } from "@/lib/use-cards"
 import { STORES } from "@/lib/mock-data"
 import { DJ_TYPES, djTypeOf } from "@/lib/dj-types"
 import { SUPPLEMENT_TYPES, supplementTypeOf } from "@/lib/supplement-types"
@@ -41,13 +43,13 @@ const KINDS: Record<string, { label: string; types: readonly { value: string; la
   suplementos: { label: "Tipo de suplemento", types: SUPPLEMENT_TYPES, typeOf: supplementTypeOf },
   dj: { label: "Tipo de produto de DJ", types: DJ_TYPES, typeOf: djTypeOf },
 }
-import type { Product, SortOption, StoreSource } from "@/lib/types"
-
-// 25 = 5 columns x 5 rows on wide screens (the grid has five columns from 1536 px).
-const PAGE_SIZE = 25
+import type { Product, SearchItem, SortOption, StoreSource } from "@/lib/types"
 
 interface SearchResultsProps {
-  products: Product[]
+  /** Search fields only; the cards of the visible page come from `seedCards` or /api/cards. */
+  products: SearchItem[]
+  /** Full offers of the default first page, so it shows without a request. */
+  seedCards: Product[]
   categories: CategoryCount[]
   categorySlug?: string
   categoryName?: string
@@ -76,24 +78,9 @@ export function SearchResults(props: SearchResultsProps) {
   )
 }
 
-/**
- * The same list with no URL filters. It is the Suspense fallback of the pages, so the HTML a
- * search engine (or a slow phone) receives already has the title and the first offers, instead
- * of an empty shell that the browser fills in later.
- */
-export function SearchResultsStatic(props: SearchResultsProps) {
-  return (
-    <SearchResultsInner
-      {...props}
-      searchParams={new URLSearchParams()}
-      initialStores={[]}
-      initialPriceRanges={[]}
-    />
-  )
-}
-
 function SearchResultsInner({
   products,
+  seedCards,
   categories,
   categorySlug,
   categoryName,
@@ -204,6 +191,7 @@ function SearchResultsInner({
   const totalPages = Math.max(1, Math.ceil(results.length / PAGE_SIZE))
   const page = Math.min(pageState.key === pageKey ? pageState.page : 1, totalPages)
   const visible = ordered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+  const { cards, failed, retry } = useCards(visible.map((p) => p.id), seedCards)
   const gridRef = useRef<HTMLDivElement>(null)
   const goToPage = (next: number) => {
     setPageState({ page: next, key: pageKey })
@@ -339,14 +327,27 @@ function SearchResultsInner({
                 ref={gridRef}
                 className="grid scroll-mt-24 grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"
               >
-                {visible.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    label={boosted.has(product.id) ? "Combina com seus interesses" : undefined}
-                  />
-                ))}
+                {visible.map((item) => {
+                  const product = cards.get(item.id)
+                  return product ? (
+                    <ProductCard
+                      key={item.id}
+                      product={product}
+                      label={boosted.has(item.id) ? "Combina com seus interesses" : undefined}
+                    />
+                  ) : (
+                    <div key={item.id} aria-hidden className="h-80 animate-pulse rounded-2xl bg-muted" />
+                  )
+                })}
               </div>
+              {failed && (
+                <p role="status" className="mt-4 text-center text-sm text-muted-foreground">
+                  Não foi possível carregar algumas ofertas.{" "}
+                  <button type="button" onClick={retry} className="font-semibold text-brand underline-offset-2 hover:underline">
+                    Tentar de novo
+                  </button>
+                </p>
+              )}
               <Pagination page={page} totalPages={totalPages} onChange={goToPage} />
             </>
           )}

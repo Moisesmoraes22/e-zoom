@@ -1,6 +1,6 @@
 import { CATEGORIES } from "@/lib/mock-data"
 import { heroRank } from "@/lib/hero-select"
-import type { Product } from "@/lib/types"
+import type { Product, SearchItem } from "@/lib/types"
 import { calculateDiscountPercent } from "@/lib/utils"
 
 export interface CategoryCount {
@@ -42,7 +42,7 @@ export function categoryCounts(products: Product[], withCovers = false): Categor
     .sort((a, b) => b.count - a.count)
 }
 
-export const discountOf = (p: Product) =>
+export const discountOf = (p: Pick<Product, "price" | "originalPrice">) =>
   calculateDiscountPercent(p.price, p.originalPrice)
 
 /** How much cheaper than the recorded previous price, in R$. Null when there is none. */
@@ -92,14 +92,14 @@ const FRESHNESS_HALF_LIFE_H = 48
 export const MIN_CLICKS = 3
 
 /** 1 = price seen just now, 0.5 after 48h, 0.25 after 96h. Unknown age counts as old. */
-export function freshness(p: Product, now: number) {
+export function freshness(p: Pick<Product, "seenAt" | "createdAt">, now: number) {
   const seen = Date.parse(p.seenAt ?? p.createdAt ?? "")
   if (Number.isNaN(seen)) return 0.3
   return 0.5 ** (Math.max(0, now - seen) / (FRESHNESS_HALF_LIFE_H * 3_600_000))
 }
 
 /** Internal ordering score (never shown): real price signals + store rating, weighed by how recent the price is. */
-export function offerScore(p: Product, now: number) {
+export function offerScore(p: SearchItem, now: number) {
   const rated = p.rating ? (p.rating - 4) * 10 : 0
   const popular = p.popularity ? Math.log10(1 + p.popularity) * 4 : 0 // 10 -> ~4, 10,000 -> ~16
   // Real interest from our own visitors. Ignored below MIN_CLICKS (a couple of clicks is noise)
@@ -115,14 +115,14 @@ export function offerScore(p: Product, now: number) {
  * share grows with the square root of its size (not linearly) and with how recent its
  * prices are on average: fresh data earns more room, a stale snapshot less.
  */
-export function byRelevance(products: Product[], now = Date.now()) {
-  const stores = new Map<string, { p: Product; score: number }[]>()
+export function byRelevance<T extends SearchItem>(products: T[], now = Date.now()): T[] {
+  const stores = new Map<string, { p: T; score: number }[]>()
   for (const p of products) {
     const list = stores.get(p.store) ?? []
     list.push({ p, score: offerScore(p, now) })
     stores.set(p.store, list)
   }
-  const merged: { p: Product; score: number; key: number }[] = []
+  const merged: { p: T; score: number; key: number }[] = []
   for (const list of stores.values()) {
     list.sort((a, b) => b.score - a.score)
     const weight = Math.max(0.25, list.reduce((sum, e) => sum + freshness(e.p, now), 0) / list.length)
@@ -132,8 +132,8 @@ export function byRelevance(products: Product[], now = Date.now()) {
   // Other flavours / sellers of a product already listed go after everything else:
   // still reachable, but a shelf never shows the same product three times.
   const seen = new Set<string>()
-  const first: Product[] = []
-  const repeats: Product[] = []
+  const first: T[] = []
+  const repeats: T[] = []
   for (const p of ranked) {
     const key = variantKey(p.title)
     ;(seen.has(key) ? repeats : first).push(p)

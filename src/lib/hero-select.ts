@@ -8,7 +8,7 @@ const MAX_PER_STORE = 2
 const MAX_PER_CATEGORY = 2
 const DAY = 86_400_000
 
-const discountOf = (p: Product) =>
+const discountOf = (p: Pick<Product, "price" | "originalPrice">) =>
   p.originalPrice && p.originalPrice > p.price
     ? Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100)
     : null
@@ -17,7 +17,7 @@ const discountOf = (p: Product) =>
  * Internal ordering only (never shown): how much real price information backs
  * an offer. Every term comes from recorded data; nothing is assumed.
  */
-export function heroRank(p: Product, now: number): number {
+export function heroRank(p: Pick<Product, "price" | "originalPrice" | "priceHistory" | "createdAt">, now: number): number {
   const discount = discountOf(p) ?? 0
   const history = p.priceHistory ?? []
   const hasHistory = history.length >= 2

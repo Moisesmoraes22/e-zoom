@@ -52,6 +52,13 @@ export interface Product {
   productId?: string
 }
 
+/** What search, sorting and ranking read. The list pages carry only this per offer; the cards are fetched for the visible ones. */
+export type SearchItem = Pick<
+  Product,
+  | "id" | "title" | "price" | "originalPrice" | "category" | "store" | "isFreeShipping"
+  | "createdAt" | "seenAt" | "rating" | "popularity" | "clicks" | "priceHistory"
+>
+
 export interface ProductOffer {
   store: StoreSource
   price: number

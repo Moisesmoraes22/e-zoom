@@ -1,9 +1,11 @@
 import { Suspense } from "react"
 
-import { SearchResults, SearchResultsStatic } from "@/components/search-results"
+import { ListingFallback } from "@/components/listing-fallback"
+import { SearchResults } from "@/components/search-results"
 import { SiteFooter } from "@/components/site-footer"
 import { categoryCounts } from "@/lib/deals"
 import { getCatalog } from "@/lib/offers"
+import { PAGE_SIZE, sortProducts, toSearchItem } from "@/lib/search"
 
 export const metadata = {
   title: "Buscar ofertas",
@@ -15,11 +17,16 @@ export const revalidate = 1800
 
 export default async function BuscaPage() {
   const { products } = await getCatalog()
-  const props = { products, categories: categoryCounts(products) }
+  const seedCards = sortProducts(products, "relevance").slice(0, PAGE_SIZE)
   return (
     <main id="conteudo" className="min-h-screen bg-background">
-      <Suspense fallback={<SearchResultsStatic {...props} />}>
-        <SearchResults {...props} />
+      {/* The fallback is what the static HTML carries: the title and the first offers, as links. */}
+      <Suspense fallback={<ListingFallback title="Todas as ofertas" total={products.length} cards={seedCards} />}>
+        <SearchResults
+          products={products.map(toSearchItem)}
+          seedCards={seedCards}
+          categories={categoryCounts(products)}
+        />
       </Suspense>
       <SiteFooter />
     </main>

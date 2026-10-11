@@ -2,7 +2,7 @@ import { djTypeOf } from "@/lib/dj-types"
 import { SUPPLEMENT_TYPES, supplementTypeOf } from "@/lib/supplement-types"
 import { unitPrice } from "@/lib/unit-price"
 import { byRelevance } from "@/lib/deals"
-import type { Product, SortOption, StoreSource } from "@/lib/types"
+import type { Product, SearchItem, SortOption, StoreSource } from "@/lib/types"
 import { calculateDiscountPercent } from "@/lib/utils"
 
 /**
@@ -152,6 +152,21 @@ export function matchTier(title: string, groups: string[][]): number {
   return groups[0].some((a) => head.startsWith(` ${a} `)) ? 3 : 2
 }
 
+/** Offers per results page (the cards of one page are fetched together): 5 columns x 5 rows on wide screens. */
+export const PAGE_SIZE = 25
+
+const SEARCH_FIELDS = [
+  "id", "title", "price", "originalPrice", "category", "store", "isFreeShipping",
+  "createdAt", "seenAt", "rating", "popularity", "clicks", "priceHistory",
+] as const satisfies readonly (keyof SearchItem)[]
+
+/** The few fields search needs, unset ones left out, so the list pages stay light. */
+export function toSearchItem(p: Product): SearchItem {
+  const item: Record<string, unknown> = {}
+  for (const key of SEARCH_FIELDS) if (p[key] !== undefined) item[key] = p[key]
+  return item as unknown as SearchItem
+}
+
 /** Price buckets shared by the filter panel, the filter chips and the home section. */
 export const PRICE_RANGES = [
   { value: "0-50", label: "Até R$ 50", min: 0, max: 50 },
@@ -189,10 +204,10 @@ function matchesPriceRange(price: number, value: PriceRange) {
   return (price > range.min || (range.min === 0 && price >= 0)) && price <= range.max
 }
 
-export function filterProducts(
-  products: Product[],
+export function filterProducts<T extends SearchItem>(
+  products: T[],
   filters: ProductFilters,
-): Product[] {
+): T[] {
   const groups = queryGroups(filters.query ?? "")
   // Something was typed but nothing in it is searchable ("日本語", "!!!"): no results, not the whole catalogue.
   if (groups.length === 0 && (filters.query ?? "").trim() !== "") return []
@@ -223,13 +238,13 @@ export function filterProducts(
 }
 
 /** Real discount only: products without a recorded previous price count as 0. */
-const discountOf = (p: Product) =>
+const discountOf = (p: Pick<Product, "price" | "originalPrice">) =>
   calculateDiscountPercent(p.price, p.originalPrice) ?? 0
 
 /** On a DJ-only list the centre of the niche (controllers, CDJs, mixers) comes first; the usual order is kept inside each group. */
-function djFirst(ranked: Product[]) {
+function djFirst<T extends SearchItem>(ranked: T[]) {
   if (ranked.length === 0 || !ranked.every((p) => p.category === "dj")) return ranked
-  const core = (p: Product) => djTypeOf(p.title) === "controladoras"
+  const core = (p: T) => djTypeOf(p.title) === "controladoras"
   return [...ranked.filter(core), ...ranked.filter((p) => !core(p))]
 }
 
@@ -237,7 +252,7 @@ function djFirst(ranked: Product[]) {
 const ACCESSORY =
   /\b(capa|capas|capinha|capinhas|case|cases|pelicula|peliculas|carregador|carregadores|cabo|cabos|suporte|suportes|adaptador|bateria|protetor|pulseira|power ?bank|microfone|lapela|gamepad|compativel|refil|kit)\b/
 
-export function sortProducts(products: Product[], sort: SortOption, query = "") {
+export function sortProducts<T extends SearchItem>(products: T[], sort: SortOption, query = ""): T[] {
   const sorted = [...products]
   switch (sort) {
     case "price_asc":
@@ -250,7 +265,7 @@ export function sortProducts(products: Product[], sort: SortOption, query = "") 
     case "unit_price": {
       // Per kind of supplement (price per kg is only comparable inside the same kind),
       // cheapest first; per kg before per 100 capsules; unclear sizes go last.
-      const rank = (p: Product) => {
+      const rank = (p: T) => {
         const u = unitPrice(p.title, p.price)
         if (!u) return Infinity
         const found = SUPPLEMENT_TYPES.findIndex((t) => t.value === supplementTypeOf(p.title))
@@ -287,7 +302,7 @@ export const SORT_PARAMS: Record<string, SortOption> = {
   "custo-beneficio": "unit_price",
 }
 
-export function countByStore(products: Product[]) {
+export function countByStore(products: Pick<Product, "store">[]) {
   return products.reduce(
     (acc, product) => {
       acc[product.store] = (acc[product.store] ?? 0) + 1
@@ -298,7 +313,7 @@ export function countByStore(products: Product[]) {
 }
 
 /** How many offers fall in each price bucket (all of them, regardless of other filters). */
-export function countByPriceRange(products: Product[]) {
+export function countByPriceRange(products: Pick<Product, "price">[]) {
   return PRICE_RANGES.map((range) => ({
     ...range,
     count: products.filter((p) => matchesPriceRange(p.price, range.value)).length,
@@ -325,7 +340,7 @@ export function editDistance(a: string, b: string) {
  * fixed to a common word ("nke" -> "nike"); a word that is really two run together
  * ("airfyer") is split ("air fryer").
  */
-export function correctQuery(query: string, products: Product[]): string | null {
+export function correctQuery(query: string, products: Pick<Product, "title">[]): string | null {
   const words = normalizeText(query).replace(/[^a-z0-9 ]+/g, " ").split(/\s+/).filter(Boolean)
   const freq = new Map<string, number>()
   for (const p of products) {
