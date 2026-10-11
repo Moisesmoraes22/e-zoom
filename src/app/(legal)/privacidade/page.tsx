@@ -8,7 +8,7 @@ export default function PrivacyPage() {
   return (
     <>
       <h1>Política de Privacidade</h1>
-      <p>Última atualização: 8 de outubro de 2026.</p>
+      <p>Última atualização: 11 de outubro de 2026.</p>
       <p>
         Esta política explica quais dados o E-Zooom coleta, para quê, e como você pode exercer seus direitos
         previstos na Lei Geral de Proteção de Dados (LGPD, Lei 13.709/2018).
@@ -72,6 +72,19 @@ export default function PrivacyPage() {
         Se você recusar, o Clarity não é carregado e nada muda no uso do site. Você pode mudar de ideia a qualquer
         momento em &quot;Preferências de cookies&quot;, no rodapé. Base legal: consentimento. Os dados são tratados pela
         Microsoft, que pode armazená-los fora do Brasil.
+      </p>
+      <p>
+        <strong>Google AdSense (somente se você aceitar).</strong> O site pode exibir anúncios do Google AdSense, que
+        usam cookies para mostrar anúncios e medir seus resultados, inclusive anúncios baseados nos seus interesses. O
+        script do AdSense só é carregado se você aceitar o aviso de cookies; se recusar, nenhum anúncio do Google é
+        carregado. Você pode mudar a escolha em &quot;Preferências de cookies&quot;, no rodapé, e também gerenciar
+        anúncios personalizados nas configurações da sua conta Google. Base legal: consentimento. O Google trata os
+        dados e pode armazená-los fora do Brasil.
+      </p>
+      <p>
+        <strong>Pedidos de produtos e buscas.</strong> Quando uma busca não encontra nada, você pode pedir o produto.
+        Guardamos apenas o termo pedido e quantas vezes ele foi pedido, sem seu nome, e-mail ou endereço IP. Os
+        termos que você buscou recentemente ficam só no seu navegador e você pode apagá-los quando quiser.
       </p>
 
       <h2>5. Criando uma conta (opcional)</h2>
@@ -159,6 +172,10 @@ export default function PrivacyPage() {
           <strong>Microsoft (Clarity)</strong>: apenas se você aceitar o aviso de cookies, como explicado na seção 4.
         </li>
         <li>
+          <strong>Google (AdSense)</strong>: apenas se você aceitar o aviso de cookies, para exibir anúncios, como
+          explicado na seção 4.
+        </li>
+        <li>
           <strong>Have I Been Pwned (Pwned Passwords)</strong>: ao criar ou trocar a senha, seu navegador envia apenas
           os 5 primeiros caracteres de um código (hash) calculado a partir da senha, para saber se ela já vazou. A senha
           em si nunca sai do seu navegador e o serviço não consegue saber qual é.
@@ -176,8 +193,8 @@ export default function PrivacyPage() {
       <h2>8. Cookies e armazenamento local</h2>
       <p>
         Usamos o necessário: um cookie de sessão (quando você entra na conta) e o armazenamento local do navegador
-        descrito acima, incluindo a sua escolha sobre cookies. Não usamos cookies de publicidade. Cookies de análise
-        (do Microsoft Clarity) só são usados se você aceitar o aviso, e você pode mudar a escolha em
+        descrito acima, incluindo a sua escolha sobre cookies. Cookies de análise (do Microsoft Clarity) e de publicidade (do
+        Google AdSense) só são usados se você aceitar o aviso, e você pode mudar a escolha em
         &quot;Preferências de cookies&quot;, no rodapé.
       </p>
 

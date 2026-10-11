@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { setAnalyticsConsent, useAnalyticsConsent } from "@/lib/analytics-consent"
 
 const CLARITY_ID = "ytokdbgssy"
+const ADSENSE_CLIENT = "ca-pub-5930842502912656"
 
 /**
  * Microsoft Clarity records how pages are used (clicks, scrolling) and sets cookies, so it loads ONLY
@@ -35,6 +36,30 @@ export function ClarityLoader() {
     <Script id="clarity" strategy="afterInteractive">
       {`(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window,document,"clarity","script","${CLARITY_ID}");`}
     </Script>
+  )
+}
+
+/**
+ * Google AdSense sets advertising cookies, so its script loads ONLY after the same acceptance as the
+ * analytics. Taking the choice back erases nothing here: the cookies belong to Google and expire there,
+ * and the page is reloaded so no ad script keeps running.
+ */
+export function AdSenseLoader() {
+  const consent = useAnalyticsConsent()
+
+  useEffect(() => {
+    if ((consent === "no" || consent === "unset") && document.getElementById("adsense")) location.reload()
+  }, [consent])
+
+  if (consent !== "yes") return null
+  return (
+    <Script
+      id="adsense"
+      async
+      strategy="afterInteractive"
+      crossOrigin="anonymous"
+      src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
+    />
   )
 }
 
@@ -112,8 +137,8 @@ export function CookieBanner() {
           </motion.div>
 
           <motion.p variants={part} id="cookie-text" className="mt-2.5 text-sm leading-relaxed text-muted-foreground">
-            Com o Microsoft Clarity vemos onde as pessoas clicam e rolam, para melhorar o site. Se recusar, nada muda
-            para você.{" "}
+            Usamos o Microsoft Clarity (vemos onde as pessoas clicam e rolam, para melhorar o site) e o Google
+            AdSense (anúncios que ajudam a manter o site). Se recusar, nada muda para você.{" "}
             <Link href="/privacidade" className="whitespace-nowrap font-medium text-brand underline-offset-2 hover:underline">
               Saiba mais
             </Link>

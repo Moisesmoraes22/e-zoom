@@ -6,7 +6,7 @@ import { MotionConfig } from "framer-motion";
 import Script from "next/script";
 import "./globals.css";
 import { AuthProvider } from "@/components/auth-provider";
-import { ClarityLoader, CookieBanner } from "@/components/cookie-consent";
+import { AdSenseLoader, ClarityLoader, CookieBanner } from "@/components/cookie-consent";
 import { FavoritesFlightLayer } from "@/components/favorites-flight-layer";
 import { FavoritesSheet } from "@/components/favorites-sheet";
 import { RequestNotice } from "@/components/request-notice";
@@ -32,6 +32,8 @@ export const metadata: Metadata = {
   },
   description:
     "Hub de ofertas que reúne os melhores preços do Mercado Livre, Shopee e Amazon num só lugar.",
+  // Lets Google AdSense verify ownership of the site; it sets no cookie and loads no script.
+  other: { "google-adsense-account": "ca-pub-5930842502912656" },
   openGraph: {
     siteName: "E-Zooom",
     locale: "pt_BR",
@@ -74,6 +76,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         <Analytics />
         <SpeedInsights />
         <ClarityLoader />
+        <AdSenseLoader />
         <CookieBanner />
       </body>
     </html>
