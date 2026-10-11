@@ -1,5 +1,6 @@
 import { ArrowRight } from "lucide-react"
 import Link from "next/link"
+import type { ReactNode } from "react"
 
 import { ProductCard } from "@/components/product-card"
 import type { Product } from "@/lib/types"
@@ -12,6 +13,7 @@ export function FeaturedOffers({
   note = "Com desconto registrado ou preço visto hoje, de lojas diferentes, por desconto, avaliação e procura.",
   href = "/busca?ordenacao=relevancia",
   linkLabel = "Ver todas as ofertas",
+  aside,
 }: {
   offers: Product[]
   id?: string
@@ -19,6 +21,8 @@ export function FeaturedOffers({
   note?: string
   href?: string
   linkLabel?: string
+  /** Something small beside the title (a real countdown, for instance). */
+  aside?: ReactNode
 }) {
   if (offers.length === 0) return null
   return (
@@ -29,6 +33,7 @@ export function FeaturedOffers({
             {title}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">{note}</p>
+          {aside && <div className="mt-2">{aside}</div>}
         </div>
         <Link
           href={href}

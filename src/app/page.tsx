@@ -3,6 +3,7 @@ import { Fragment } from "react"
 
 import { CategoryGrid } from "@/components/category-grid"
 import { CouponsSection } from "@/components/coupons-section"
+import { DayCountdown } from "@/components/day-countdown"
 import { FeaturedOffers } from "@/components/featured-offers"
 import { HomeHero } from "@/components/home-hero"
 import { HowToBuy } from "@/components/how-to-buy"
@@ -223,10 +224,10 @@ function pickFeatured(products: Product[]): Product[] {
 }
 
 /** Real price drops (recorded) seen in the last two days, biggest drop first. */
-function pickDrops(products: Product[], skip: Set<string>, now = Date.now()): Product[] {
+function pickDrops(products: Product[], skip: Set<string>, now = Date.now(), windowH = DROP_WINDOW_H): Product[] {
   const drop = (p: Product) => (p.priceHistory ? 1 - p.price / p.priceHistory.at(-2)! : 0)
   return products
-    .filter((p) => !skip.has(p.id) && p.isPriceDrop && p.dropAt && now - Date.parse(p.dropAt) < DROP_WINDOW_H * 3_600_000)
+    .filter((p) => !skip.has(p.id) && p.isPriceDrop && p.dropAt && now - Date.parse(p.dropAt) < windowH * 3_600_000)
     .sort((a, b) => drop(b) - drop(a))
     .slice(0, SHELF)
 }
@@ -262,7 +263,13 @@ export default async function Home() {
   const { products, live } = await getCatalog()
   const featured = live ? pickFeatured(products) : []
   const shown = new Set(featured.map((p) => p.id))
-  const drops = live ? pickDrops(products, shown) : []
+  // "Ofertas do dia": prices that fell since midnight in Brasília, so the list really renews at midnight.
+  // With too few of them (early in the day) the shelf falls back to the last 48 hours, without a clock.
+  const now = Date.now()
+  const sinceMidnightH = ((now - 3 * 3_600_000) % 86_400_000) / 3_600_000
+  const today = live ? pickDrops(products, shown, now, sinceMidnightH) : []
+  const isToday = today.length >= SHELF_MIN
+  const drops = isToday ? today : live ? pickDrops(products, shown, now) : []
   drops.forEach((p) => shown.add(p.id))
   // Only what visitors really opened (3+ clicks); with little traffic the shelf simply does not appear.
   const popular = live ? byClicks(products.filter((p) => !shown.has(p.id))).slice(0, SHELF) : []
@@ -299,8 +306,13 @@ export default async function Home() {
         <FeaturedOffers
           offers={drops}
           id="baixou"
-          title="Baixou de preço"
-          note="Quedas que registramos nas últimas 48 horas, da maior para a menor."
+          title={isToday ? "Ofertas do dia" : "Baixou de preço"}
+          note={
+            isToday
+              ? "Preços que caíram hoje, da maior queda para a menor. A lista renova à meia-noite (horário de Brasília)."
+              : "Quedas que registramos nas últimas 48 horas, da maior para a menor."
+          }
+          aside={isToday ? <DayCountdown /> : undefined}
           href="/busca?ordenacao=desconto"
           linkLabel="Ver ofertas com desconto"
         />

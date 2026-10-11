@@ -121,10 +121,14 @@ export function ProductCard({
               >
                 {formatCurrency(product.price)}
               </span>
-              {product.isFreeShipping && (
+              {product.isFreeShipping ? (
                 <span className="ml-auto flex items-center gap-1 pb-1 text-xs font-semibold text-success">
                   <Truck className="h-3.5 w-3.5" aria-hidden />
                   Frete grátis
+                </span>
+              ) : (
+                <span className="ml-auto whitespace-nowrap pb-1 text-[11px] text-muted-foreground">
+                  Frete e condições na loja
                 </span>
               )}
             </div>
@@ -160,7 +164,6 @@ export function ProductCard({
           )}
 
           <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 pt-1 text-xs">
-            {!product.isFreeShipping && <span className="text-muted-foreground">Frete e condições na loja</span>}
             {product.rating && (
               <span className="flex items-center gap-1 text-muted-foreground">
                 <Star className="h-3.5 w-3.5 fill-primary text-primary" aria-hidden />
@@ -193,13 +196,13 @@ export function ProductCard({
           product={product}
           store={product.store}
           affiliateUrl={product.affiliateUrl}
-          className="group/cta flex min-h-11 items-center justify-center gap-1.5 rounded-lg bg-cta py-2 text-sm font-bold text-cta-foreground transition-colors duration-200 hover:bg-cta-hover active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          className="group/cta flex min-h-11 items-center justify-center gap-1.5 rounded-lg bg-cta px-2 py-2 text-[13px] font-bold sm:text-sm text-cta-foreground transition-colors duration-200 hover:bg-cta-hover active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         >
           <span className="text-center leading-tight">
             {cut ? "Quero aproveitar esse desconto" : `Ver ${product.store === "mercado_livre" ? "no" : "na"} ${store.name}`}
           </span>
           <ArrowUpRight
-            className="h-4 w-4 transition-transform duration-200 group-hover/cta:-translate-y-0.5 group-hover/cta:translate-x-0.5"
+            className="hidden h-4 w-4 shrink-0 transition-transform sm:block duration-200 group-hover/cta:-translate-y-0.5 group-hover/cta:translate-x-0.5"
             aria-hidden
           />
         </OfferLink>
