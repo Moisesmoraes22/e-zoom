@@ -305,13 +305,16 @@ export const getOffer = cache(async (id: string): Promise<Product | null> => {
     .order("recorded_at", { ascending: true })
     .limit(60)
   const prices = (history ?? []).map((h) => Number(h.price))
+  // Opens of "Ver oferta" in the last 14 days (the same window as the ranking); a failed call just shows none.
+  const { data: opened } = await supabase.rpc("offer_click_count", { p_offer: id, p_days: 14 })
+  const clicks = typeof opened === "number" && opened > 0 ? opened : undefined
   let dropAt: string | undefined
   ;(history ?? []).forEach((h, i) => {
     if (i === 0) return
     if (isCredibleDrop(prices[i - 1], prices[i])) dropAt = h.recorded_at as string
     else dropAt = undefined
   })
-  return withoutUndefined({ ...rowToProduct(row as unknown as OfferRow, prices), dropAt })
+  return withoutUndefined({ ...rowToProduct(row as unknown as OfferRow, prices), dropAt, clicks })
 })
 
 /**

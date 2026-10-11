@@ -20,10 +20,16 @@ function ageOf(iso: string): Age {
 export function TimeAgo({
   iso,
   relativeOnly = false,
+  fallback,
+  title,
 }: {
   iso: string
   /** Render nothing until hydration instead of the absolute date (when it is shown next to it). */
   relativeOnly?: boolean
+  /** Text for the server render and before hydration, instead of the absolute date ("recentemente"). */
+  fallback?: string
+  /** Tooltip; the default says when the price was seen. */
+  title?: string
 }) {
   const relative = useSyncExternalStore(
     subscribe,
@@ -31,8 +37,8 @@ export function TimeAgo({
     () => null,
   )
   return (
-    <time dateTime={iso} title={`Preço visto em ${formatSeenAt(iso)}`}>
-      {relative ?? (relativeOnly ? "" : formatSeenAt(iso))}
+    <time dateTime={iso} title={title ?? `Preço visto em ${formatSeenAt(iso)}`}>
+      {relative ?? fallback ?? (relativeOnly ? "" : formatSeenAt(iso))}
     </time>
   )
 }

@@ -3,10 +3,11 @@
 import { AnimatePresence, motion } from "framer-motion"
 import { useRef } from "react"
 import Link from "next/link"
-import { ArrowUpRight, Bookmark, Star, Truck } from "lucide-react"
+import { ArrowUpRight, Bookmark, Flame, Star, Truck } from "lucide-react"
 
 import { OfferLink } from "@/components/offer-link"
 import { StoreLogo } from "@/components/store-logo"
+import { TimeAgo } from "@/components/time-ago"
 import { discountOf } from "@/lib/deals"
 import { useFavorites } from "@/lib/favorites-context"
 import { cardImage } from "@/lib/image-url"
@@ -125,6 +126,22 @@ export function ProductCard({
             <span className="text-xs font-semibold text-success">
               Caiu de {formatCurrency(product.priceHistory[product.priceHistory.length - 2])}
             </span>
+          )}
+
+          {((product.clicks ?? 0) >= 3 || (discount && product.dropAt)) && (
+            <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] font-semibold">
+              {discount && product.dropAt && (
+                <span className="text-success">
+                  Caiu <TimeAgo iso={product.dropAt} fallback="recentemente" title="Quando o preço caiu pela última vez" />
+                </span>
+              )}
+              {(product.clicks ?? 0) >= 3 && (
+                <span className="inline-flex items-center gap-1 text-brand">
+                  <Flame className="h-3 w-3" aria-hidden />
+                  {product.clicks} aberturas
+                </span>
+              )}
+            </div>
           )}
 
           {product.installments && (

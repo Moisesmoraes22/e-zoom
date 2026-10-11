@@ -10,6 +10,7 @@ import {
   CheckCircle2,
   ChevronRight,
   Clock,
+  Flame,
   Info,
   LineChart,
   MessageSquareText,
@@ -177,6 +178,35 @@ export function ProductDetail({
               </p>
             </div>
 
+            {/* Real signals only: when the price fell, how many times the offer was opened, and when we saw it. */}
+            {(product.dropAt || (product.clicks ?? 0) >= 3 || product.seenAt) && (
+              <ul className="mt-4 flex flex-wrap gap-2 text-xs font-semibold">
+                {product.dropAt && (
+                  <li className="inline-flex items-center gap-1.5 rounded-full bg-success/10 px-2.5 py-1 text-success">
+                    <TrendingDown className="h-3.5 w-3.5" aria-hidden />
+                    <span>
+                      Caiu{" "}
+                      <TimeAgo iso={product.dropAt} fallback="recentemente" title="Quando o preço caiu pela última vez" />
+                    </span>
+                  </li>
+                )}
+                {(product.clicks ?? 0) >= 3 && (
+                  <li className="inline-flex items-center gap-1.5 rounded-full bg-brand/10 px-2.5 py-1 text-brand">
+                    <Flame className="h-3.5 w-3.5" aria-hidden />
+                    Aberta {product.clicks} vezes nos últimos 14 dias
+                  </li>
+                )}
+                {product.seenAt && (
+                  <li className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-muted-foreground">
+                    <Clock className="h-3.5 w-3.5" aria-hidden />
+                    <span>
+                      Preço visto <TimeAgo iso={product.seenAt} fallback="recentemente" />
+                    </span>
+                  </li>
+                )}
+              </ul>
+            )}
+
             {/* Old price first, with what is saved beside it, then the current price: the order says "was ... now". */}
             {product.originalPrice && discount && (
               <p className="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm">
@@ -219,14 +249,6 @@ export function ProductDetail({
                   </span>
                 )}
               </li>
-              {product.seenAt && (
-                <li className="flex items-center gap-2.5">
-                  <Clock className="h-5 w-5 shrink-0 text-muted-foreground" aria-hidden />
-                  <span>
-                    Última verificação: <TimeAgo iso={product.seenAt} relativeOnly />
-                  </span>
-                </li>
-              )}
             </ul>
 
             <Button
