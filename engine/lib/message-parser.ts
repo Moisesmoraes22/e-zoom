@@ -65,7 +65,7 @@ const SLOGAN =
 // Lines about payment or the buy box ("Até 7x de sem juros", "Selecione a opção de compra"),
 // which are never a product name.
 const NOT_A_TITLE =
-  /sem juros|\b\d{1,2}\s?x\s*(de|sem|no)\b|selecione|programe e poupe|op[cç][aã]o de compra|^cupom\s*:|\boff em\b|compras a partir de|limitado a|\bm[aá]x\.? de\b/i
+  /sem juros|\b\d{1,2}\s?x\s*(de|sem|no)\b|selecione|programe e poupe|op[cç][aã]o de compra|^cupom\s*:|\boff em\b|compras a partir de|limitado a|\bm[aá]x\.? de\b|^[-–\s]*\d{1,2}\s?%\s*off\b|\boff\b.*\blimite\b/i
 
 // Chatty promo lines ("A RAPUNZEL USAVA ESSE", "PRA QUEM GOSTA DO LEITE CREMOSO") that name no product.
 const CHATTER =
@@ -147,6 +147,9 @@ if (process.argv[1]?.endsWith("message-parser.ts")) {
   // Store-wide coupon posts have no product: no title, so the offer is skipped.
   console.assert(extractTitle(["Ganhe 10% off em compras a partir de R$ 30 (limitado a R$ 15)", "R$ 15"].join(nl)) === null)
   console.assert(extractTitle(["Cupom: DOMINGO10 -15% OFF em R$ 200, máx de R$ 30 OFF", "R$ 30"].join(nl)) === null)
+  console.assert(extractTitle(["10% OFF acima de R$ 150, limite R$ 30: ULTIMO10DO10", "R$ 60"].join(nl)) === null)
+  console.assert(extractTitle(["- 10% OFF em R$ 150 - Limite R$ 15 OFF: 10DO10PRIME", "R$ 150"].join(nl)) === null)
+  console.assert(extractTitle(["Cadeira Gamer Preta com 20% OFF na lojinha", "R$ 599"].join(nl)) !== null)
   const nope = ["A RAPUNZEL USAVA ESSE", "CADA ROLO FOLHA TRIPLA", "PRA QUEM GOSTA DO LEITE CREMOSO", "PERFUMAÇO DA ARMANI, parceladinho tá valendo", "REDBULL ZERO TÁ LIBERADO"]
   for (const t of nope) console.assert(extractTitle([t, "R$ 10"].join(nl)) === null, t)
   console.assert(extractTitle(["Apple iPhone 18 Pro de 256 GB — Preto", "R$ 9000"].join(nl)) !== null)

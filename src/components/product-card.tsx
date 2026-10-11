@@ -8,7 +8,7 @@ import { ArrowUpRight, Bookmark, Flame, Star, Truck } from "lucide-react"
 import { OfferLink } from "@/components/offer-link"
 import { StoreLogo } from "@/components/store-logo"
 import { TimeAgo } from "@/components/time-ago"
-import { discountOf } from "@/lib/deals"
+import { discountOf, priceCut } from "@/lib/deals"
 import { useFavorites } from "@/lib/favorites-context"
 import { cardImage } from "@/lib/image-url"
 import { STORES } from "@/lib/mock-data"
@@ -40,6 +40,7 @@ export function ProductCard({
   const favorited = isFavorite(product.id)
   const buttonRef = useRef<HTMLButtonElement>(null)
   const discount = discountOf(product)
+  const cut = priceCut(product)
   const store = STORES[product.store]
 
   const handleToggle = (event: React.MouseEvent) => {
@@ -68,9 +69,9 @@ export function ProductCard({
         className="flex flex-1 flex-col transition-transform duration-150 active:scale-[0.99]"
       >
         <div className="relative aspect-square w-full">
-          {discount && product.originalPrice && (
+          {cut && (
             <span className="absolute left-3 top-1.5 z-10 rounded-md bg-cta px-1.5 py-0.5 text-[11px] font-bold text-cta-foreground">
-              Economize {formatCurrency(product.originalPrice - product.price)}
+              Economize {formatCurrency(cut)}
             </span>
           )}
           <div
@@ -189,7 +190,7 @@ export function ProductCard({
           className="group/cta flex min-h-11 items-center justify-center gap-1.5 rounded-lg bg-cta py-2 text-sm font-bold text-cta-foreground transition-colors duration-200 hover:bg-cta-hover active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         >
           <span className="text-center leading-tight">
-            {discount ? "Quero aproveitar esse desconto" : `Ver ${product.store === "mercado_livre" ? "no" : "na"} ${store.name}`}
+            {cut ? "Quero aproveitar esse desconto" : `Ver ${product.store === "mercado_livre" ? "no" : "na"} ${store.name}`}
           </span>
           <ArrowUpRight
             className="h-4 w-4 transition-transform duration-200 group-hover/cta:-translate-y-0.5 group-hover/cta:translate-x-0.5"

@@ -49,6 +49,21 @@ export const discountOf = (p: Pick<Product, "price" | "originalPrice">) =>
 export const savingsOf = (p: Product) =>
   p.originalPrice && p.originalPrice > p.price ? p.originalPrice - p.price : null
 
+/**
+ * What the buyer saves, in R$: against the store's previous price, or, when the store gives none,
+ * against the price we recorded just before a credible drop. Null when neither exists.
+ */
+export function priceCut(
+  p: Pick<Product, "price" | "originalPrice" | "isPriceDrop" | "priceHistory">,
+): number | null {
+  if (p.originalPrice && p.originalPrice > p.price) return p.originalPrice - p.price
+  if (p.isPriceDrop && p.priceHistory && p.priceHistory.length >= 2) {
+    const before = p.priceHistory[p.priceHistory.length - 2]
+    if (before > p.price) return before - p.price
+  }
+  return null
+}
+
 export const byDiscount = (products: Product[]) =>
   products
     .filter((p) => discountOf(p))

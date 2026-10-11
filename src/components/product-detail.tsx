@@ -29,7 +29,7 @@ import { StoreBadge } from "@/components/store-badge"
 import { StoreLogo } from "@/components/store-logo"
 import { TimeAgo } from "@/components/time-ago"
 import { Button } from "@/components/ui/button"
-import { discountOf, savingsOf } from "@/lib/deals"
+import { discountOf, priceCut, savingsOf } from "@/lib/deals"
 import { useFavorites } from "@/lib/favorites-context"
 import { recordProduct } from "@/lib/interest-profile"
 import { SELLER_LEADER_LABEL } from "@/lib/seller-leader"
@@ -257,7 +257,7 @@ export function ProductDetail({
               className="mt-5 h-12 w-full gap-2 rounded-lg bg-cta text-base font-bold text-cta-foreground shadow-lg shadow-cta/30 ring-offset-2 hover:bg-cta-hover"
             >
               <OfferLink product={product} store={bestOffer.store} affiliateUrl={bestOffer.affiliateUrl}>
-                {discount ? "Quero aproveitar esse desconto" : `Ver oferta ${into} ${store.name}`}
+                {priceCut(product) ? "Quero aproveitar esse desconto" : `Ver oferta ${into} ${store.name}`}
                 <ArrowUpRight className="h-5 w-5" aria-hidden />
               </OfferLink>
             </Button>
