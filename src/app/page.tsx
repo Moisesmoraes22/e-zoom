@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { Fragment } from "react"
 
 import { CategoryGrid } from "@/components/category-grid"
 import { CouponsSection } from "@/components/coupons-section"
@@ -317,19 +318,22 @@ export default async function Home() {
       {highlighted.length >= 4 && (
         <CategoryGrid categories={highlighted} showCounts={live} title="Categorias em destaque" />
       )}
+      {/* Right after Electronics; if that shelf is empty, before the first shelf. */}
+      {!rows.some((row) => row.slug === "eletronicos") && <PriceChips />}
       {rows.map((row) => (
-        <ProductRow
-          key={row.slug}
-          title={row.title}
-          products={row.items}
-          href={`/categoria/${row.slug}`}
-          linkLabel={row.linkLabel}
-          chips={row.chips.length === 0 ? undefined : row.chips.map((c) => ({ label: c.label, href: `/busca?q=${encodeURIComponent(c.q)}` }))}
-        />
+        <Fragment key={row.slug}>
+          <ProductRow
+            title={row.title}
+            products={row.items}
+            href={`/categoria/${row.slug}`}
+            linkLabel={row.linkLabel}
+            chips={row.chips.length === 0 ? undefined : row.chips.map((c) => ({ label: c.label, href: `/busca?q=${encodeURIComponent(c.q)}` }))}
+          />
+          {row.slug === "eletronicos" && <PriceChips />}
+        </Fragment>
       ))}
       <InterestsSection products={products} />
       <CouponsSection coupons={coupons} />
-      <PriceChips />
       <HowToBuy />
       <SiteFooter />
     </main>
