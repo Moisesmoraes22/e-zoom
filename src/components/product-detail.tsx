@@ -28,6 +28,7 @@ import { ShareButton } from "@/components/share-button"
 import { StoreBadge } from "@/components/store-badge"
 import { StoreLogo } from "@/components/store-logo"
 import { TimeAgo } from "@/components/time-ago"
+import { ViewCount } from "@/components/view-count"
 import { Button } from "@/components/ui/button"
 import { discountOf, priceCut, savingsOf } from "@/lib/deals"
 import { useFavorites } from "@/lib/favorites-context"
@@ -185,8 +186,9 @@ export function ProductDetail({
             </div>
 
             {/* Real signals only: when the price fell, how many times the offer was opened, and when we saw it. */}
-            {(product.dropAt || (product.clicks ?? 0) >= 3 || product.seenAt) && (
-              <ul className="mt-4 flex flex-wrap gap-2 text-xs font-semibold">
+            {(
+              <ul className="mt-4 flex flex-wrap gap-2 text-xs font-semibold empty:hidden">
+                <ViewCount offerId={product.id} />
                 {product.dropAt && (
                   <li className="inline-flex items-center gap-1.5 rounded-full bg-success/10 px-2.5 py-1 text-success">
                     <TrendingDown className="h-3.5 w-3.5" aria-hidden />
