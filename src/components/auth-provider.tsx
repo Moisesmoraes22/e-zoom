@@ -1,8 +1,13 @@
 "use client"
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react"
+import { usePathname } from "next/navigation"
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react"
 
-import { createClient, supabaseConfigured } from "@/lib/supabase/client"
+import { hasSessionCookie, supabaseConfigured } from "@/lib/supabase/config"
+
+// The Supabase browser library is about 90 KB gzipped, so a visitor without a stored session never
+// downloads it: it is imported only when the session cookie exists (or after a sign in, see below).
+const loadClient = () => import("@/lib/supabase/client").then((m) => m.createClient())
 
 export interface AuthUser {
   id: string
@@ -32,34 +37,50 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     status: supabaseConfigured ? "loading" : "anonymous",
     user: null,
   })
+  const pathname = usePathname()
+  const unsubscribe = useRef<(() => void) | null>(null)
 
   useEffect(() => {
-    if (!supabaseConfigured) return
-    const supabase = createClient()
-    // Fires once with the stored session, then on sign in, sign out, token refresh and
-    // expiry. Only state is set here: calling Supabase from this callback can deadlock.
-    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
-      const user = session?.user
-      setState(
-        user
-          ? {
-              status: "authenticated",
-              user: {
-                id: user.id,
-                email: user.email ?? null,
-                name: (user.user_metadata?.full_name as string | undefined) ?? null,
-              },
-            }
-          : { status: "anonymous", user: null },
-      )
+    if (!supabaseConfigured || unsubscribe.current) return
+    // No stored session: a visitor, with nothing to download. Checked again on each page, because a
+    // sign in (which sets the cookie) happens without reloading the layout.
+    if (!hasSessionCookie()) {
+      setState((s) => (s.status === "anonymous" ? s : { status: "anonymous", user: null }))
+      return
+    }
+    let cancelled = false
+    void loadClient().then((supabase) => {
+      if (cancelled || unsubscribe.current) return
+      // Fires once with the stored session, then on sign in, sign out, token refresh and
+      // expiry. Only state is set here: calling Supabase from this callback can deadlock.
+      const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+        const user = session?.user
+        setState(
+          user
+            ? {
+                status: "authenticated",
+                user: {
+                  id: user.id,
+                  email: user.email ?? null,
+                  name: (user.user_metadata?.full_name as string | undefined) ?? null,
+                },
+              }
+            : { status: "anonymous", user: null },
+        )
+      })
+      unsubscribe.current = () => data.subscription.unsubscribe()
     })
-    return () => data.subscription.unsubscribe()
-  }, [])
+    return () => {
+      cancelled = true
+    }
+  }, [pathname])
+
+  useEffect(() => () => unsubscribe.current?.(), [])
 
   const signOut = useCallback(async () => {
     // Revokes the refresh token and clears the session cookies; the listener above then
     // flips the UI back to visitor.
-    await createClient().auth.signOut()
+    await (await loadClient()).auth.signOut()
   }, [])
 
   const value = useMemo(() => ({ ...state, signOut }), [state, signOut])

@@ -1,22 +1,17 @@
 import { getCatalog } from "@/lib/offers"
+import { toSearchItem } from "@/lib/search"
 
-export const dynamic = "force-static"
-export const revalidate = 1800
+// The search fields of every offer, outside the page HTML: the page stays small and shows at once,
+// and the list (about 5 MB as JSON) is fetched afterwards, cached by the CDN and by the browser.
+// Served in parts so each response stays well under the platform's response size limit.
+const PART_SIZE = 4000
 
-/**
- * Light index of the live catalog for search suggestions and the favorites
- * sheet. Fetched lazily by the browser (first focus on a search box / first open
- * of favorites), so pages don't carry it in their own payload.
- */
-export async function GET() {
+export async function GET(request: Request) {
+  const part = Math.max(0, Number(new URL(request.url).searchParams.get("part")) || 0)
   const { products } = await getCatalog()
+  const items = products.slice(part * PART_SIZE, (part + 1) * PART_SIZE).map(toSearchItem)
   return Response.json(
-    products.map((p) => ({
-      id: p.id,
-      title: p.title,
-      price: p.price,
-      category: p.category,
-      store: p.store,
-    })),
+    { items, parts: Math.max(1, Math.ceil(products.length / PART_SIZE)) },
+    { headers: { "Cache-Control": "public, max-age=600, s-maxage=1800, stale-while-revalidate=3600" } },
   )
 }

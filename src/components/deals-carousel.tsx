@@ -1,6 +1,5 @@
 "use client"
 
-import { motion } from "framer-motion"
 import Link from "next/link"
 
 import { ProductCard } from "@/components/product-card"
@@ -47,24 +46,14 @@ export function DealsCarousel({
           aria-label={title ?? "Ofertas"}
         >
           <CarouselContent>
-            {products.map((product, index) => (
+            {products.map((product) => (
               <CarouselItem
                 key={product.id}
                 className="basis-[60%] min-[375px]:basis-[50%] min-[480px]:basis-[40%] md:basis-[28.57%] lg:basis-[22.22%] xl:basis-[18.18%] 2xl:basis-[15.38%]"
               >
-                <motion.div
-                  initial={index < 2 ? false : { opacity: 0, y: 16 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-40px" }}
-                  transition={{
-                    duration: 0.35,
-                    delay: index * 0.06,
-                    ease: "easeOut",
-                  }}
-                  className="h-full"
-                >
+                <div className="h-full">
                   <ProductCard product={product} className={navy ? "bg-background" : undefined} compact />
-                </motion.div>
+                </div>
               </CarouselItem>
             ))}
           </CarouselContent>

@@ -1,6 +1,3 @@
-"use client"
-
-import { motion } from "framer-motion"
 import Link from "next/link"
 import { createElement } from "react"
 
@@ -33,20 +30,8 @@ export function CategoryGrid({
         />
       )}
       <div className={`grid gap-4 ${gridClassName}`}>
-        {categories.map((category, index) => (
-          <motion.div
-            key={category.slug}
-            className="h-full"
-            // First row ships visible; animating from opacity 0 would hide it until hydration.
-            initial={index < 4 ? false : { opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-40px" }}
-            transition={{
-              duration: 0.35,
-              delay: index * 0.05,
-              ease: "easeOut",
-            }}
-          >
+        {categories.map((category) => (
+          <div key={category.slug} className="h-full">
             <Link
               href={`/categoria/${category.slug}`}
               className="group flex h-full flex-col items-center gap-3 rounded-2xl border border-border bg-card p-4 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95"
@@ -63,7 +48,7 @@ export function CategoryGrid({
                 )}
               </span>
             </Link>
-          </motion.div>
+          </div>
         ))}
       </div>
     </section>
