@@ -112,9 +112,22 @@ export function ProductCard({
                 </span>
               )}
             </div>
-            <span className="text-2xl font-extrabold tabular-nums text-price">
-              {formatCurrency(product.price)}
-            </span>
+            <div className="flex flex-wrap items-end justify-between gap-x-2">
+              <span
+                className={cn(
+                  "font-extrabold tabular-nums leading-tight text-price",
+                  compact ? "text-[1.7rem]" : "text-3xl",
+                )}
+              >
+                {formatCurrency(product.price)}
+              </span>
+              {product.isFreeShipping && (
+                <span className="ml-auto flex items-center gap-1 pb-1 text-xs font-semibold text-success">
+                  <Truck className="h-3.5 w-3.5" aria-hidden />
+                  Frete grátis
+                </span>
+              )}
+            </div>
           </div>
 
           {/* A recorded drop without a store "previous price": say it plainly, from our own history. */}
@@ -147,14 +160,7 @@ export function ProductCard({
           )}
 
           <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 pt-1 text-xs">
-            {product.isFreeShipping ? (
-              <span className="flex items-center gap-1 font-semibold text-success">
-                <Truck className="h-3.5 w-3.5" aria-hidden />
-                Frete grátis
-              </span>
-            ) : (
-              <span className="text-muted-foreground">Frete e condições na loja</span>
-            )}
+            {!product.isFreeShipping && <span className="text-muted-foreground">Frete e condições na loja</span>}
             {product.rating && (
               <span className="flex items-center gap-1 text-muted-foreground">
                 <Star className="h-3.5 w-3.5 fill-primary text-primary" aria-hidden />
