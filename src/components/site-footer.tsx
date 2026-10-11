@@ -38,17 +38,17 @@ export function SiteFooter() {
           </p>
           <nav aria-label="Rodapé" className="flex flex-wrap items-center gap-x-5 gap-y-1 text-sm">
             <Link
-              href="/como-funciona"
+              href="/sobre"
               className="-my-2 rounded-md py-2 text-white/90 hover:text-white hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
             >
               Sobre
             </Link>
-            <a
-              href="mailto:aflservicos2026@gmail.com"
+            <Link
+              href="/contato"
               className="-my-2 rounded-md py-2 text-white/90 hover:text-white hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
             >
               Contato
-            </a>
+            </Link>
             <Link
               href="/privacidade"
               className="-my-2 rounded-md py-2 text-white/90 hover:text-white hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
