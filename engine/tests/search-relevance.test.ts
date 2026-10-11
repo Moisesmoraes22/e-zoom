@@ -161,3 +161,15 @@ test("'Apple iPhone 15' conta como título que começa com iphone, igual a 'iPho
   assert.equal(tier("Celular IPhone 17 Pro Max 256GB", "iphone"), 3)
   assert.equal(tier("Película para iPhone 13", "iphone"), 2)
 })
+
+test("'monitor': telas vêm antes de monitor de estúdio, relógio e kit de câmeras", () => {
+  const list = [
+    product("Monitor de Estúdio JBL 308P MKII 112W preto", "dj"),
+    product("Smartwatch D20 Pro com monitor cardíaco", "eletronicos"),
+    product("Kit Cftv 8 Câmeras Intelbras Dvr 8 Canais Monitor", "cameras"),
+    product("Monitor Gamer LG UltraGear 27 polegadas 144Hz", "games"),
+    product("Monitor Dell 24 Full HD 240Hz", "eletronicos"),
+  ]
+  const first = sortProducts(list, "relevance", "monitor").slice(0, 2).map((p) => p.title)
+  assert.ok(first.every((t) => /^Monitor (Gamer|Dell)/.test(t)), first.join(" | "))
+})

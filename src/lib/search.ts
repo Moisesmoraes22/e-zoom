@@ -252,6 +252,10 @@ function djFirst<T extends SearchItem>(ranked: T[]) {
 const ACCESSORY =
   /\b(capa|capas|capinha|capinhas|case|cases|pelicula|peliculas|carregador|carregadores|cabo|cabos|suporte|suportes|adaptador|bateria|protetor|pulseira|power ?bank|microfone|lapela|gamepad|compativel|refil|kit)\b/
 
+/** Other things that carry the word "monitor" (studio speakers, health watches, baby/CCTV kits). */
+const NOT_A_SCREEN =
+  /\b(estudio|referencia|baba|baby|smartwatch|relogio|saude|cardiac\w*|pressao|cftv|dvr|camera|cameras|alarme|selfie)\b/
+
 export function sortProducts<T extends SearchItem>(products: T[], sort: SortOption, query = ""): T[] {
   const sorted = [...products]
   switch (sort) {
@@ -284,7 +288,12 @@ export function sortProducts<T extends SearchItem>(products: T[], sort: SortOpti
       // Searching a thing ("iphone", "furadeira") must not bury it under what is made for it (cases, films,
       // chargers, holders): those come after the real products, unless the search itself asks for them.
       const asksForAccessory = groups.flat().some((w) => ACCESSORY.test(w))
-      const demote = (title: string) => (!asksForAccessory && ACCESSORY.test(normalizeText(title)) ? 0 : 20)
+      const asksForScreen = groups.flat().includes("monitor") && !groups.flat().some((w) => NOT_A_SCREEN.test(w))
+      const demote = (title: string) => {
+        const text = normalizeText(title)
+        const other = (!asksForAccessory && ACCESSORY.test(text)) || (asksForScreen && NOT_A_SCREEN.test(text))
+        return other ? 0 : 20
+      }
       return ranked
         .map((p, i) => ({ p, i, tier: matchTier(p.title, groups) + (hinted && p.category === hinted ? 10 : 0) + demote(p.title) }))
         .sort((a, b) => b.tier - a.tier || a.i - b.i)

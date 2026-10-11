@@ -18,11 +18,13 @@ interface Interest {
   lead?: string[]
   /** Titles with these words are accessories or look-alikes, never the picture. */
   not?: RegExp
+  /** Titles with these words are not this thing at all: they are not counted either. */
+  exclude?: RegExp
 }
 
 const INTERESTS: Interest[] = [
   { label: "Games e consoles", icon: Gamepad2, category: "games", lead: ["playstation", "xbox", "nintendo", "console", "controle", "joystick", "gamepad", "ps5", "ps4", "switch"] },
-  { label: "Monitores", icon: Monitor, query: "monitor", lead: ["monitor"] },
+  { label: "Monitores", icon: Monitor, query: "monitor", lead: ["monitor"], exclude: /estudio|referencia|baba|baby|smartwatch|relogio|saude|cardiac|pressao|cftv|dvr|camera|alarme|selfie|suporte|cabo|adaptador|escova|dock|placa fonte|cartao|retrovisor|automotivo|celular|bicicleta|remo\b|palco|receptor|pedestal|caixa/ },
   { label: "Notebooks", icon: Laptop, query: "notebook", lead: ["notebook"] },
   { label: "Celulares", icon: Smartphone, query: "celular", lead: ["celular", "smartphone", "iphone", "galaxy", "redmi", "xiaomi", "motorola"], not: /watch|relogio|band|pulseira|fit |capa|pelicula|suporte|carregador|cabo|case/ },
   { label: "Fones de ouvido", icon: Headphones, query: "fone", lead: ["fone", "headset", "headphone", "earphone", "airpods"] },
@@ -58,11 +60,12 @@ function pickImage(ranked: Product[], interest: Interest, used: Set<string>) {
 export function InterestsSection({ products }: { products: Product[] }) {
   const usedImages = new Set<string>()
   const shortcuts = INTERESTS.map((interest) => {
-    const matches = filterProducts(products, {
+    const found = filterProducts(products, {
       ...EMPTY_FILTERS,
       category: interest.category,
       query: interest.query,
     })
+    const matches = interest.exclude ? found.filter((p) => !interest.exclude!.test(plain(p.title))) : found
     return {
       ...interest,
       href: interest.category

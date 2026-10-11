@@ -65,7 +65,7 @@ const SLOGAN =
 // Lines about payment or the buy box ("Até 7x de sem juros", "Selecione a opção de compra"),
 // which are never a product name.
 const NOT_A_TITLE =
-  /sem juros|\b\d{1,2}\s?x\s*(de|sem|no)\b|selecione|programe e poupe|op[cç][aã]o de compra/i
+  /sem juros|\b\d{1,2}\s?x\s*(de|sem|no)\b|selecione|programe e poupe|op[cç][aã]o de compra|^cupom\s*:|\boff em\b|compras a partir de|limitado a|\bm[aá]x\.? de\b/i
 
 // Chatty promo lines ("A RAPUNZEL USAVA ESSE", "PRA QUEM GOSTA DO LEITE CREMOSO") that name no product.
 const CHATTER =
@@ -144,6 +144,9 @@ if (process.argv[1]?.endsWith("message-parser.ts")) {
   console.assert(extractTitle(["Até 7x de sem juros", "R$ 350", "https://amzn.to/x"].join(nl)) === null)
   console.assert(extractTitle(["Selecione a opção de compra: Programe e Poupe", "R$ 10"].join(nl)) === null)
   console.assert(extractTitle(["Kit Ventoinha 3x120mm ARGB Preto", "R$ 74"].join(nl)) === "Kit Ventoinha 3x120mm ARGB Preto")
+  // Store-wide coupon posts have no product: no title, so the offer is skipped.
+  console.assert(extractTitle(["Ganhe 10% off em compras a partir de R$ 30 (limitado a R$ 15)", "R$ 15"].join(nl)) === null)
+  console.assert(extractTitle(["Cupom: DOMINGO10 -15% OFF em R$ 200, máx de R$ 30 OFF", "R$ 30"].join(nl)) === null)
   const nope = ["A RAPUNZEL USAVA ESSE", "CADA ROLO FOLHA TRIPLA", "PRA QUEM GOSTA DO LEITE CREMOSO", "PERFUMAÇO DA ARMANI, parceladinho tá valendo", "REDBULL ZERO TÁ LIBERADO"]
   for (const t of nope) console.assert(extractTitle([t, "R$ 10"].join(nl)) === null, t)
   console.assert(extractTitle(["Apple iPhone 18 Pro de 256 GB — Preto", "R$ 9000"].join(nl)) !== null)
