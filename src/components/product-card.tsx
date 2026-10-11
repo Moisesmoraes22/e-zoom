@@ -69,7 +69,7 @@ export function ProductCard({
       >
         <div className="relative aspect-square w-full">
           {discount && product.originalPrice && (
-            <span className="absolute left-3 top-1.5 z-10 rounded-md bg-discount px-1.5 py-0.5 text-[11px] font-bold text-discount-foreground">
+            <span className="absolute left-3 top-1.5 z-10 rounded-md bg-cta px-1.5 py-0.5 text-[11px] font-bold text-cta-foreground">
               Economize {formatCurrency(product.originalPrice - product.price)}
             </span>
           )}
