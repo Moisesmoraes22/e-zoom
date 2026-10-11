@@ -101,15 +101,23 @@ export function ProductCard({
             {product.title}
           </h3>
 
-          <div className="flex flex-wrap items-baseline gap-x-2">
+          <div className="flex flex-col">
+            {/* The old price above the current one, with what is saved: "Antes" under the price read as if it were the new one. */}
+            <div className="flex min-h-4 flex-wrap items-baseline gap-x-2 text-xs">
+              {product.originalPrice && discount && (
+                <>
+                  <span className="tabular-nums text-muted-foreground line-through">
+                    {formatCurrency(product.originalPrice)}
+                  </span>
+                  <span className="font-semibold text-success">
+                    Economize {formatCurrency(product.originalPrice - product.price)}
+                  </span>
+                </>
+              )}
+            </div>
             <span className="text-2xl font-extrabold tabular-nums text-price">
               {formatCurrency(product.price)}
             </span>
-            {product.originalPrice && discount && (
-              <span className="text-xs tabular-nums text-muted-foreground line-through">
-                {formatCurrency(product.originalPrice)}
-              </span>
-            )}
           </div>
 
           {/* A recorded drop without a store "previous price": say it plainly, from our own history. */}

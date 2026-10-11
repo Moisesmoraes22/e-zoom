@@ -177,23 +177,26 @@ export function ProductDetail({
               </p>
             </div>
 
-            <p className="mt-4 text-3xl font-extrabold tabular-nums text-price sm:text-4xl">
+            {/* Old price first, with what is saved beside it, then the current price: the order says "was ... now". */}
+            {product.originalPrice && discount && (
+              <p className="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm">
+                <span className="tabular-nums text-base text-muted-foreground line-through">
+                  {formatCurrency(product.originalPrice)}
+                </span>
+                {savings && (
+                  <span className="inline-flex items-center gap-1.5 font-semibold text-success">
+                    <TrendingDown className="h-4 w-4" aria-hidden />
+                    Economize {formatCurrency(savings)} ({discount}%)
+                  </span>
+                )}
+              </p>
+            )}
+            <p className={cn("text-3xl font-extrabold tabular-nums text-price sm:text-4xl", product.originalPrice && discount ? "mt-1" : "mt-4")}>
               {formatCurrency(bestOffer.price)}
             </p>
 
-            {(discount || isLowest) && (
+            {isLowest && (
               <div className="mt-2 flex flex-col gap-1.5 text-sm">
-                {product.originalPrice && discount && (
-                  <p className="text-muted-foreground">
-                    Antes <span className="tabular-nums line-through">{formatCurrency(product.originalPrice)}</span>
-                  </p>
-                )}
-                {savings && (
-                  <p className="flex items-center gap-1.5 font-semibold text-brand">
-                    <TrendingDown className="h-4 w-4" aria-hidden />
-                    Economize {formatCurrency(savings)} ({discount}%)
-                  </p>
-                )}
                 {isLowest && (
                   <p className="flex items-center gap-1.5 font-semibold text-brand">
                     <Award className="h-4 w-4" aria-hidden />
