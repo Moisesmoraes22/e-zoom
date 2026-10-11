@@ -257,7 +257,7 @@ export function ProductDetail({
               className="mt-5 h-12 w-full gap-2 rounded-lg bg-cta text-base font-bold text-cta-foreground shadow-lg shadow-cta/30 ring-offset-2 hover:bg-cta-hover"
             >
               <OfferLink product={product} store={bestOffer.store} affiliateUrl={bestOffer.affiliateUrl}>
-                Ver oferta {into} {store.name}
+                {discount ? "Quero aproveitar esse desconto" : `Ver oferta ${into} ${store.name}`}
                 <ArrowUpRight className="h-5 w-5" aria-hidden />
               </OfferLink>
             </Button>

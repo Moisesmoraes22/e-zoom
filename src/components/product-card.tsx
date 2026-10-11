@@ -68,9 +68,9 @@ export function ProductCard({
         className="flex flex-1 flex-col transition-transform duration-150 active:scale-[0.99]"
       >
         <div className="relative aspect-square w-full">
-          {discount && (
+          {discount && product.originalPrice && (
             <span className="absolute left-3 top-1.5 z-10 rounded-md bg-discount px-1.5 py-0.5 text-[11px] font-bold text-discount-foreground">
-              -{discount}%
+              Economize {formatCurrency(product.originalPrice - product.price)}
             </span>
           )}
           <div
@@ -106,14 +106,9 @@ export function ProductCard({
             {/* The old price above the current one, with what is saved: "Antes" under the price read as if it were the new one. */}
             <div className="flex min-h-4 flex-wrap items-baseline gap-x-2 text-xs">
               {product.originalPrice && discount && (
-                <>
-                  <span className="tabular-nums text-muted-foreground line-through">
-                    {formatCurrency(product.originalPrice)}
-                  </span>
-                  <span className="font-semibold text-success">
-                    Economize {formatCurrency(product.originalPrice - product.price)}
-                  </span>
-                </>
+                <span className="tabular-nums text-muted-foreground line-through">
+                  {formatCurrency(product.originalPrice)}
+                </span>
               )}
             </div>
             <span className="text-2xl font-extrabold tabular-nums text-price">
@@ -193,7 +188,9 @@ export function ProductCard({
           affiliateUrl={product.affiliateUrl}
           className="group/cta flex min-h-11 items-center justify-center gap-1.5 rounded-lg bg-cta py-2 text-sm font-bold text-cta-foreground transition-colors duration-200 hover:bg-cta-hover active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         >
-          Ver {product.store === "mercado_livre" ? "no" : "na"} {store.name}
+          <span className="text-center leading-tight">
+            {discount ? "Quero aproveitar esse desconto" : `Ver ${product.store === "mercado_livre" ? "no" : "na"} ${store.name}`}
+          </span>
           <ArrowUpRight
             className="h-4 w-4 transition-transform duration-200 group-hover/cta:-translate-y-0.5 group-hover/cta:translate-x-0.5"
             aria-hidden
