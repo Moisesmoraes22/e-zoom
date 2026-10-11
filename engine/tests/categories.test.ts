@@ -95,6 +95,9 @@ const CASES: [string, string, string][] = [
   ["Brinquedo Mini Teclado Piano Rosa Infantil Musical", "informatica", "brinquedos"],
   ["Tela Mosquiteira Janela Grande Velcro Ajustável Anti Inseto", "acessorios-veiculos", "casa"],
   ["Kit Maleta Ferramentas Infantil 22 Peças Furadeira Elétrica Toy King", "ferramentas", "brinquedos"],
+  ["Cabo Coaxial Bipolar 100m Ideal Cftv", "cameras", "cameras"],
+  ["Cabo Coaxial Bipolar 100m Ideal Cftv", "eletronicos", "cameras"],
+  ["Cabo HDMI 2.0 4k 3 Metros", "cameras", "eletronicos"],
   // ...and what only MENTIONS the product stays where it is
   ["Capa para Celular Samsung Galaxy A15 Silicone", "celulares", "celulares"],
   ["Celular Infantil Musical telefone Interativo com mordedor", "brinquedos", "brinquedos"],
@@ -120,4 +123,17 @@ for (const [title, from, expected] of CASES) {
 
 test("no category stays no category", () => {
   assert.equal(refineCategory("Whisky Johnnie Walker Red Label 1L", null), null)
+})
+
+test("estável: aplicar as regras duas vezes dá o mesmo resultado (nada vai e volta entre categorias)", () => {
+  for (const [title, from] of CASES) {
+    const once = refineCategory(title, from)
+    assert.equal(refineCategory(title, once), once, `${title}: ${from} -> ${once} -> ${refineCategory(title, once)}`)
+  }
+})
+
+test("ferramenta com ponta imantada continua ferramenta; ímã de verdade vai para indústria", () => {
+  assert.equal(refineCategory("KIT 12 Chaves De Fenda E Philips Conjunto Ponta Imantada Ímã", "ferramentas"), "ferramentas")
+  assert.equal(refineCategory("Martelo manual com imã Lotus", "industria"), "ferramentas")
+  assert.equal(refineCategory("Ímã Neodímio Ø 6x2 Mm N35 100 Unidades", "ferramentas"), "industria")
 })

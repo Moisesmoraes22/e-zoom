@@ -56,11 +56,12 @@ const RULES: { from: string[]; test: (t: string) => boolean; to: string }[] = [
   { from: ["esporte", "festas", "casa", "brinquedos", "acessorios-veiculos"], to: "animais", test: (t) => PET.test(t) },
   { from: ["esporte"], to: "bebes", test: (t) => /^colch[aã]o para carrinho/i.test(t) },
   { from: ["bebes"], to: "brinquedos", test: (t) => /reborn/i.test(t) },
-  { from: ["cameras", "festas"], to: "eletronicos", test: (t) => /^cabo /i.test(t) },
+  // (A CFTV cable stays with the cameras: the CFTV rule below would send it straight back.)
+  { from: ["cameras", "festas"], to: "eletronicos", test: (t) => /^cabo /i.test(t) && !CFTV.test(t) },
   { from: ["festas"], to: "esporte", test: (t) => /^garrafa squeeze/i.test(t) },
   // The store's own "tools" tree also holds look-alikes: send them where they belong.
   { from: ["ferramentas"], to: "eletrodomesticos", test: (t) => /^(chuveiro|lavadora|mini ventilador)/i.test(t) },
-  { from: ["ferramentas"], to: "industria", test: (t) => /(^|\s)[ií]m[aã]s?(\s|$)/i.test(t) },
+  { from: ["ferramentas"], to: "industria", test: (t) => /(^|\s)[ií]m[aã]s?(\s|$)/i.test(t) && !isTool(t) },
   { from: ["ferramentas"], to: "casa", test: (t) => /^(pulverizador|borrifador)/i.test(t) },
   { from: ["ferramentas"], to: "construcao", test: (t) => /pistola de pintura/i.test(t) },
   { from: ["ferramentas"], to: "saude", test: (t) => /^tala /i.test(t) },
@@ -94,7 +95,9 @@ const RULES: { from: string[]; test: (t: string) => boolean; to: string }[] = [
   { from: ["informatica", "eletronicos"], to: "cameras", test: (t) => IP_CAMERA.test(t) && !CAR_CAMERA.test(t) },
   { from: ["informatica", "eletronicos", ...NOISY], to: "brinquedos", test: (t) => TOY_LEAD.test(t) },
   { from: ["acessorios-veiculos"], to: "casa", test: (t) => /^tela mosquiteira/i.test(t) },
-  { from: ["casa", "eletronicos", "eletrodomesticos", "informatica", "celulares", "moda", "esporte", ...NOISY], to: "ferramentas", test: isTool },
+  { from: ["casa", "eletronicos", "eletrodomesticos", "informatica", "celulares", "moda", "esporte"], to: "ferramentas", test: isTool },
+  // In a grab-bag category too, except snap-button pliers (craft gear, sent to arte-papelaria from "ferramentas").
+  { from: NOISY, to: "ferramentas", test: (t) => isTool(t) && !/bot[aã]o de press[aã]o/i.test(t) },
   { from: ["esporte"], to: "suplementos", test: (t) => /(anabolic mass|metilcobalamina|vitamina b12)/i.test(t) },
 ]
 
