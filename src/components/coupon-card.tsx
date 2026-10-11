@@ -1,8 +1,9 @@
 import { ExternalLink, Ticket } from "lucide-react"
 
 import { CopyCodeButton } from "@/components/copy-code-button"
+import { CouponCountdown } from "@/components/coupon-countdown"
 import type { Coupon } from "@/lib/coupons"
-import { formatCurrency, formatDay } from "@/lib/utils"
+import { formatCurrency } from "@/lib/utils"
 
 /** One coupon: the discount, the code to copy, the rules, and a link to the products it covers. */
 export function CouponCard({ coupon }: { coupon: Coupon }) {
@@ -25,7 +26,7 @@ export function CouponCard({ coupon }: { coupon: Coupon }) {
       <ul className="flex flex-col gap-0.5 text-sm text-muted-foreground">
         {coupon.min_purchase != null && <li>Compra mínima: {formatCurrency(coupon.min_purchase)}</li>}
         {coupon.max_discount != null && <li>Desconto máximo: {formatCurrency(coupon.max_discount)}</li>}
-        <li>{coupon.expires_at ? `Válido até ${formatDay(coupon.expires_at)}` : "Validade não informada"}</li>
+        {coupon.expires_at ? <CouponCountdown expiresAt={coupon.expires_at} /> : <li>Validade não informada</li>}
       </ul>
 
       <div className="mt-auto flex flex-wrap gap-2 pt-1">
