@@ -116,7 +116,7 @@ export function ProductCard({
               <span
                 className={cn(
                   "font-extrabold tabular-nums leading-tight text-price",
-                  compact ? "text-[1.7rem]" : "text-3xl",
+                  compact ? "text-[1.6rem]" : "text-[1.6rem] sm:text-3xl",
                 )}
               >
                 {formatCurrency(product.price)}
