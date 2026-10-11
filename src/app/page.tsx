@@ -293,7 +293,13 @@ export default async function Home() {
   const highlighted = categoryCounts(products, true)
     .filter((c) => HIGHLIGHT.includes(c.slug))
     .sort((a, b) => HIGHLIGHT.indexOf(a.slug) - HIGHLIGHT.indexOf(b.slug))
-  const coupons = await getCoupons(3)
+  // Coupons ending within 24 h come first and, when there are any, name the shelf for it: the
+  // deadline is the coupon's own end date, so the urgency is real.
+  const allCoupons = await getCoupons(30)
+  const endsSoon = allCoupons
+    .filter((c) => c.expires_at && Date.parse(c.expires_at) - now > 0 && Date.parse(c.expires_at) - now < 24 * 3_600_000)
+    .sort((a, b) => Date.parse(a.expires_at!) - Date.parse(b.expires_at!))
+  const coupons = (endsSoon.length > 0 ? endsSoon : allCoupons).slice(0, 3)
   const storeCounts = countByStoreId(products)
 
   return (
@@ -345,7 +351,7 @@ export default async function Home() {
         </Fragment>
       ))}
       <InterestsSection products={products} />
-      <CouponsSection coupons={coupons} />
+      <CouponsSection coupons={coupons} endingSoon={endsSoon.length > 0} />
       <HowToBuy />
       <SiteFooter />
     </main>
