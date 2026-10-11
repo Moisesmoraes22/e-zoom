@@ -32,6 +32,7 @@ import { Button } from "@/components/ui/button"
 import { discountOf, priceCut, savingsOf } from "@/lib/deals"
 import { useFavorites } from "@/lib/favorites-context"
 import { recordProduct } from "@/lib/interest-profile"
+import { lowestFor } from "@/lib/lowest-price"
 import { SELLER_LEADER_LABEL } from "@/lib/seller-leader"
 import { CATEGORIES, STORES } from "@/lib/mock-data"
 import type { PriceStats, Product, ProductOffer } from "@/lib/types"
@@ -89,6 +90,11 @@ export function ProductDetail({
   // Claims below only appear when the recorded history actually supports them.
   const tracked = stats && stats.points.length >= 2 && stats.max > stats.min ? stats : null
   const isLowest = !!tracked && product.price <= tracked.min
+  // How long it has been the lowest, from the dated history (reference: when we last saw the offer).
+  const lowest = tracked
+    ? lowestFor(tracked, product.price, Date.parse(product.seenAt ?? tracked.points.at(-1)!.at))
+    : null
+  const lowestClaim = lowest && lowest.days >= 7 ? lowest : null
   const belowAverage =
     tracked && tracked.points.length >= 3 && product.price < tracked.average * 0.98
       ? calculateDiscountPercent(product.price, tracked.average)
@@ -225,15 +231,15 @@ export function ProductDetail({
               {formatCurrency(bestOffer.price)}
             </p>
 
-            {isLowest && (
-              <div className="mt-2 flex flex-col gap-1.5 text-sm">
-                {isLowest && (
-                  <p className="flex items-center gap-1.5 font-semibold text-brand">
-                    <Award className="h-4 w-4" aria-hidden />
-                    Menor preço que registramos
-                  </p>
-                )}
-              </div>
+            {(isLowest || lowestClaim) && (
+              <p className="mt-2 flex items-center gap-1.5 text-sm font-semibold text-brand">
+                <Award className="h-4 w-4" aria-hidden />
+                {lowestClaim
+                  ? lowestClaim.sinceStart
+                    ? `Menor preço que registramos (${lowestClaim.days} dias de histórico)`
+                    : `Menor preço dos últimos ${lowestClaim.days} dias`
+                  : "Menor preço que registramos"}
+              </p>
             )}
 
             <ul className="mt-4 flex flex-col gap-2.5 text-sm text-foreground">
