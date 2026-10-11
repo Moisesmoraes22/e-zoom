@@ -9,12 +9,12 @@ const LIMITS = [
 
 export function PriceChips() {
   return (
-    <section className="bg-white pb-8 text-slate-900 dark:bg-card dark:text-foreground sm:pb-10" aria-labelledby="gastar">
-      <div className="page-container flex flex-wrap items-center gap-x-6 gap-y-3">
+    <section className="bg-white py-8 text-slate-900 dark:bg-card dark:text-foreground sm:py-10" aria-labelledby="gastar">
+      <div className="page-container flex flex-wrap items-center justify-center gap-x-6 gap-y-4 text-center">
         <h2 id="gastar" className="text-xl font-extrabold sm:text-2xl">
           Quanto quer gastar?
         </h2>
-        <ul className="flex flex-wrap gap-3">
+        <ul className="flex flex-wrap justify-center gap-3">
           {LIMITS.map(({ label, preco }) => (
             <li key={label}>
               <Link

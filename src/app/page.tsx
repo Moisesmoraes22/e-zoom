@@ -293,6 +293,7 @@ export default async function Home() {
       <HomeHero />
       <StoreStrip counts={storeCounts} />
       <FeaturedOffers offers={featured} />
+      <StoresSection counts={storeCounts} />
       {drops.length >= SHELF_MIN && (
         <FeaturedOffers
           offers={drops}
@@ -329,7 +330,6 @@ export default async function Home() {
       <InterestsSection products={products} />
       <CouponsSection coupons={coupons} />
       <PriceChips />
-      <StoresSection counts={storeCounts} />
       <HowToBuy />
       <SiteFooter />
     </main>
