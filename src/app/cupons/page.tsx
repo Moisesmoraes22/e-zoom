@@ -4,7 +4,7 @@ import { CouponCard } from "@/components/coupon-card"
 import { SiteFooter } from "@/components/site-footer"
 import { getCoupons } from "@/lib/coupons"
 
-export const revalidate = 300
+export const revalidate = 1800
 
 export const metadata: Metadata = {
   title: "Cupons do Mercado Livre",

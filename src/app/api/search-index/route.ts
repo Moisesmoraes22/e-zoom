@@ -1,7 +1,7 @@
 import { getCatalog } from "@/lib/offers"
 
 export const dynamic = "force-static"
-export const revalidate = 300
+export const revalidate = 1800
 
 /**
  * Light index of the live catalog for search suggestions and the favorites

@@ -9,7 +9,7 @@ import { byRelevance, categoryCounts } from "@/lib/deals"
 import { breadcrumbJsonLd, itemListJsonLd, serializeJsonLd } from "@/lib/structured-data"
 import { getCatalog } from "@/lib/offers"
 
-export const revalidate = 300
+export const revalidate = 1800
 
 export function generateStaticParams() {
   return CATEGORIES.map((category) => ({ slug: category.slug }))

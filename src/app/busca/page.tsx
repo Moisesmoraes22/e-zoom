@@ -11,7 +11,7 @@ export const metadata = {
     "Pesquise ofertas do Mercado Livre, da Shopee e da Amazon, filtre por categoria, loja, preço e desconto.",
 }
 
-export const revalidate = 300
+export const revalidate = 1800
 
 export default async function BuscaPage() {
   const { products } = await getCatalog()

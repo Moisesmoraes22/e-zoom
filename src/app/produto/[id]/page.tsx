@@ -15,7 +15,7 @@ import { breadcrumbJsonLd, productJsonLd, serializeJsonLd } from "@/lib/structur
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://e-zoom.vercel.app"
 
-export const revalidate = 300
+export const revalidate = 1800
 
 /**
  * Only the best deals are built ahead of time. Every product page loads the whole

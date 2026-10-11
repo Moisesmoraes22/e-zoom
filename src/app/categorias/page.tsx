@@ -5,7 +5,7 @@ import { SiteFooter } from "@/components/site-footer"
 import { categoryCounts } from "@/lib/deals"
 import { getCatalog } from "@/lib/offers"
 
-export const revalidate = 300
+export const revalidate = 1800
 
 export const metadata: Metadata = {
   title: "Categorias de ofertas",

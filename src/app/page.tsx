@@ -16,7 +16,7 @@ import { byClicks, byFeatured, byRelevance, categoryCounts, countByStoreId } fro
 import { getCatalog } from "@/lib/offers"
 import type { Product } from "@/lib/types"
 
-export const revalidate = 300
+export const revalidate = 1800
 
 export const metadata: Metadata = { alternates: { canonical: "/" } }
 

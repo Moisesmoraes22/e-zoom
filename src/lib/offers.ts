@@ -20,6 +20,26 @@ const MAX_HISTORY_ROWS = 40_000
 
 type Supabase = SupabaseClient
 
+/**
+ * Every database read goes through Next's shared data cache for this long. It is shared by all
+ * server instances and builds, so the catalogue (about 14 requests of 1,000 rows) is read from
+ * Supabase once per interval for the whole site, not once per page regeneration per instance.
+ * That repetition had used 331% of the plan's egress. The collectors write every ~30 minutes, so
+ * nothing newer exists to show. Each cached response is under the 2 MB limit of one entry.
+ */
+export const DATA_REVALIDATE_S = 1800
+const cachedFetch: typeof fetch = (input, init) =>
+  fetch(input, { ...init, cache: "force-cache", next: { revalidate: DATA_REVALIDATE_S } } as RequestInit)
+const clientOptions = { auth: { persistSession: false }, global: { fetch: cachedFetch } }
+
+/**
+ * What a card, the search and the ranking need. The seller's city, state and badge are shown only
+ * on the product page, which reads the full row (`OFFER_COLUMNS`): leaving them out of the list
+ * reads makes every row lighter.
+ */
+const LIST_COLUMNS =
+  "id, store_id, title, image, category_slug, price, original_price, affiliate_url, is_free_shipping, last_seen_at, created_at, product_id, rating, popularity"
+
 /** One retry: a single dropped connection must not fail a whole page build. */
 async function twice<T extends { error: unknown }>(run: () => PromiseLike<T>): Promise<T> {
   const first = await run()
@@ -57,9 +77,7 @@ async function readCatalog(): Promise<Catalog> {
   const { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } = process.env
   if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) return mockCatalog()
 
-  const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-    auth: { persistSession: false },
-  })
+  const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, clientOptions)
   const counted = await twice(() => visible(supabase.from("offers").select("id", { count: "exact", head: true })))
   if (counted.error) throw new Error(`catalogue count failed: ${counted.error.message}`)
   const total = counted.count ?? 0
@@ -73,7 +91,7 @@ async function readCatalog(): Promise<Catalog> {
     const pages = await Promise.all(
       starts.slice(i, i + PARALLEL).map((from) =>
         twice(() =>
-          visible(supabase.from("offers").select(OFFER_COLUMNS))
+          visible(supabase.from("offers").select(LIST_COLUMNS))
             .order("last_seen_at", { ascending: false })
             .order("id")
             .range(from, from + PAGE - 1),
@@ -161,9 +179,7 @@ export const getPriceStats = cache(async (offerId: string): Promise<PriceStats |
   const { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } = process.env
   if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) return null
 
-  const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-    auth: { persistSession: false },
-  })
+  const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, clientOptions)
   const { data } = await supabase
     .from("price_history")
     .select("price, recorded_at")
@@ -201,7 +217,7 @@ export const getOfferImages = cache(async (offerId: string, cover: string): Prom
   const { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } = process.env
   if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) return [cover]
 
-  const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, { auth: { persistSession: false } })
+  const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, clientOptions)
   const { data } = await supabase.from("offers").select("images").eq("id", offerId).maybeSingle()
   const extra = Array.isArray(data?.images) ? (data.images as unknown[]).filter((u): u is string => typeof u === "string" && /^https:\/\//.test(u)) : []
   return [...new Set([cover, ...extra])].slice(0, 8)
@@ -219,7 +235,7 @@ const MIN_CATEGORY_OFFERS = 8
 function lightClient() {
   const { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } = process.env
   if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) return null
-  return createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, { auth: { persistSession: false } })
+  return createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, clientOptions)
 }
 
 /** The same visibility rule as the catalogue: active, with OUR affiliate link and an image. */
@@ -318,7 +334,7 @@ export const getClosedOffer = cache(
 export const getSiblings = cache(async (productId: string, store: string): Promise<Product[]> => {
   const supabase = lightClient()
   if (!supabase) return []
-  const { data } = await visible(supabase.from("offers").select(OFFER_COLUMNS))
+  const { data } = await visible(supabase.from("offers").select(LIST_COLUMNS))
     .eq("product_id", productId)
     .neq("store_id", store)
     .limit(10)
@@ -331,12 +347,12 @@ export const getRelated = cache(
     const supabase = lightClient()
     if (!supabase) return { similar: [], more: [] }
     const [sameRows, discountRows] = await Promise.all([
-      visible(supabase.from("offers").select(OFFER_COLUMNS))
+      visible(supabase.from("offers").select(LIST_COLUMNS))
         .eq("category_slug", product.category)
         .neq("id", product.id)
         .order("last_seen_at", { ascending: false })
         .limit(80),
-      visible(supabase.from("offers").select(OFFER_COLUMNS))
+      visible(supabase.from("offers").select(LIST_COLUMNS))
         .not("original_price", "is", null)
         .neq("id", product.id)
         .order("last_seen_at", { ascending: false })
@@ -355,7 +371,7 @@ export const getRelated = cache(
 export async function getTopDiscountIds(limit: number): Promise<string[]> {
   const supabase = lightClient()
   if (!supabase) return []
-  const { data } = await visible(supabase.from("offers").select(OFFER_COLUMNS))
+  const { data } = await visible(supabase.from("offers").select(LIST_COLUMNS))
     .not("original_price", "is", null)
     .order("last_seen_at", { ascending: false })
     .limit(600)
