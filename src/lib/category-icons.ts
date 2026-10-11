@@ -1,6 +1,7 @@
 import {
   Baby,
   BookOpen,
+  Cable,
   Camera,
   Car,
   Clapperboard,
@@ -36,6 +37,7 @@ const ICONS: Record<string, LucideIcon> = {
   "eletronicos": Tv,
   "informatica": Laptop,
   "celulares": Smartphone,
+  "acessorios-celular": Cable,
   "casa": Sofa,
   "eletrodomesticos": Refrigerator,
   "moda": Shirt,

@@ -28,6 +28,11 @@ export const CATEGORIES: Category[] = [
     icon: "Smartphone",
   },
   {
+    slug: "acessorios-celular",
+    name: "Acessórios para Celular",
+    icon: "Cable",
+  },
+  {
     slug: "casa",
     name: "Casa, Móveis e Decoração",
     icon: "Sofa",

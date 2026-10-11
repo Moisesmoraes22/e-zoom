@@ -50,6 +50,14 @@ const IP_CAMERA = /^c[aâ]mera\b.*\b(ip|wi-?fi|externa|seguran[cç]a|vigil[aâ]n
 const CAR_CAMERA = /(\br[eé]\b|estacionamento|automotiv|veicular|carro|\bmoto\b|dash ?cam|capacete)/i
 const TOY_LEAD = lead("brinquedo|boneca|boneco|lego|quebra-cabe[cç]a|pel[uú]cia|carrinho de controle remoto")
 
+// Made FOR a phone (case, film, charger, cable, holder...): the noun that opens the title says so.
+// "Smartphone X com capa" starts with the phone and stays a phone (PHONE_LEAD, above).
+// ...or anything sold "para celular / iPhone / Galaxy...": made for a phone, whatever it is.
+const FOR_PHONE = /\bpara (celular|smartphone|iphone|galaxy|moto\b|xiaomi|redmi|samsung|motorola|poco|realme)/i
+const PHONE_ACCESSORY_LEAD = lead(
+  "capas?|capinhas?|cases?|pel[ií]culas?|protetor(?:es)? de (?:tela|lente|c[aâ]mera)|vidro temperado|carregador(?:es)?|cabos?|power ?banks?|fontes?|suportes?|pop ?sockets?|anel (?:de )?suporte|lentes?|adaptador(?:es)?|baterias?|telas?|displays?|m[oó]dulos?|gimbal|estabilizador|bast[aã]o de selfie|ring light|trip[eé]|protetor(?:es)? (?:de )?c[aâ]mera|frontal|gaveta|bandeja (?:de )?chip|microfones?|teleprompter|correia|cord[aã]o|pulseiras?"
+)
+
 const RULES: { from: string[]; test: (t: string) => boolean; to: string }[] = [
   { from: ["brinquedos", "bebes", "esporte"], to: "moda", test: (t) => LEAD_SHOE.test(t) },
   { from: ["games"], to: "moda", test: (t) => lead("camisetas?|camisa").test(t) },
@@ -95,6 +103,8 @@ const RULES: { from: string[]; test: (t: string) => boolean; to: string }[] = [
   { from: ["informatica", "eletronicos"], to: "cameras", test: (t) => IP_CAMERA.test(t) && !CAR_CAMERA.test(t) },
   { from: ["informatica", "eletronicos", ...NOISY], to: "brinquedos", test: (t) => TOY_LEAD.test(t) },
   { from: ["acessorios-veiculos"], to: "casa", test: (t) => /^tela mosquiteira/i.test(t) },
+  // Phones live in "celulares"; what is sold for them has its own category (the phone's page suggests it).
+  { from: ["celulares"], to: "acessorios-celular", test: (t) => (PHONE_ACCESSORY_LEAD.test(t) || FOR_PHONE.test(t)) && !PHONE_LEAD.test(t) },
   { from: ["casa", "eletronicos", "eletrodomesticos", "informatica", "celulares", "moda", "esporte"], to: "ferramentas", test: isTool },
   // In a grab-bag category too, except snap-button pliers (craft gear, sent to arte-papelaria from "ferramentas").
   { from: NOISY, to: "ferramentas", test: (t) => isTool(t) && !/bot[aã]o de press[aã]o/i.test(t) },

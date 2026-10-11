@@ -10,7 +10,7 @@ import { SiteFooter } from "@/components/site-footer"
 import { ALL_PRODUCTS, CATEGORIES, getProductOffers, STORES } from "@/lib/mock-data"
 import type { Product } from "@/lib/types"
 import { formatCurrency } from "@/lib/utils"
-import { getClosedOffer, getOffer, getOfferImages, getPriceStats, getRelated, getSiblings, getTopDiscountIds } from "@/lib/offers"
+import { getClosedOffer, getOffer, getOfferImages, getPhoneAccessories, getPriceStats, getRelated, getSiblings, getTopDiscountIds } from "@/lib/offers"
 import { breadcrumbJsonLd, productJsonLd, serializeJsonLd } from "@/lib/structured-data"
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://e-zoom.vercel.app"
@@ -115,6 +115,7 @@ export default async function ProdutoPage({
 
   // Suggestions use real offers only (never the sample data) and hide below 3 cards.
   const { similar, more } = isLive ? await getRelated(product) : { similar: [], more: [] }
+  const accessories = isLive ? await getPhoneAccessories(product) : []
 
   return (
     <main id="conteudo" className="min-h-screen bg-background">
@@ -150,6 +151,14 @@ export default async function ProdutoPage({
         <section className="page-container pb-8">
           <ProductComments offerId={product.id} />
         </section>
+      )}
+      {accessories.length >= 3 && (
+        <DealsCarousel
+          products={accessories}
+          title="Acessórios para celular"
+          href="/categoria/acessorios-celular"
+          tone="light"
+        />
       )}
       {similar.length >= 3 && (
         <DealsCarousel

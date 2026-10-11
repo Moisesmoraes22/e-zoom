@@ -1,7 +1,7 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js"
 import { cache } from "react"
 
-import { byDiscount, categoryCounts, countByStoreId, sameCategory, withVariants, type CategoryCount } from "@/lib/deals"
+import { byDiscount, byRelevance, categoryCounts, countByStoreId, sameCategory, withVariants, type CategoryCount } from "@/lib/deals"
 import { ALL_PRODUCTS, CATEGORIES } from "@/lib/mock-data"
 import { isCredibleDrop, OFFER_COLUMNS, rowToProduct, type OfferRow } from "@/lib/offer-row"
 import type { PriceStats, Product } from "@/lib/types"
@@ -366,6 +366,38 @@ export const getRelated = cache(
     return { similar, more }
   },
 )
+
+/** Brand words of a phone title, to find accessories made for that brand. */
+const PHONE_BRAND_TERMS: [RegExp, string][] = [
+  [/iphone|apple/i, "iphone"],
+  [/samsung|galaxy/i, "galaxy"],
+  [/motorola|moto /i, "moto"],
+  [/xiaomi|redmi|poco/i, "redmi"],
+  [/realme/i, "realme"],
+  [/pixel|google/i, "pixel"],
+]
+
+/**
+ * Accessories to suggest on a phone's page: cases, films, chargers and cables of the same brand
+ * first (matched by the brand word in the title), then the most relevant ones. Empty for anything
+ * that is not a phone, so the page shows nothing rather than a random list.
+ */
+export const getPhoneAccessories = cache(async (product: Product): Promise<Product[]> => {
+  if (product.category !== "celulares") return []
+  const supabase = lightClient()
+  if (!supabase) return []
+  const brand = PHONE_BRAND_TERMS.find(([re]) => re.test(product.title))?.[1]
+  const base = () => visible(supabase.from("offers").select(LIST_COLUMNS)).eq("category_slug", "acessorios-celular")
+  const [same, any] = await Promise.all([
+    brand ? base().ilike("title", `%${brand}%`).order("last_seen_at", { ascending: false }).limit(120) : Promise.resolve({ data: [] }),
+    base().order("last_seen_at", { ascending: false }).limit(60),
+  ])
+  const toProducts = (rows: unknown) => ((rows ?? []) as OfferRow[]).map((r) => withoutUndefined(rowToProduct(r)))
+  const first = byRelevance(toProducts(same.data))
+  const seen = new Set(first.map((p) => p.id))
+  const rest = byRelevance(toProducts(any.data).filter((p) => !seen.has(p.id)))
+  return [...first, ...rest].slice(0, 8)
+})
 
 /** Ids of the best-discounted offers, to pre-build their pages (a small query, not the catalogue). */
 export async function getTopDiscountIds(limit: number): Promise<string[]> {
