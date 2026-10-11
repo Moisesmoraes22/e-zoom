@@ -12,16 +12,16 @@ export function SiteFooter() {
       <div className="border-t border-border bg-surface">
         <div className="page-container space-y-2 py-6 text-xs leading-relaxed text-muted-foreground">
           <p>
-            E-Zoom é um hub de ofertas. Os produtos são vendidos e entregues pelas lojas parceiras — ao clicar em
+            E-Zooom é um hub de ofertas. Os produtos são vendidos e entregues pelas lojas parceiras — ao clicar em
             &quot;Ver na loja&quot;, você é redirecionado para finalizar a compra por lá.
           </p>
           <p>
-            Como Associado da Amazon, o E-Zoom ganha com compras qualificadas. Também participamos do programa de
+            Como Associado da Amazon, o E-Zooom ganha com compras qualificadas. Também participamos do programa de
             afiliados do Mercado Livre e da Shopee e podemos receber comissão pelas compras feitas pelos nossos
             links, sem custo extra para você. Preços e disponibilidade podem mudar a qualquer momento.
           </p>
           <p>
-            © {new Date().getFullYear()} E-Zoom. Todos os direitos reservados. ·{" "}
+            © {new Date().getFullYear()} E-Zooom. Todos os direitos reservados. ·{" "}
             <Link href="/termos" className="underline-offset-2 hover:underline">
               Termos de Uso
             </Link>{" "}
@@ -34,7 +34,7 @@ export function SiteFooter() {
       <div className="bg-footer-bar text-white">
         <div className="page-container flex flex-wrap items-center justify-between gap-x-6 gap-y-3 py-5">
           <p className="text-sm font-semibold sm:text-base">
-            Você encontra no E-Zoom. A compra é finalizada na loja.
+            Você encontra no E-Zooom. A compra é finalizada na loja.
           </p>
           <nav aria-label="Rodapé" className="flex flex-wrap items-center gap-x-5 gap-y-1 text-sm">
             <Link

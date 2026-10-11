@@ -34,7 +34,7 @@ export function ClosedOffer({
           <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Oferta encerrada</p>
           <h1 className="mt-1 text-lg font-bold leading-snug text-foreground sm:text-xl">{offer.title}</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Esta oferta saiu {FROM_STORE[offer.store] ?? "de"} {STORES[offer.store].name} e não aparece mais no E-Zoom. O último preço que vimos
+            Esta oferta saiu {FROM_STORE[offer.store] ?? "de"} {STORES[offer.store].name} e não aparece mais no E-Zooom. O último preço que vimos
             foi {formatCurrency(offer.price)}; ele pode já não valer.
           </p>
           <div className="mt-4 flex flex-wrap justify-center gap-3 sm:justify-start">

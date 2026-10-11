@@ -310,7 +310,7 @@ export default async function Home() {
           offers={popular}
           id="mais-clicadas"
           title="Mais clicadas"
-          note="As ofertas mais abertas pelos visitantes do E-Zoom nos últimos dias."
+          note="As ofertas mais abertas pelos visitantes do E-Zooom nos últimos dias."
           href="/busca?ordenacao=relevancia"
           linkLabel="Ver todas as ofertas"
         />

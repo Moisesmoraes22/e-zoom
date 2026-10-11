@@ -59,7 +59,7 @@ test("sem ofertas boas, a lista fica vazia (nada é inventado para completar)", 
 test("texto: título curto, preços, loja, link de afiliado, aviso de comissão e link do site", () => {
   const text = dailyDealsText(
     [deal({ title: "A".repeat(100), price: 70, originalPrice: 100, isFreeShipping: true, affiliateUrl: "https://example.test/x" })],
-    "https://e-zoom.vercel.app",
+    "https://ezooom.com.br",
     new Date("2026-10-07T15:00:00Z"),
   )
   assert.ok(text.startsWith("🔥 OFERTAS DO DIA - 07/10"))
@@ -69,6 +69,6 @@ test("texto: título curto, preços, loja, link de afiliado, aviso de comissão 
   assert.ok(text.includes("frete grátis"))
   assert.ok(text.includes("https://example.test/x"))
   assert.ok(text.includes("…"), "título longo deveria ser cortado")
-  assert.ok(text.includes("https://e-zoom.vercel.app/busca?ordenacao=desconto"))
+  assert.ok(text.includes("https://ezooom.com.br/busca?ordenacao=desconto"))
   assert.ok(text.includes("Podemos receber comissão"))
 })

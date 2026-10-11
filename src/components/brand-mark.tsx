@@ -1,5 +1,5 @@
 /**
- * The E-Zoom monogram (an "E" and a "Z" with a wing). Drawn with currentColor, so it follows the
+ * The E-Zooom monogram (an "E" and a "Z" with a wing). Drawn with currentColor, so it follows the
  * text colour: `text-primary` gives the brand blue in both themes.
  * Provisional vector, redrawn from the logo preview; swap the paths when the original SVG arrives.
  */

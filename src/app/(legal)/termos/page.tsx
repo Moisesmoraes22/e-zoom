@@ -10,11 +10,11 @@ export default function TermsPage() {
     <>
       <h1>Termos de Uso</h1>
       <p>Última atualização: 8 de outubro de 2026.</p>
-      <p>Ao usar o E-Zoom você concorda com estes termos. Se não concordar, não utilize o site.</p>
+      <p>Ao usar o E-Zooom você concorda com estes termos. Se não concordar, não utilize o site.</p>
 
-      <h2>1. O que é o E-Zoom</h2>
+      <h2>1. O que é o E-Zooom</h2>
       <p>
-        O E-Zoom é um hub que reúne ofertas de lojas parceiras (Amazon, Mercado Livre e Shopee). Não somos
+        O E-Zooom é um hub que reúne ofertas de lojas parceiras (Amazon, Mercado Livre e Shopee). Não somos
         loja: não vendemos, não entregamos e não processamos pagamentos.
       </p>
 
@@ -26,7 +26,7 @@ export default function TermsPage() {
 
       <h2>3. Links de afiliado</h2>
       <p>
-        Como Associado da Amazon, o E-Zoom ganha com compras qualificadas. Também participamos do programa de
+        Como Associado da Amazon, o E-Zooom ganha com compras qualificadas. Também participamos do programa de
         afiliados do Mercado Livre e podemos receber comissão pelas compras feitas pelos nossos links, sem custo
         extra para você.
       </p>
@@ -35,7 +35,7 @@ export default function TermsPage() {
       <p>
         Os preços e as informações exibidos são coletados das lojas e podem mudar a qualquer momento, ficando
         desatualizados ou indisponíveis. O valor válido é sempre o exibido na página da loja no momento da compra.
-        Informações como &quot;menor preço registrado&quot; referem-se apenas ao histórico que o E-Zoom conseguiu
+        Informações como &quot;menor preço registrado&quot; referem-se apenas ao histórico que o E-Zooom conseguiu
         registrar.
       </p>
 
@@ -55,7 +55,7 @@ export default function TermsPage() {
         <li>
           <strong>Você é o responsável</strong> pelo que publica. Envie apenas conteúdo seu (texto, fotos e vídeos que
           você mesmo fez) e que descreva sua experiência com o produto ou o vendedor. Os comentários são opiniões dos
-          usuários, não do E-Zoom, e não verificamos se o autor comprou o produto.
+          usuários, não do E-Zooom, e não verificamos se o autor comprou o produto.
         </li>
         <li>
           <strong>Não publique:</strong> ofensas, discriminação, ameaças, conteúdo sexual, violento ou ilegal;
@@ -65,7 +65,7 @@ export default function TermsPage() {
         </li>
         <li>
           <strong>Licença:</strong> você continua sendo o autor. Ao publicar, você nos autoriza, sem custo e sem
-          exclusividade, a armazenar e exibir o conteúdo no E-Zoom enquanto ele estiver publicado.
+          exclusividade, a armazenar e exibir o conteúdo no E-Zooom enquanto ele estiver publicado.
         </li>
         <li>
           <strong>Moderação:</strong> o comentário aparece na hora, sem revisão prévia. Qualquer usuário logado pode
@@ -98,7 +98,7 @@ export default function TermsPage() {
 
       <h2>8. Propriedade intelectual</h2>
       <p>
-        O código, o design e a marca E-Zoom pertencem aos seus titulares. Nomes, imagens e marcas de produtos e
+        O código, o design e a marca E-Zooom pertencem aos seus titulares. Nomes, imagens e marcas de produtos e
         lojas pertencem aos respectivos donos e são exibidos apenas para identificar as ofertas. Os comentários,
         fotos e vídeos pertencem a quem os publicou, conforme a seção 6.
       </p>

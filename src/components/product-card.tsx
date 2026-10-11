@@ -32,7 +32,7 @@ export function ProductCard({
   compact?: boolean
   /** Above-the-fold card: load the photo right away with high priority (it can be the LCP). */
   priority?: boolean
-  /** Small tag above the title, e.g. "Achado E-Zoom". */
+  /** Small tag above the title, e.g. "Achado E-Zooom". */
   label?: string
 }) {
   const { toggleFavorite, isFavorite, launchFlight } = useFavorites()

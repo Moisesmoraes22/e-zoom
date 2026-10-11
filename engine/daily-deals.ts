@@ -6,7 +6,7 @@ import { writeFileSync } from "node:fs"
 import { getCatalog } from "../src/lib/offers.ts"
 import { dailyDealsText, pickDailyDeals } from "./lib/daily-deals.ts"
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://e-zoom.vercel.app"
+const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://ezooom.com.br"
 
 const { products, live } = await getCatalog()
 if (!live) {

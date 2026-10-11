@@ -32,7 +32,7 @@ export async function generateMetadata({
     description:
       live && count > 0
         ? `${count} ${count === 1 ? "oferta" : "ofertas"} de ${category.name} do Mercado Livre, da Shopee e da Amazon, com preço, desconto e histórico.`
-        : `Ofertas de ${category.name} nas lojas parceiras do E-Zoom.`,
+        : `Ofertas de ${category.name} nas lojas parceiras do E-Zooom.`,
   }
 }
 
@@ -48,7 +48,7 @@ export default async function CategoriaPage({
   // Only this category travels with the page: it is the only one the list can show.
   const inCategory = products.filter((p) => p.category === category.slug)
   const seedCards = sortProducts(inCategory, "relevance").slice(0, PAGE_SIZE)
-  const site = process.env.NEXT_PUBLIC_SITE_URL ?? "https://e-zoom.vercel.app"
+  const site = process.env.NEXT_PUBLIC_SITE_URL ?? "https://ezooom.com.br"
 
   return (
     <main id="conteudo" className="min-h-screen bg-background">

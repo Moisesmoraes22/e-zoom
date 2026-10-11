@@ -20,7 +20,7 @@ const buttonClass =
   "flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-border px-4 text-sm font-semibold text-foreground transition-colors hover:border-primary/50 hover:text-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 
 /**
- * Shares the E-Zoom page of the offer (never the affiliate link, so the preview shows our page and
+ * Shares the E-Zooom page of the offer (never the affiliate link, so the preview shows our page and
  * the visitor still goes through "Ver oferta"). Phones get the system share sheet; desktops open
  * WhatsApp with the message ready, and "Copiar link" is always there.
  */
@@ -28,7 +28,7 @@ export function ShareButton({ id, title, price, storeName, className, leading }:
   const [copied, setCopied] = useState(false)
   const url = () => `${window.location.origin}/produto/${id}?utm_source=compartilhar`
   const short = title.length > 90 ? `${title.slice(0, 87)}…` : title
-  const text = `${short} por ${formatCurrency(price)} no ${storeName}. Veja no E-Zoom:`
+  const text = `${short} por ${formatCurrency(price)} no ${storeName}. Veja no E-Zooom:`
 
   const share = async () => {
     if (navigator.share) {

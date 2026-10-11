@@ -16,13 +16,13 @@ const product = (extra: Partial<Product> = {}): Product => ({
 })
 
 test("Product com Offer em reais, preço com duas casas e a página do site como URL", () => {
-  const data = productJsonLd(product(), "https://e-zoom.vercel.app")
+  const data = productJsonLd(product(), "https://ezooom.com.br")
   assert.equal(data["@type"], "Product")
   assert.equal(data.name, "Whey Protein 900g")
   assert.deepEqual(data.image, ["https://example.test/a.jpg"])
   assert.equal(data.offers.priceCurrency, "BRL")
   assert.equal(data.offers.price, "99.90")
-  assert.equal(data.offers.url, "https://e-zoom.vercel.app/produto/abc-123")
+  assert.equal(data.offers.url, "https://ezooom.com.br/produto/abc-123")
   assert.equal(data.offers.seller.name, "Mercado Livre")
 })
 
@@ -41,10 +41,10 @@ test("o JSON do script nunca fecha a tag nem quebra com títulos hostis", () => 
 })
 
 test("BreadcrumbList numera os níveis a partir de 1 e usa URLs absolutas", () => {
-  const data = breadcrumbJsonLd([["Início", "/"], ["Casa", "/categoria/casa"]], "https://e-zoom.vercel.app")
+  const data = breadcrumbJsonLd([["Início", "/"], ["Casa", "/categoria/casa"]], "https://ezooom.com.br")
   assert.deepEqual(
     data.itemListElement.map((i) => [i.position, i.item]),
-    [[1, "https://e-zoom.vercel.app/"], [2, "https://e-zoom.vercel.app/categoria/casa"]],
+    [[1, "https://ezooom.com.br/"], [2, "https://ezooom.com.br/categoria/casa"]],
   )
 })
 

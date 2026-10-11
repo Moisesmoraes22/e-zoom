@@ -24,16 +24,16 @@ const jakarta = Plus_Jakarta_Sans({
 
 export const metadata: Metadata = {
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? "https://e-zoom.vercel.app",
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://ezooom.com.br",
   ),
   title: {
-    default: "E-Zoom — Hub de ofertas",
-    template: "%s — E-Zoom",
+    default: "E-Zooom — Hub de ofertas",
+    template: "%s — E-Zooom",
   },
   description:
     "Hub de ofertas que reúne os melhores preços do Mercado Livre, Shopee e Amazon num só lugar.",
   openGraph: {
-    siteName: "E-Zoom",
+    siteName: "E-Zooom",
     locale: "pt_BR",
     type: "website",
   },

@@ -213,7 +213,7 @@ export function FavoritesSheet() {
                         </Link>
                         {gone ? (
                           <p className="text-xs text-muted-foreground">
-                            Esta oferta não está mais disponível no E-Zoom.
+                            Esta oferta não está mais disponível no E-Zooom.
                           </p>
                         ) : (
                           <>
@@ -330,7 +330,7 @@ export function FavoritesSheet() {
               {blockedTabs > 0 && (
                 <p role="status" className="text-xs text-muted-foreground">
                   O navegador bloqueou {blockedTabs} {blockedTabs === 1 ? "aba" : "abas"}. Permita pop-ups
-                  para o E-Zoom e toque de novo, ou use o “Ver oferta” de cada item.
+                  para o E-Zooom e toque de novo, ou use o “Ver oferta” de cada item.
                 </p>
               )}
             </div>

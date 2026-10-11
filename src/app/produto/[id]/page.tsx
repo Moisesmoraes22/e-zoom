@@ -13,7 +13,7 @@ import { formatCurrency } from "@/lib/utils"
 import { getClosedOffer, getOffer, getOfferImages, getPhoneAccessories, getPriceStats, getRelated, getSiblings, getTopDiscountIds } from "@/lib/offers"
 import { breadcrumbJsonLd, productJsonLd, serializeJsonLd } from "@/lib/structured-data"
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://e-zoom.vercel.app"
+const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://ezooom.com.br"
 
 export const revalidate = 1800
 
@@ -51,11 +51,11 @@ export async function generateMetadata({
     // What WhatsApp, Telegram and Facebook show when the page is shared.
     openGraph: {
       type: "website",
-      siteName: "E-Zoom",
+      siteName: "E-Zooom",
       locale: "pt_BR",
       url: `/produto/${product.id}`,
       title: product.title,
-      description: `${formatCurrency(product.price)} em ${STORES[product.store].name}. Veja o histórico de preço no E-Zoom.`,
+      description: `${formatCurrency(product.price)} em ${STORES[product.store].name}. Veja o histórico de preço no E-Zooom.`,
       images: [product.image],
     },
     twitter: { card: "summary_large_image" },

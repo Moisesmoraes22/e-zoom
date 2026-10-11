@@ -134,12 +134,12 @@ export function AuthCard({
       <div className="rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8">
         <Link
           href="/"
-          aria-label="E-Zoom, voltar para a página inicial"
+          aria-label="E-Zooom, voltar para a página inicial"
           className="flex w-fit items-center gap-2.5 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <BrandMark className="h-10 w-auto text-primary" />
           <span className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-2xl font-semibold text-transparent">
-            E-Zoom
+            E-Zooom
           </span>
         </Link>
         <h1 className="mt-6 text-2xl font-bold tracking-tight text-foreground">{title}</h1>

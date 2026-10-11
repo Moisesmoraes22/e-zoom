@@ -240,7 +240,7 @@ export function ProductDetail({
               Você será direcionado {toward} {store.name} para finalizar a compra.
             </p>
             <p className="mt-1 text-center text-[11px] text-muted-foreground">
-              Link de afiliado: o E-Zoom pode receber comissão, sem custo extra para você.
+              Link de afiliado: o E-Zooom pode receber comissão, sem custo extra para você.
             </p>
           </section>
         </div>
@@ -369,7 +369,7 @@ export function ProductDetail({
               )}
               <p className="mt-3 text-xs text-muted-foreground">
                 Acompanhamos este preço desde {formatDay(tracked.since)} · {tracked.points.length} registros. Só
-                aparecem preços que o E-Zoom viu; não há dados de antes disso.
+                aparecem preços que o E-Zooom viu; não há dados de antes disso.
               </p>
             </>
           ) : (
@@ -435,7 +435,7 @@ export function ProductDetail({
 
       <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl bg-accent px-4 py-3 text-sm text-accent-foreground">
         <Info className="h-5 w-5 shrink-0 text-brand" aria-hidden />
-        <p className="font-semibold">A compra é feita na loja. O E-Zoom reúne e apresenta as ofertas.</p>
+        <p className="font-semibold">A compra é feita na loja. O E-Zooom reúne e apresenta as ofertas.</p>
         <Link
           href="/como-funciona"
           className="flex items-center gap-1 font-semibold text-brand hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"

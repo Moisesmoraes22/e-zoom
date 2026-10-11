@@ -96,7 +96,7 @@ export function SiteHeader({
           className="-my-2 flex items-center gap-2 rounded-md py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <BrandMark className="h-7 w-auto text-white" />
-          <span className="text-xl font-extrabold tracking-tight text-white">E-Zoom</span>
+          <span className="text-xl font-extrabold tracking-tight text-white">E-Zooom</span>
         </Link>
 
         <div className="ml-4 hidden items-center gap-6 lg:flex">
@@ -203,7 +203,7 @@ export function SiteHeader({
                 <SheetTitle className="flex items-center gap-2">
                   <BrandMark className="h-7 w-auto text-primary" />
                   <span className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-xl font-semibold text-transparent">
-                    E-Zoom
+                    E-Zooom
                   </span>
                 </SheetTitle>
               </SheetHeader>

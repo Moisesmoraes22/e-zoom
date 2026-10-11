@@ -10,19 +10,19 @@ export default function PrivacyPage() {
       <h1>Política de Privacidade</h1>
       <p>Última atualização: 8 de outubro de 2026.</p>
       <p>
-        Esta política explica quais dados o E-Zoom coleta, para quê, e como você pode exercer seus direitos
+        Esta política explica quais dados o E-Zooom coleta, para quê, e como você pode exercer seus direitos
         previstos na Lei Geral de Proteção de Dados (LGPD, Lei 13.709/2018).
       </p>
 
       <h2>1. Quem é o responsável</h2>
       <p>
-        <strong>E-Zoom</strong> é o controlador dos dados tratados neste site. Contato:{" "}
+        <strong>E-Zooom</strong> é o controlador dos dados tratados neste site. Contato:{" "}
         <a href={`mailto:${EMAIL}`}>{EMAIL}</a>.
       </p>
 
       <h2>2. O que o site é</h2>
       <p>
-        O E-Zoom é um hub de ofertas. Não vendemos produtos nem processamos pagamentos: ao clicar em &quot;Ver
+        O E-Zooom é um hub de ofertas. Não vendemos produtos nem processamos pagamentos: ao clicar em &quot;Ver
         oferta&quot; você é levado ao site da loja (Amazon, Mercado Livre ou Shopee), que trata seus dados conforme
         a política própria.
       </p>
@@ -108,7 +108,7 @@ export default function PrivacyPage() {
       <ul>
         <li>
           <strong>O que aparece para todos:</strong> o texto do comentário, as fotos e o vídeo, a data e o seu{" "}
-          <strong>primeiro nome</strong> (ou &quot;Cliente E-Zoom&quot; se você não informou nome). Seu e-mail nunca é
+          <strong>primeiro nome</strong> (ou &quot;Cliente E-Zooom&quot; se você não informou nome). Seu e-mail nunca é
           mostrado. O que você publica pode ser visto por qualquer pessoa que abra a página da oferta.
         </li>
         <li>
@@ -165,7 +165,7 @@ export default function PrivacyPage() {
         </li>
         <li>
           <strong>Lojas parceiras</strong> (Amazon, Mercado Livre, Shopee): recebem você apenas quando clica em uma
-          oferta, e podem identificar que a visita veio do E-Zoom por meio do link de afiliado.
+          oferta, e podem identificar que a visita veio do E-Zooom por meio do link de afiliado.
         </li>
       </ul>
       <p>

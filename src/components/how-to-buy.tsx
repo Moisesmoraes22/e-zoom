@@ -25,7 +25,7 @@ export function HowToBuy() {
           ))}
         </ol>
         <div className="mt-6 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm text-slate-600 dark:text-muted-foreground">
-          <p>O E-Zoom reúne as ofertas. A loja é responsável pela venda e entrega.</p>
+          <p>O E-Zooom reúne as ofertas. A loja é responsável pela venda e entrega.</p>
           <Link
             href="/como-funciona"
             className="-my-2.5 flex items-center gap-1 rounded-md py-2.5 font-semibold text-hero hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring dark:text-brand"
