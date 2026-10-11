@@ -172,6 +172,23 @@ A amostra de cliques é pequena e inclui testes nossos. Serve de indício, não 
 | Branch `redesign/visual` sem publicar; conflito com a outra sessão em `search-results.tsx` | git | depende de você |
 | Logos das lojas: conferir as regras de uso de marca de cada programa | `public/lojas/` | depende de você |
 
+## F. Categorias erradas (revisão de 11/10/2026)
+
+- **Como achei:** comparei, no catálogo ativo, a primeira palavra de cada título com a categoria em que a
+  maioria das ofertas com essa palavra está. As divergências reais apareceram em categorias
+  "saco de gatos" da loja (agro, antiguidades, indústria, joias e relógios), na Shopee (celulares
+  dentro de eletrônicos) e em câmeras IP dentro de informática.
+- **Regra nova:** quando o título NOMEIA o produto no começo ("Smartphone...", "Ventilador de Coluna...",
+  "Parafusadeira...") ele manda sobre a categoria da loja, nas categorias onde o erro é conhecido.
+  Quem só menciona o produto no meio ("Capa para Celular", "Câmera de Ré") fica onde está.
+- **Resultado em simulação no banco real:** 60 correções automáticas, todas conferidas (26 ferramentas,
+  9 celulares, 8 eletrodomésticos, 6 informática, 6 câmeras, 3 brinquedos, 1 casa, 1 eletrônicos).
+- **Palpite do Telegram e da revisão:** `guessCategory` não conhecia a categoria `celulares` e jogava
+  iPhone e Galaxy em eletrônicos, o que enchia a lista "para revisar" de falsos alarmes (812 em 24 h,
+  agora 92).
+- **Pedidos de produto:** ofertas trazidas por um pedido passam pelo mesmo caminho (título decide).
+- **Testes:** 19 casos novos em `engine/tests/categories.test.ts` (291 testes passando).
+
 ## E. O que está bom
 - Página de produto lê uma oferta, não o catálogo (antes levava 14 s a frio).
 - Links de afiliado reconstruídos do zero: a tag de terceiros é descartada (`engine/lib/links.ts`).

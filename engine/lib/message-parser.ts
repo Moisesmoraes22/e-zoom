@@ -115,7 +115,9 @@ const CATEGORY_KEYWORDS: [string, RegExp][] = [
   ["moda", /\b(tenis|sapat\w*|chinelo|sandalia|bota|camisas?|camisetas?|bermudas?|polo|jaquetas?|calcas?|vestidos?|mochilas?|bolsas?|relogios?|oculos)\b/],
   ["esporte", /\b(bicicleta|esteira|halter|academia|fitness|garrafa termica|copo termico)\b/],
   ["casa", /\b(air ?fryer|fritadeira|aspirador|cadeira|colchao|sofa|poltrona|mesa|escrivaninha|panela|frigideira|geladeira|microondas|micro-ondas|forno|cafeteira|sanduicheira|sorveteira|liquidificador|ventilador|ar-condicionado|ar condicionado|lampada|vaporizador|sabao|detergente|amaciante|papel higienico|lava roupas|omo)\b/],
-  ["eletronicos", /\b(fone|smartwatch|celular|smartphone|iphone|galaxy|kindle|echo|alexa|soundbar|notebook|tablet|tv|monitor|carregador|adaptador|cabo|bateria|ssd|camera|bluetooth|caixa de som|teclado|mouse|mousepad|microfone|processador|ryzen|placa mae|placa de video|placa grafica|placa principal|rtx|radeon|geforce|cooler|water cooler|ventoinhas?|fans?|fonte|gabinete|impressora|suporte articulado|suporte de mesa|suporte fixo)\b/],
+  // Phones and phone gear have their own category (Mercado Livre's "Celulares e Telefones").
+  ["celulares", /\b(celular|smartphone|iphone|galaxy [a-z]?\d+|redmi|moto [gec]\d+|motorola moto)\b/],
+  ["eletronicos", /\b(fone|smartwatch|galaxy|kindle|echo|alexa|soundbar|notebook|tablet|tv|monitor|carregador|adaptador|cabo|bateria|ssd|camera|bluetooth|caixa de som|teclado|mouse|mousepad|microfone|processador|ryzen|placa mae|placa de video|placa grafica|placa principal|rtx|radeon|geforce|cooler|water cooler|ventoinhas?|fans?|fonte|gabinete|impressora|suporte articulado|suporte de mesa|suporte fixo)\b/],
 ]
 
 /**

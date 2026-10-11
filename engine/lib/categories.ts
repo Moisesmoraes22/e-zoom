@@ -34,6 +34,22 @@ const PET = /(^(caminha|casinha|coleira|arranhador|comedouro|ra[cç][aã]o)\b|\b
 // Security cameras and CFTV kits: Mercado Livre files them under "Câmeras e Acessórios".
 const CFTV = word("cftv|dvr|nvr|gravador de v[ií]deo|mhdx|balun|video ?porteiro|c[aâ]meras? (ip|wi-?fi|de seguran[cç]a|de monitoramento|de vigil[aâ]ncia|speed dome|bullet|dome|inteligente|externa)|kit (de )?(c[aâ]meras?|cftv)|central de alarme|alarme (residencial|monitorado)")
 
+// Categories whose store tree is a grab bag (a drill filed under "agro", a fan under "antiguidades").
+// For these the title decides, as long as it NAMES the product at its start.
+const NOISY = ["agro", "antiguidades", "industria", "joias-relogios", "arte-papelaria", "festas"]
+
+// A phone names itself first ("Smartphone Motorola...", "Celular iPhone 17...", "Galaxy A55..."); a word
+// further on ("Capa para celular", "Tela Magnética ... Celular") only mentions it.
+const PHONE_LEAD = lead("smartphone|celular|iphone|apple iphone|(?:samsung )?galaxy [a-z]?\\d+|redmi|xiaomi redmi|moto [gec]\\d+|motorola moto|poco [a-z]\\d+|realme")
+const TOY_PHONE = /(infantil|brinquedo|mordedor|musical|simulador|de mentirinha)/i
+const NOTEBOOK_LEAD = lead("notebook|(?:samsung )?galaxy book\\d*|macbook|chromebook|ideapad|vivobook|inspiron|aspire")
+// Small appliances named at the start of the title.
+const APPLIANCE_LEAD = lead("ventilador|liquidificador|cafeteira|chaleira|sanduicheira|air ?fryer|fritadeira|batedeira|aspirador|ferro de passar|purificador|umidificador|climatizador|micro-?ondas|geladeira|fog[aã]o|forno el[eé]trico")
+// An IP / Wi-Fi security camera, not a car reversing camera or a photo camera.
+const IP_CAMERA = /^c[aâ]mera\b.*\b(ip|wi-?fi|externa|seguran[cç]a|vigil[aâ]ncia|monitoramento|infravermelho|noturna)\b/i
+const CAR_CAMERA = /(\br[eé]\b|estacionamento|automotiv|veicular|carro|\bmoto\b|dash ?cam|capacete)/i
+const TOY_LEAD = lead("brinquedo|boneca|boneco|lego|quebra-cabe[cç]a|pel[uú]cia|carrinho de controle remoto")
+
 const RULES: { from: string[]; test: (t: string) => boolean; to: string }[] = [
   { from: ["brinquedos", "bebes", "esporte"], to: "moda", test: (t) => LEAD_SHOE.test(t) },
   { from: ["games"], to: "moda", test: (t) => lead("camisetas?|camisa").test(t) },
@@ -48,6 +64,8 @@ const RULES: { from: string[]; test: (t: string) => boolean; to: string }[] = [
   { from: ["ferramentas"], to: "casa", test: (t) => /^(pulverizador|borrifador)/i.test(t) },
   { from: ["ferramentas"], to: "construcao", test: (t) => /pistola de pintura/i.test(t) },
   { from: ["ferramentas"], to: "saude", test: (t) => /^tala /i.test(t) },
+  // Toy tool kits sit in the store's tools tree.
+  { from: ["ferramentas"], to: "brinquedos", test: (t) => /\b(infantil|toy king|brinquedo)\b/i.test(t) },
   { from: ["ferramentas"], to: "arte-papelaria", test: (t) => /bot[aã]o de press[aã]o/i.test(t) },
   // Shoes, caps, swimwear and bags all live in "moda" (Mercado Livre's "Calçados, Roupas e Bolsas").
   { from: ["esporte"], to: "moda", test: (t) => (SHOE.test(t) && !NOT_SHOE.test(t)) || /^(vans|olympikus|nike (court|air|revolution)|fila (rise|racer|striker)|mizuno wave)/i.test(t) },
@@ -69,7 +87,14 @@ const RULES: { from: string[]; test: (t: string) => boolean; to: string }[] = [
   { from: ["esporte"], to: "brinquedos", test: (t) => /mrbeast/i.test(t) },
   { from: ["bebes", "brinquedos", "moda"], to: "esporte", test: (t) => /(taco de sinuca|lanterna (t[aá]tica|de cabe[cç]a))/i.test(t) },
   { from: ["eletronicos", "informatica"], to: "games", test: (t) => /(roblox|razer gold|itunes)/i.test(t) },
-  { from: ["casa", "eletronicos", "eletrodomesticos", "informatica", "celulares", "moda", "esporte"], to: "ferramentas", test: isTool },
+  // The title NAMES the product at its start: it overrides a store tree that is a grab bag.
+  { from: ["eletronicos", "informatica", "games", "acessorios-veiculos", ...NOISY], to: "celulares", test: (t) => PHONE_LEAD.test(t) && !TOY_PHONE.test(t) },
+  { from: ["eletronicos", "celulares"], to: "informatica", test: (t) => NOTEBOOK_LEAD.test(t) },
+  { from: NOISY, to: "eletrodomesticos", test: (t) => APPLIANCE_LEAD.test(t) },
+  { from: ["informatica", "eletronicos"], to: "cameras", test: (t) => IP_CAMERA.test(t) && !CAR_CAMERA.test(t) },
+  { from: ["informatica", "eletronicos", ...NOISY], to: "brinquedos", test: (t) => TOY_LEAD.test(t) },
+  { from: ["acessorios-veiculos"], to: "casa", test: (t) => /^tela mosquiteira/i.test(t) },
+  { from: ["casa", "eletronicos", "eletrodomesticos", "informatica", "celulares", "moda", "esporte", ...NOISY], to: "ferramentas", test: isTool },
   { from: ["esporte"], to: "suplementos", test: (t) => /(anabolic mass|metilcobalamina|vitamina b12)/i.test(t) },
 ]
 

@@ -1,6 +1,8 @@
 import { createClient } from "@supabase/supabase-js"
 
 import { withoutBlocked } from "./lib/blocklist.ts"
+import { refineCategory } from "./lib/categories.ts"
+import { guessCategory } from "./lib/message-parser.ts"
 import { searchMercadoLivre } from "./lib/ml-search.ts"
 
 // Brings into the catalogue the products visitors searched for and did not find (table
@@ -39,7 +41,16 @@ for (const request of pending) {
     const found = withoutBlocked(await searchMercadoLivre(request.term, process.env, OFFERS_PER_TERM), blocked)
     const now = new Date().toISOString()
     if (found.length > 0) {
-      const rows = found.map(({ seen_at, ...offer }) => ({ ...offer, is_active: true, last_seen_at: seen_at ?? now }))
+      // A free search has no store category: the title decides, through the same rules the collectors use.
+      const rows = found.map(({ seen_at, ...offer }) => {
+        const guess = guessCategory(offer.title)
+        return {
+          ...offer,
+          category_slug: guess ? refineCategory(offer.title, guess) : null,
+          is_active: true,
+          last_seen_at: seen_at ?? now,
+        }
+      })
       const { error: upsertError } = await supabase.from("offers").upsert(rows, { onConflict: "store_id,external_id" })
       if (upsertError) throw upsertError
     }
