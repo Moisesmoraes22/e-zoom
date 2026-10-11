@@ -198,6 +198,9 @@ export function SiteHeader({
             <SheetContent
               side="left"
               className="flex w-[300px] flex-col gap-0 overflow-y-auto border-r border-border p-0 sm:w-[360px]"
+              // The search box is the first focusable element; focusing it on open would raise the
+              // phone's keyboard over the menu. The visitor taps it when they want to search.
+              onOpenAutoFocus={(event) => event.preventDefault()}
             >
               <SheetHeader className="border-b border-border p-5 text-left">
                 <SheetTitle className="flex items-center gap-2">
