@@ -1,12 +1,39 @@
 "use client"
 
+import Link from "next/link"
 import { useEffect, useRef } from "react"
 
-import { ProductCard } from "@/components/product-card"
+import { cardImage } from "@/lib/image-url"
 import type { Product } from "@/lib/types"
+import { formatCurrency } from "@/lib/utils"
 
 const ZOOM = 1.35
 const RADIUS = 150
+
+/**
+ * One offer as the lens shows it: photo, title and price, as a link. The full product card (store
+ * badge, button, favourite animation) is about 40 elements; with two layers and doubled rows that
+ * was hundreds of animated nodes, which Safari could not keep at 60 fps.
+ */
+function LensTile({ product }: { product: Product }) {
+  return (
+    <Link
+      href={`/produto/${product.id}`}
+      className="flex h-full flex-col gap-2 rounded-2xl border border-border bg-card p-3 text-card-foreground"
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={cardImage(product.image)}
+        alt=""
+        loading="lazy"
+        decoding="async"
+        className="h-28 w-full object-contain"
+      />
+      <span className="line-clamp-2 text-xs font-medium leading-snug">{product.title}</span>
+      <span className="text-base font-bold">{formatCurrency(product.price)}</span>
+    </Link>
+  )
+}
 
 /** Two rows of real offers sliding in opposite directions; each row is doubled for a seamless loop. */
 function Rows({ products }: { products: Product[] }) {
@@ -18,7 +45,7 @@ function Rows({ products }: { products: Product[] }) {
         <div key={r} className={r === 0 ? "lens-row" : "lens-row lens-row-rev"}>
           {[...row, ...row].map((product, i) => (
             <div key={`${product.id}-${i}`} className="w-[196px] shrink-0">
-              <ProductCard product={product} compact />
+              <LensTile product={product} />
             </div>
           ))}
         </div>
@@ -43,7 +70,11 @@ export function HeroLens({ products }: { products: Product[] }) {
     const layer = zoom.current
     const glass = ring.current
     if (!el || !layer || !glass) return
-    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches
+    // Safari repaints a moving clip-path on the CPU: there the glass stays put until the pointer
+    // is over it, instead of wandering by itself all the time.
+    const calm =
+      matchMedia("(prefers-reduced-motion: reduce)").matches ||
+      /^((?!chrome|chromium|android|crios|fxios).)*safari/i.test(navigator.userAgent)
     let target: { x: number; y: number } | null = null
     let cx = 0
     let cy = 0
@@ -76,7 +107,7 @@ export function HeroLens({ products }: { products: Product[] }) {
       let y: number
       if (target) {
         ;({ x, y } = target)
-      } else if (reduce) {
+      } else if (calm) {
         x = r.width * 0.5
         y = r.height * 0.5
       } else {
@@ -95,14 +126,16 @@ export function HeroLens({ products }: { products: Product[] }) {
       layer.style.transformOrigin = `${cx}px ${cy}px`
       layer.style.transform = `scale(${ZOOM})`
       layer.style.clipPath = `circle(${RADIUS / ZOOM}px at ${cx}px ${cy}px)`
-      glass.style.left = `${cx}px`
-      glass.style.top = `${cy}px`
+      // transform, not left/top: moving the ring must not trigger layout on every frame
+      glass.style.transform = `translate(${cx}px, ${cy}px) translate(-50%, -50%)`
       raf = requestAnimationFrame(frame)
     }
 
     const observer = new IntersectionObserver(([entry]) => {
       visible = entry.isIntersecting
       cancelAnimationFrame(raf)
+      // Off screen the rows stop sliding too (the frame loop that normally manages this is stopped).
+      if (!visible) el.classList.add("lens-hold")
       if (visible) {
         last = performance.now()
         raf = requestAnimationFrame(frame)
@@ -121,10 +154,12 @@ export function HeroLens({ products }: { products: Product[] }) {
 
   return (
     <div ref={box} className="absolute inset-0">
-      <div aria-hidden inert className="pointer-events-none absolute inset-0 [filter:blur(1.5px)_brightness(.55)_saturate(.85)]">
+      <div aria-hidden inert className="pointer-events-none absolute inset-0">
         <Rows products={products} />
+        {/* A flat dark veil instead of a CSS filter: filtering a layer that animates is repainted every frame. */}
+        <div className="absolute inset-0 bg-[#0b1d4a]/55" />
       </div>
-      <div ref={zoom} className="absolute inset-0 will-change-[transform,clip-path] [clip-path:circle(0_at_0_0)]">
+      <div ref={zoom} className="absolute inset-0 [clip-path:circle(0_at_0_0)]">
         <Rows products={products} />
       </div>
       <div ref={ring} aria-hidden className="lens-ring" />
