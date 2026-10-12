@@ -213,6 +213,15 @@
   body {
     @apply bg-background text-foreground;
   }
+  /* A tap on a control acts at once: no wait for a possible double-tap zoom. */
+  a,
+  button,
+  input,
+  select,
+  summary,
+  [role="button"] {
+    touch-action: manipulation;
+  }
 }
 
 /* Added for ~300ms by ThemeProvider when the user switches theme: one global
