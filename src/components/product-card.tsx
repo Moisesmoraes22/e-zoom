@@ -3,7 +3,7 @@
 import { AnimatePresence, m as motion } from "framer-motion"
 import { useRef } from "react"
 import Link from "next/link"
-import { ArrowUpRight, Bookmark, Flame, Star, TrendingDown, Truck } from "lucide-react"
+import { ArrowUpRight, Bookmark, Flame, Truck } from "lucide-react"
 
 import { ListClock } from "@/components/day-countdown"
 import { OfferLink } from "@/components/offer-link"
@@ -14,7 +14,7 @@ import { cardImage } from "@/lib/image-url"
 import { useHotClicks } from "@/lib/use-hot-clicks"
 import { STORES } from "@/lib/mock-data"
 import type { Product } from "@/lib/types"
-import { cn, formatCurrency, formatReviewCount } from "@/lib/utils"
+import { cn, formatCurrency } from "@/lib/utils"
 
 /**
  * Offer card v2: store on top, the whole photo on white, the title, one big price, and what is
@@ -155,28 +155,11 @@ export function ProductCard({
             )}
           </div>
 
-          {/* 3. Signals at the bottom (only what exists): rating, a recorded drop from our own history and,
-              for offers whose price fell today (since midnight in Brasília), the day list clock. */}
-          {(product.rating || (!discount && product.isPriceDrop && (product.priceHistory?.length ?? 0) >= 2) || product.isPriceDrop) && (
-            <div className="mt-auto flex flex-col items-start gap-1.5 pt-1">
-              {(product.rating || (!discount && product.isPriceDrop && (product.priceHistory?.length ?? 0) >= 2)) && (
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                  {product.rating && (
-                    <span className="flex items-center gap-1">
-                      <Star className="h-3.5 w-3.5 fill-primary text-primary" aria-hidden />
-                      <span className="font-medium text-foreground">{product.rating.toFixed(1)}</span>
-                      {product.reviewsCount && <span>({formatReviewCount(product.reviewsCount)})</span>}
-                    </span>
-                  )}
-                  {!discount && product.isPriceDrop && product.priceHistory && product.priceHistory.length >= 2 && (
-                    <span className="flex items-center gap-1">
-                      <TrendingDown className="h-3.5 w-3.5" aria-hidden />
-                      Caiu de {formatCurrency(product.priceHistory[product.priceHistory.length - 2])}
-                    </span>
-                  )}
-                </div>
-              )}
-              {product.isPriceDrop && <ListClock dropAt={product.dropAt} />}
+          {/* 3. For offers whose price fell today (since midnight in Brasília): the day list clock. The rating
+              lives on the product page. */}
+          {product.isPriceDrop && (
+            <div className="mt-auto flex flex-col items-start pt-1">
+              <ListClock dropAt={product.dropAt} />
             </div>
           )}
         </div>

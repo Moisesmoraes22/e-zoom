@@ -86,6 +86,18 @@ const SHELVES: Shelf[] = [
     ],
   },
   {
+    slug: "pc-completo",
+    title: "PC completo montado",
+    linkLabel: "Ver todos os PCs",
+    chips: [
+      { label: "PC Gamer", q: "pc gamer" },
+      { label: "Intel Core i5", q: "pc intel core i5" },
+      { label: "Ryzen", q: "pc ryzen" },
+      { label: "Home office", q: "computador completo" },
+      { label: "Mini PC", q: "mini pc" },
+    ],
+  },
+  {
     slug: "moda",
     title: "Moda e vestuário",
     linkLabel: "Ver toda a moda",
@@ -201,7 +213,7 @@ const KIDS_SHELF = {
 }
 
 /** The categories highlighted at the top, in the same order as the shelves. */
-const HIGHLIGHT = ["eletronicos", "moda", "alimentos-bebidas", "ferramentas", "casa", "livros", "beleza", "brinquedos"]
+const HIGHLIGHT = ["eletronicos", "pc-completo", "moda", "alimentos-bebidas", "ferramentas", "casa", "livros", "beleza", "brinquedos"]
 
 /**
  * Four offers for the main shelf: the best-ranked among those with a recorded discount or a price
@@ -374,7 +386,7 @@ export default async function Home() {
         <CategoryGrid categories={highlighted} showCounts={live} title="Categorias em destaque" />
       )}
       {/* Right after Electronics; if that shelf is empty, before the first shelf. */}
-      {!rows.some((row) => row.slug === "eletronicos") && <PriceChips />}
+      {!rows.some((row) => row.slug === "eletronicos") && <PriceChips products={products} />}
       {rows.map((row) => (
         <Fragment key={row.slug}>
           <ProductRow
@@ -384,7 +396,7 @@ export default async function Home() {
             linkLabel={row.linkLabel}
             chips={row.chips.length === 0 ? undefined : row.chips.map((c) => ({ label: c.label, href: `/busca?q=${encodeURIComponent(c.q)}` }))}
           />
-          {row.slug === "eletronicos" && <PriceChips />}
+          {row.slug === "eletronicos" && <PriceChips products={products} />}
         </Fragment>
       ))}
       <InterestsSection products={products} />

@@ -11,14 +11,15 @@ export function CategoryGrid({
   showCounts,
   withHeader = true,
   title = "Categorias populares",
-  gridClassName = "grid-cols-2 sm:grid-cols-4 lg:grid-cols-8",
+  /** Cards per row at phone / tablet / desktop: the width of a card follows it. */
+  columns = "w-[calc(50%-0.5rem)] sm:w-[calc(25%-0.75rem)] lg:w-[calc(12.5%-0.875rem)]",
 }: {
   categories: CategoryCount[]
   showCounts: boolean
   /** Off on /categorias, where the page has its own h1. */
   withHeader?: boolean
   title?: string
-  gridClassName?: string
+  columns?: string
 }) {
   return (
     <section className="page-container section-y">
@@ -29,9 +30,10 @@ export function CategoryGrid({
           linkLabel="Ver todas as categorias"
         />
       )}
-      <div className={`grid gap-4 ${gridClassName}`}>
+      {/* Flex, not a grid: an incomplete last row is centred instead of hugging the left edge. */}
+      <div className="flex flex-wrap justify-center gap-4">
         {categories.map((category) => (
-          <div key={category.slug} className="h-full">
+          <div key={category.slug} className={columns}>
             <Link
               href={`/categoria/${category.slug}`}
               className="group flex h-full flex-col items-center gap-3 rounded-2xl border border-border bg-card p-4 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95"

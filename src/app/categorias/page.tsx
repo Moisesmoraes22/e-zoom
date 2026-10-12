@@ -30,7 +30,7 @@ export default async function CategoriasPage() {
           categories={categories}
           showCounts={live}
           withHeader={false}
-          gridClassName="grid-cols-2 sm:grid-cols-3 lg:grid-cols-4"
+          columns="w-[calc(50%-0.5rem)] sm:w-[calc(33.333%-0.667rem)] lg:w-[calc(25%-0.75rem)]"
         />
       ) : (
         <p className="page-container py-12 text-muted-foreground">
