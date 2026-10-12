@@ -11,7 +11,6 @@ import {
   Flame,
   Bookmark,
   Menu as MenuIcon,
-  Search,
   Tag,
   Ticket,
   TrendingDown,
@@ -36,7 +35,6 @@ import {
 import { categoryIcon } from "@/lib/category-icons";
 import type { CategoryCount } from "@/lib/deals";
 import { useFavorites } from "@/lib/favorites-context";
-import { cn } from "@/lib/utils";
 
 /**
  * "Ofertas" entries are sorted views of /busca (`?ordenacao=`). Each one can
@@ -143,17 +141,6 @@ export function SiteHeader({
         )}
 
         <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
-          <Link
-            href="/busca"
-            aria-label="Buscar ofertas"
-            className={cn(
-              "flex h-11 w-11 cursor-pointer items-center justify-center rounded-full text-white transition-colors hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white active:scale-90",
-              showSearch && "sm:hidden",
-            )}
-          >
-            <Search className="h-5 w-5" aria-hidden />
-          </Link>
-
           <ThemeMenu className="hidden text-white lg:block" tone="onBrand" />
           <AccountMenu className="hidden lg:flex" tone="onBrand" />
 
