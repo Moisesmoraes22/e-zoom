@@ -74,7 +74,7 @@ const NOT_BOOK = /(manga (curta|longa|comprida|larga|bufante|princesa|raglan|3\/
 
 // Assembled desktop PCs: the title OPENS with the machine (PC Gamer..., Computador Completo..., CPU Gamer...,
 // Mini PC...), so a case, a graphics card or a desk "para computador" never counts.
-const PC_LEAD = lead("pc(?: gamer| completo| montado| desktop| home ?office| office| workstation)?|computador(?:es)?|cpu(?: gamer| completa)?|desktop(?: gamer| completo)?|mini ?pc|all[- ]?in[- ]?one|workstation|nuc|esta[cç][aã]o de trabalho")
+const PC_LEAD = lead("pc(?: gamer| completo| montado| desktop| home ?office| office| workstation)?|computador(?:es)?|cpu(?: gamer| completa)?|desktop(?: gamer| completo)?|mini ?pc|all[- ]?in[- ]?one|nuc|esta[cç][aã]o de trabalho")
 const NOT_PC = /\b(gabinete|suporte|capa|limpeza|adaptador|cooler|water ?cooler|fonte|sem (?:cpu|gabinete|monitor|processador)|somente|apenas (?:o )?(?:gabinete|monitor)|case|ferramenta|jogo|brinquedo|simulador|mouse ?pad|pasta t[eé]rmica|ventoinha|fan)\b/i
 
 /** True when the title is a fragrance / a book: keeps a catalog search for them free of look-alikes. */
@@ -87,6 +87,8 @@ const RULES: { from: string[]; test: (t: string) => boolean; to: string }[] = [
   { from: ["beleza", "casa", "brinquedos", "moda", "esporte", "games", "bebes", "saude", "celulares", "eletronicos", "informatica", "arte-papelaria", "musica-filmes", "antiguidades", "festas", "ferramentas", "suplementos", "dj"], to: "livros", test: (t) => BOOK_LEAD.test(t) && !NOT_BOOK.test(t) },
   // Accessories that only talk about perfume (decant syringes, travel bottles) go back to "Beleza".
   { from: ["perfumes"], to: "beleza", test: (t) => PERFUME.test(t) && NOT_PERFUME.test(t) },
+  // "Workstation" is also a synthesizer: it goes back to the instruments.
+  { from: ["pc-completo"], to: "instrumentos", test: (t) => /sintetizador|teclado musical|synthesizer/i.test(t) },
   // A complete PC is its own category (the niche the site invests in), out of "Informática" and the grab bags.
   { from: ["informatica", "eletronicos", "games", "casa", "esporte", "celulares", ...NOISY], to: "pc-completo", test: isPcCompleto },
   // Fragrances leave "Beleza" and any grab bag they were dropped in.

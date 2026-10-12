@@ -17,6 +17,9 @@ const CASES: [string, string, string][] = [
   ["Suporte Para Cpu Gabinete Com Rodinhas", "informatica", "informatica"],
   ["Notebook Gamer Acer Nitro 5 Intel Core I5 16gb", "informatica", "informatica"],
   ["Cooler Para Pc Gamer Rgb 120mm", "informatica", "informatica"],
+  ["Workstation Yamaha Montage 8 - Sintetizador", "pc-completo", "instrumentos"],
+  ["Workstation Dell Precision Intel Xeon 32gb Ssd 1tb", "informatica", "informatica"],
+  ["Pc Workstation Intel Core I9 64gb Ssd 2tb Rtx 4070", "informatica", "pc-completo"],
   // fragrances leave "beleza"; room/car scents and care products stay
   ["Perfume Lattafa Asad Eau De Parfum 100ml Masculino", "beleza", "perfumes"],
   ["Natura Kaiak Aventura Desodorante Colônia Masculino 100ml", "beleza", "perfumes"],
