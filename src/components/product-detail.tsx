@@ -34,6 +34,7 @@ import { discountOf, priceCut, savingsOf } from "@/lib/deals"
 import { useFavorites } from "@/lib/favorites-context"
 import { recordProduct } from "@/lib/interest-profile"
 import { lowestFor } from "@/lib/lowest-price"
+import { useHotClicks } from "@/lib/use-hot-clicks"
 import { SELLER_LEADER_LABEL } from "@/lib/seller-leader"
 import { CATEGORIES, STORES } from "@/lib/mock-data"
 import type { PriceStats, Product, ProductOffer } from "@/lib/types"
@@ -71,6 +72,7 @@ export function ProductDetail({
 }) {
   const { toggleFavorite, isFavorite, launchFlight } = useFavorites()
   const favorited = isFavorite(product.id)
+  const clicks = useHotClicks(product.id, product.clicks)
   useEffect(() => recordProduct("view", product), [product])
   const buttonRef = useRef<HTMLButtonElement>(null)
   const bestOffer = offers[0]
@@ -189,10 +191,10 @@ export function ProductDetail({
             {(
               <ul className="mt-4 flex flex-wrap gap-2 text-xs font-semibold empty:hidden">
                 <ViewCount offerId={product.id} />
-                {(product.clicks ?? 0) >= 2 && (
+                {clicks >= 2 && (
                   <li className="inline-flex items-center gap-1.5 rounded-full bg-brand/10 px-2.5 py-1 text-brand">
                     <Flame className="h-3.5 w-3.5" aria-hidden />
-                    Aberta {product.clicks} vezes nos últimos 14 dias
+                    Aberta {clicks} vezes nos últimos 14 dias
                   </li>
                 )}
                 {product.seenAt && (

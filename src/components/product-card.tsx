@@ -11,6 +11,7 @@ import { StoreLogo } from "@/components/store-logo"
 import { discountOf, priceCut } from "@/lib/deals"
 import { useFavorites } from "@/lib/favorites-context"
 import { cardImage } from "@/lib/image-url"
+import { useHotClicks } from "@/lib/use-hot-clicks"
 import { STORES } from "@/lib/mock-data"
 import type { Product } from "@/lib/types"
 import { cn, formatCurrency, formatReviewCount } from "@/lib/utils"
@@ -42,6 +43,7 @@ export function ProductCard({
   const discount = discountOf(product)
   const cut = priceCut(product)
   const store = STORES[product.store]
+  const clicks = useHotClicks(product.id, product.clicks)
 
   const handleToggle = (event: React.MouseEvent) => {
     event.preventDefault()
@@ -94,17 +96,17 @@ export function ProductCard({
             />
           </div>
           {/* Real count of opens of this offer (14 days); only shown from 2 on. */}
-          {(product.clicks ?? 0) >= 2 && (
+          {clicks >= 2 && (
             <span
               className={cn(
                 "absolute z-10 inline-flex items-center gap-1 rounded-full bg-orange-600 px-2.5 py-1 text-xs font-bold tabular-nums text-white",
                 compact ? "bottom-4 right-4" : "bottom-5 right-5",
               )}
-              title={`Aberta ${product.clicks} vezes nos últimos 14 dias`}
+              title={`Aberta ${clicks} vezes nos últimos 14 dias`}
             >
               <Flame className="h-3.5 w-3.5" aria-hidden />
               {/* "Em alta" only for what is really among the most opened: 3 or more in 14 days. */}
-              {(product.clicks ?? 0) >= 3 ? `Em alta · ${product.clicks}` : product.clicks}
+              {clicks >= 3 ? `Em alta · ${clicks}` : clicks}
             </span>
           )}
         </div>
