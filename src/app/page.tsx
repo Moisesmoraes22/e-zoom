@@ -14,6 +14,7 @@ import { SiteFooter } from "@/components/site-footer"
 import { StoreStrip } from "@/components/store-strip"
 import { StoresSection } from "@/components/stores-section"
 import { getCoupons } from "@/lib/coupons"
+import { darkPhotos } from "@/lib/photo-check"
 import { byClicks, byFeatured, byRelevance, categoryCounts, countByStoreId } from "@/lib/deals"
 import { getCatalog } from "@/lib/offers"
 import type { Product } from "@/lib/types"
@@ -272,14 +273,37 @@ function pickShelf(products: Product[], shelf: Shelf, skip: Set<string>): Produc
   return ranked.slice(0, ROW_SIZE)
 }
 
+/**
+ * Takes out of the home shelves the offers whose photo is mostly black (it reads as a hole on the
+ * white card). They stay in search and categories. Checks what the shelves would pick; when one is
+ * taken out, the next in line is checked in another round (a few rounds at most).
+ */
+async function withoutDarkPhotos(products: Product[], now: number, sinceMidnightH: number): Promise<Product[]> {
+  let pool = products
+  const dark = new Set<string>()
+  for (let round = 0; round < 3; round++) {
+    const picks = [
+      ...pickFeatured(pool),
+      ...pickDrops(pool, new Set(), now, sinceMidnightH),
+      ...pickDrops(pool, new Set(), now),
+    ]
+    const found = [...(await darkPhotos(picks.map((p) => p.image)))].filter((url) => !dark.has(url))
+    if (found.length === 0) break
+    found.forEach((url) => dark.add(url))
+    pool = pool.filter((p) => !dark.has(p.image))
+  }
+  return pool
+}
+
 export default async function Home() {
-  const { products, live } = await getCatalog()
-  const featured = live ? pickFeatured(products) : []
-  const shown = new Set(featured.map((p) => p.id))
+  const { products: catalogue, live } = await getCatalog()
   // "Ofertas do dia": prices that fell since midnight in Brasília, so the list really renews at midnight.
   // With too few of them (early in the day) the shelf falls back to the last 48 hours, without a clock.
   const now = clockNow()
   const sinceMidnightH = ((now - 3 * 3_600_000) % 86_400_000) / 3_600_000
+  const products = live ? await withoutDarkPhotos(catalogue, now, sinceMidnightH) : catalogue
+  const featured = live ? pickFeatured(products) : []
+  const shown = new Set(featured.map((p) => p.id))
   const today = live ? pickDrops(products, shown, now, sinceMidnightH) : []
   const isToday = today.length >= SHELF_MIN
   const drops = isToday ? today : live ? pickDrops(products, shown, now) : []
