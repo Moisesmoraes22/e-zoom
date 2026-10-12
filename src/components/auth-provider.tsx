@@ -48,7 +48,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // No stored session: a visitor, with nothing to download. Checked again on each page, because a
     // sign in (which sets the cookie) happens without reloading the layout.
     if (!hasSessionCookie()) {
-      setState((s) => (s.status === "anonymous" ? s : { status: "anonymous", user: null }))
+      // Deferred so the effect does not set state synchronously (react-hooks/set-state-in-effect).
+      queueMicrotask(() => setState((s) => (s.status === "anonymous" ? s : { status: "anonymous", user: null })))
       return
     }
     let cancelled = false
