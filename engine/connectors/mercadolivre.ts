@@ -107,6 +107,8 @@ const CATEGORY_TERMS: Record<string, string[]> = {
     "armário de cozinha", "balcão", "penteadeira", "estante para livros", "prateleira",
   ],
 }
+/** Many brand searches: collected once a day by their own workflow, not in every 30 minute run. */
+const DAILY_NICHES = new Set(["perfumes", "livros"])
 const PER_TERM = 25 // offers kept per term
 const CATEGORY_PER_TERM = 15 // same, for the category terms in the scheduled run (ML_ONLY runs use PER_TERM)
 // Most catalog hits have no active seller (items -> 404), so we scan a few pages per term.
@@ -317,8 +319,12 @@ export function createMercadoLivreConnector(env: NodeJS.ProcessEnv): Connector {
         console.log(`[mercadolivre] ferramentas/${term}: ${offers.size} ofertas até agora`)
       }
 
+      // ML_ONLY takes one slug or a comma list ("perfumes,livros"). The daily niches are skipped in the
+      // regular run: their own daily workflow (engine-nichos.yml) keeps them fresh.
+      const wanted = only?.split(",")
       for (const [slug, terms] of Object.entries(CATEGORY_TERMS)) {
-        for (const term of !only || only === slug ? terms : []) {
+        if (!only && DAILY_NICHES.has(slug)) continue
+        for (const term of !wanted || wanted.includes(slug) ? terms : []) {
           const before = offers.size
           const perTerm = only ? PER_TERM : CATEGORY_PER_TERM
           for (let page = 0; page < SEARCH_PAGES && offers.size - before < perTerm; page++) {

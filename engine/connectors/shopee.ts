@@ -6,6 +6,8 @@ import type { Connector, OfferRow } from "../types.ts"
 
 const ENDPOINT = "https://open-api.affiliate.shopee.com.br/graphql"
 const PER_KEYWORD = 50
+/** Collected once a day by their own workflow (engine-nichos.yml), not in every run. */
+const DAILY_NICHES = new Set(["perfumes", "livros"])
 const MAX_OFFERS = 4500 // every category (about 3.5k after the quality filter); a low cap stops the last ones empty
 
 /** Best sellers per search term, filed under the site's own category slugs. */
@@ -83,7 +85,10 @@ export function createShopeeConnector(env: NodeJS.ProcessEnv): Connector {
       }
       const offers = new Map<string, OfferRow>()
 
+      // SHOPEE_ONLY="perfumes,livros" runs just those (the daily workflow); the regular run skips them.
+      const wanted = env.SHOPEE_ONLY?.split(",")
       for (const [category, keywords] of Object.entries(KEYWORDS)) {
+        if (wanted ? !wanted.includes(category) : DAILY_NICHES.has(category)) continue
         for (const keyword of keywords) {
           if (offers.size >= MAX_OFFERS) break
           // sortType 2 = most sold. Keyword is ours (no user input), so inline is safe.

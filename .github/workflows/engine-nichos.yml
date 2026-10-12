@@ -1,0 +1,52 @@
+name: Coleta diaria de nichos
+
+# Perfumes e livros fazem dezenas de buscas por marca: rodam uma vez por dia aqui, e nao a cada
+# coleta (engine.yml). As ofertas ficam frescas porque uma oferta so some depois de 48 h sem ser vista.
+# Mesmo grupo de concorrencia da coleta normal: nunca duas ao mesmo tempo.
+concurrency:
+  group: coleta
+  cancel-in-progress: false
+
+on:
+  schedule:
+    - cron: "17 6 * * *" # todo dia, 03h17 em Brasilia
+  workflow_dispatch:
+
+jobs:
+  mercadolivre:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: node engine/run.ts mercadolivre
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          ML_CLIENT_ID: ${{ secrets.ML_CLIENT_ID }}
+          ML_CLIENT_SECRET: ${{ secrets.ML_CLIENT_SECRET }}
+          ML_AFFILIATE_URL_TEMPLATE: "{url}?matt_tool=36590912&matt_word=moraesmoises20230303173936"
+          ML_ONLY: "perfumes,livros"
+
+  shopee:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: node engine/run.ts shopee
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          SHOPEE_APP_ID: ${{ secrets.SHOPEE_APP_ID }}
+          SHOPEE_APP_SECRET: ${{ secrets.SHOPEE_APP_SECRET }}
+          SHOPEE_ONLY: "perfumes,livros"
