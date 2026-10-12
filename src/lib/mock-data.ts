@@ -63,6 +63,16 @@ export const CATEGORIES: Category[] = [
     icon: "SprayCan",
   },
   {
+    slug: "dermocosmeticos",
+    name: "Dermocosméticos",
+    icon: "Droplets",
+  },
+  {
+    slug: "ervas-naturais",
+    name: "Ervas e Produtos Naturais",
+    icon: "Leaf",
+  },
+  {
     slug: "saude",
     name: "Saúde",
     icon: "HeartPulse",

@@ -77,9 +77,25 @@ const NOT_BOOK = /(manga (curta|longa|comprida|larga|bufante|princesa|raglan|3\/
 const PC_LEAD = lead("pc(?: gamer| completo| montado| desktop| home ?office| office| workstation)?|computador(?:es)?|cpu(?: gamer| completa)?|desktop(?: gamer| completo)?|mini ?pc|all[- ]?in[- ]?one|nuc|esta[cç][aã]o de trabalho")
 const NOT_PC = /\b(gabinete|suporte|capa|limpeza|adaptador|cooler|water ?cooler|fonte|sem (?:cpu|gabinete|monitor|processador)|somente|apenas (?:o )?(?:gabinete|monitor)|case|ferramenta|jogo|brinquedo|simulador|mouse ?pad|pasta t[eé]rmica|ventoinha|fan)\b/i
 
+// Dermocosmetics: pharmacy skincare houses and the actives that name the product. Make-up, devices
+// (rollers, cleansing brushes) and pet items only borrow the words.
+const DERMO = word(
+  "la roche[- ]posay|vichy|cerave|bioderma|av[eè]ne|eucerin|isdin|uriage|ducray|svr|adcos|principia|cetaphil|effaclar|anthelios|toleriane|cicaplast|hyalu b5|mineral 89|liftactiv|sensibio|[aá]cido (?:hialur[oô]nico|salic[ií]lico|glic[oó]lico|azelaico|k[oó]jico)|niacinamida|retinol|s[eé]rum (?:facial|vitamina c|antioxidante|clareador|antissinais)|vitamina c (?:facial|s[eé]rum|pura)|(?:filtro|protetor) solar facial|[aá]gua micelar|gel de limpeza facial|sabonete facial|hidratante facial|creme (?:anti[- ]?idade|antissinais|facial|para o rosto)|contorno dos olhos|dermocosm[eé]ticos?",
+)
+const NOT_DERMO = /(maquiagem|batom|r[ií]mel|base l[ií]quida|p[oó] compacto|sombra|paleta|pincel|esponja|necessaire|aparelho|m[aá]quina|massageador|rolo|gua sha|jade|\bled\b|dermaroller|microagulhamento|caneta|vaporizador|esterilizador|toalha|faixa|touca|organizador|espelho|suporte|brinquedo|boneca|pet\b|c[aã]es|gatos?|cavalos?|veterin[aá]rio|dispenser|porta)/i
+
+// Herbs and natural products: the noun that opens the title (tea, herb, essential oil, propolis...).
+// Party "chá de bebê", cups, teapots, diffusers and plants only borrow the word.
+const ERVAS_LEAD = lead(
+  "ch[aá]s?|ervas?(?! mate)|camomila|boldo|hibisco|cavalinha|carqueja|esp[ií]nheira[- ]santa|unha de gato|c[uú]rcuma|moringa|espirulina|chlorella|valeriana|passiflora|ginkgo|ginseng|[oó]leos? essen(?:cial|ciais)|pr[oó]polis|fitoter[aá]pic[oa]s?|tintura(?: m[aã]e)?|extrato de (?:pr[oó]polis|ervas?)"
+)
+const NOT_ERVAS = /(ch[aá] (?:de )?(?:panela|beb[eê]|revela[cç][aã]o|cozinha|bar|lingerie)|x[ií]caras?|bules?|infusor|caneca|jogo de ch[aá]|kit (?:de )?ch[aá] (?:de )?(?:panela|beb[eê])|aparelho|bandeja|porta[- ]|garrafa|chaleira|coador|difusor|umidificador|aromatizador|vela\b|sabonete|shampoo|brinquedo|boneca|decora[cç][aã]o|artificial|vaso|jardim|semente|muda\b|adubo|fertilizante|tapete|cortina|ra[cç][aã]o|pet\b|c[aã]es|gatos?|roupa|camisa|camiseta|chimarr[aã]o|cuia|tereré|terere)/i
+
 /** True when the title is a fragrance / a book: keeps a catalog search for them free of look-alikes. */
 export const isPerfume = (title: string) => PERFUME.test(title) && !NOT_PERFUME.test(title)
 export const isPcCompleto = (title: string) => PC_LEAD.test(title) && !NOT_PC.test(title)
+export const isDermocosmetico = (title: string) => DERMO.test(title) && !NOT_DERMO.test(title)
+export const isErvas = (title: string) => ERVAS_LEAD.test(title) && !NOT_ERVAS.test(title)
 export const isBook = (title: string) => BOOK_LEAD.test(title) && !NOT_BOOK.test(title)
 
 const RULES: { from: string[]; test: (t: string) => boolean; to: string }[] = [
@@ -93,6 +109,9 @@ const RULES: { from: string[]; test: (t: string) => boolean; to: string }[] = [
   { from: ["informatica", "eletronicos", "games", "casa", "esporte", "celulares", ...NOISY], to: "pc-completo", test: isPcCompleto },
   // Fragrances leave "Beleza" and any grab bag they were dropped in.
   { from: ["beleza", "saude", "casa", "moda", "esporte", "suplementos", "joias-relogios", "antiguidades", "festas", "arte-papelaria", "celulares", "eletronicos", "alimentos-bebidas", "agro", "industria"], to: "perfumes", test: (t) => PERFUME.test(t) && !NOT_PERFUME.test(t) },
+  // Dermocosmetics and herbs leave the grab bags of beauty and health (never the supplements niche).
+  { from: ["beleza", "saude", "casa", "esporte", "moda", "brinquedos"], to: "dermocosmeticos", test: isDermocosmetico },
+  { from: ["saude", "beleza", "casa", "esporte", "alimentos-bebidas", "agro", "festas", "arte-papelaria"], to: "ervas-naturais", test: isErvas },
   { from: ["brinquedos", "bebes", "esporte"], to: "moda", test: (t) => LEAD_SHOE.test(t) },
   { from: ["games"], to: "moda", test: (t) => lead("camisetas?|camisa").test(t) },
   { from: ["esporte", "festas", "casa", "brinquedos", "acessorios-veiculos"], to: "animais", test: (t) => PET.test(t) },

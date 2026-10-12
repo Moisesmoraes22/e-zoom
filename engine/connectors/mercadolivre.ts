@@ -1,4 +1,4 @@
-import { isBook, isPcCompleto, isPerfume, isTool, refineCategory } from "../lib/categories.ts"
+import { isBook, isDermocosmetico, isErvas, isPcCompleto, isPerfume, isTool, refineCategory } from "../lib/categories.ts"
 import { isDj } from "../lib/dj.ts"
 import { mlSellerLocation, type SellerLocation } from "../lib/location.ts"
 import { mlSellerLeader, type SellerLeader } from "../lib/seller.ts"
@@ -108,6 +108,34 @@ const CATEGORY_TERMS: Record<string, string[]> = {
     "livro hábitos atômicos", "livro romance", "livro infantil", "livro de colorir", "livro sobre finanças",
     "livro de receitas", "história em quadrinhos", "hq marvel", "hq dc", "livro devocional",
   ],
+  // Musical instruments: the root category's best sellers are few, so the catalog is searched by family too.
+  instrumentos: [
+    "violão", "violão eletroacústico", "violão giannini", "violão tagima", "guitarra", "guitarra stratocaster", "guitarra tagima",
+    "guitarra epiphone", "baixo elétrico", "contrabaixo", "teclado musical", "teclado arranjador", "piano digital",
+    "bateria eletrônica", "bateria acústica", "cajón", "ukulele", "cavaquinho", "violino", "flauta doce", "flauta transversal",
+    "saxofone", "gaita", "pandeiro", "afinador", "capotraste", "cordas violão", "cordas guitarra", "palheta",
+    "amplificador guitarra", "pedal guitarra", "pedaleira", "caixa amplificada", "suporte teclado", "banqueta bateria",
+    "baqueta", "trompete", "clarinete", "acordeon", "sanfona", "yamaha", "casio teclado", "cordas contrabaixo",
+  ],
+  // Dermocosmetics: pharmacy skincare houses, their lines and the actives.
+  dermocosmeticos: [
+    "la roche-posay", "la roche-posay effaclar", "la roche-posay anthelios", "la roche-posay cicaplast", "la roche-posay toleriane",
+    "vichy", "vichy mineral 89", "vichy liftactiv", "cerave", "cerave hidratante", "cerave espuma de limpeza", "bioderma sensibio",
+    "bioderma água micelar", "avène", "eucerin", "eucerin protetor solar", "isdin", "isdin fusion water", "svr", "uriage",
+    "ducray", "adcos", "adcos protetor solar", "principia", "principia sérum", "cetaphil", "cetaphil loção", "neutrogena hydro boost",
+    "protetor solar facial", "protetor solar facial com cor", "sérum vitamina c", "sérum ácido hialurônico", "sérum niacinamida",
+    "ácido hialurônico", "retinol", "ácido salicílico", "gel de limpeza facial", "água micelar", "hidratante facial",
+    "creme anti-idade", "contorno dos olhos", "sabonete facial", "dermocosmético",
+  ],
+  // Herbs and natural products: teas, medicinal herbs, essential oils and propolis.
+  "ervas-naturais": [
+    "chá de camomila", "chá de hibisco", "chá verde", "chá de boldo", "chá de erva cidreira", "chá de hortelã", "chá de gengibre",
+    "chá de cavalinha", "chá de espinheira santa", "chá de carqueja", "chá preto", "chá misto", "chá detox", "chá seca barriga",
+    "chá de ervas", "ervas medicinais", "erva cidreira", "camomila", "boldo", "hibisco", "cúrcuma", "moringa", "espirulina",
+    "unha de gato", "própolis", "própolis verde", "óleo essencial", "óleo essencial de lavanda", "óleo essencial de melaleuca",
+    "óleo essencial de eucalipto", "valeriana", "passiflora", "ginkgo biloba", "ginseng", "fitoterápico", "tintura mãe",
+    "ervas para chá",
+  ],
   casa: [
     "sofá", "guarda-roupa", "cama box", "colchão", "rack para tv", "estante", "mesa de jantar", "poltrona", "cômoda",
     "sapateira", "escrivaninha", "cadeira de escritório", "painel para tv", "mesa de centro", "criado mudo",
@@ -115,7 +143,7 @@ const CATEGORY_TERMS: Record<string, string[]> = {
   ],
 }
 /** Many brand searches: collected once a day by their own workflow, not in every 30 minute run. */
-const DAILY_NICHES = new Set(["perfumes", "livros"])
+const DAILY_NICHES = new Set(["perfumes", "livros", "instrumentos", "dermocosmeticos", "ervas-naturais"])
 const PER_TERM = 25 // offers kept per term
 const CATEGORY_PER_TERM = 15 // same, for the category terms in the scheduled run (ML_ONLY runs use PER_TERM)
 // Most catalog hits have no active seller (items -> 404), so we scan a few pages per term.
@@ -245,6 +273,8 @@ export function createMercadoLivreConnector(env: NodeJS.ProcessEnv): Connector {
         if (categoryIn === "perfumes" && !isPerfume(product.name)) return
         if (categoryIn === "pc-completo" && !isPcCompleto(product.name)) return
         if (categoryIn === "livros" && !isBook(product.name)) return
+        if (categoryIn === "dermocosmeticos" && !isDermocosmetico(product.name)) return
+        if (categoryIn === "ervas-naturais" && !isErvas(product.name)) return
         const category = supplement ? "suplementos" : dj ? "dj" : refineCategory(product.name, categoryIn)
 
         const url = `https://www.mercadolivre.com.br/p/${id}`

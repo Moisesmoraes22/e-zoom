@@ -1,13 +1,13 @@
 import { createHash } from "node:crypto"
 
-import { isBook, isPcCompleto, isPerfume, isTool, refineCategory } from "../lib/categories.ts"
+import { isBook, isDermocosmetico, isErvas, isPcCompleto, isPerfume, isTool, refineCategory } from "../lib/categories.ts"
 import { shopeeShopBadge } from "../lib/seller.ts"
 import type { Connector, OfferRow } from "../types.ts"
 
 const ENDPOINT = "https://open-api.affiliate.shopee.com.br/graphql"
 const PER_KEYWORD = 50
 /** Collected once a day by their own workflow (engine-nichos.yml), not in every run. */
-const DAILY_NICHES = new Set(["perfumes", "livros"])
+const DAILY_NICHES = new Set(["perfumes", "livros", "instrumentos", "dermocosmeticos", "ervas-naturais"])
 const MAX_OFFERS = 4500 // every category (about 3.5k after the quality filter); a low cap stops the last ones empty
 
 /** Best sellers per search term, filed under the site's own category slugs. */
@@ -33,6 +33,19 @@ const KEYWORDS: Record<string, string[]> = {
     "manga", "manga one piece", "manga naruto", "manga demon slayer", "manga jujutsu kaisen", "biblia sagrada",
     "biblia nvi", "biblia de estudo", "biblia letra grande", "biblia feminina", "livro", "box livros",
     "livro best seller", "livro autoajuda", "livro infantil", "livro de colorir", "hq", "livro devocional",
+  ],
+  instrumentos: [
+    "violao", "guitarra", "teclado musical", "ukulele", "cavaquinho", "pandeiro", "afinador", "cordas violao", "baqueta",
+    "palheta", "pedal guitarra", "caixa amplificada", "flauta doce", "harmonica",
+  ],
+  dermocosmeticos: [
+    "la roche posay", "vichy", "cerave", "bioderma", "eucerin", "isdin", "adcos", "principia", "cetaphil",
+    "protetor solar facial", "serum vitamina c", "acido hialuronico", "niacinamida", "agua micelar", "gel de limpeza facial",
+    "hidratante facial", "retinol",
+  ],
+  "ervas-naturais": [
+    "cha de camomila", "cha verde", "cha de hibisco", "cha detox", "cha de boldo", "cha de ervas", "ervas medicinais",
+    "oleo essencial", "oleo essencial lavanda", "propolis", "curcuma", "moringa", "espirulina", "unha de gato",
   ],
   esporte: ["whey protein", "garrafa termica", "tapete yoga", "vara de pesca", "molinete", "kit pesca", "isca artificial", "anzol", "carretilha"],
   games: ["controle gamer", "headset gamer", "mouse gamer"],
@@ -113,6 +126,8 @@ export function createShopeeConnector(env: NodeJS.ProcessEnv): Connector {
             if (category === "perfumes" && !isPerfume(node.productName)) continue
             if (category === "pc-completo" && !isPcCompleto(node.productName)) continue
             if (category === "livros" && !isBook(node.productName)) continue
+            if (category === "dermocosmeticos" && !isDermocosmetico(node.productName)) continue
+            if (category === "ervas-naturais" && !isErvas(node.productName)) continue
 
             const externalId = `${node.shopId}.${node.itemId}`
             if (offers.has(externalId)) continue
