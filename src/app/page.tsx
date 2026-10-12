@@ -339,6 +339,9 @@ export default async function Home() {
       }).filter((row) => row.items.length >= SHELF_MIN)
     : []
 
+  // The price band sits after the PC shelf (which follows Electronics) so the PCs come right after
+  // Electronics; without that shelf it goes after Electronics.
+  const priceBandAfter = rows.some((row) => row.slug === "pc-completo") ? "pc-completo" : "eletronicos"
   const highlighted = categoryCounts(products, true)
     .filter((c) => HIGHLIGHT.includes(c.slug))
     .sort((a, b) => HIGHLIGHT.indexOf(a.slug) - HIGHLIGHT.indexOf(b.slug))
@@ -385,8 +388,8 @@ export default async function Home() {
       {highlighted.length >= 4 && (
         <CategoryGrid categories={highlighted} showCounts={live} title="Categorias em destaque" />
       )}
-      {/* Right after Electronics; if that shelf is empty, before the first shelf. */}
-      {!rows.some((row) => row.slug === "eletronicos") && <PriceChips products={products} />}
+      {/* After the PC shelf (which follows Electronics); without it after Electronics; without both, first. */}
+      {!rows.some((row) => row.slug === priceBandAfter) && <PriceChips products={products} />}
       {rows.map((row) => (
         <Fragment key={row.slug}>
           <ProductRow
@@ -396,7 +399,7 @@ export default async function Home() {
             linkLabel={row.linkLabel}
             chips={row.chips.length === 0 ? undefined : row.chips.map((c) => ({ label: c.label, href: `/busca?q=${encodeURIComponent(c.q)}` }))}
           />
-          {row.slug === "eletronicos" && <PriceChips products={products} />}
+          {row.slug === priceBandAfter && <PriceChips products={products} />}
         </Fragment>
       ))}
       <InterestsSection products={products} />
