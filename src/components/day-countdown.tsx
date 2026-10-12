@@ -73,24 +73,24 @@ const serverSnapshot = () => null
 const two = (n: number) => String(n).padStart(2, "0")
 
 /**
- * "Sai da lista em 04:43:27": the card belongs to today's list ("Ofertas do dia"), which renews at
- * midnight in Brasília. It says when the offer LEAVES OUR LIST, not that the store's offer ends:
- * the stores do not tell us that, so the label never claims it.
+ * "Oferta do dia acaba em 04:43:27": the card belongs to today's list ("Ofertas do dia"), which
+ * renews at midnight in Brasília. The label names the DAILY offer, not the store's promotion: the
+ * stores do not tell us when theirs ends, so the text never claims it.
  */
 export function ListClock({ className }: { className?: string }) {
   const left = useSyncExternalStore<number | null>(subscribe, snapshot, serverSnapshot)
   return (
     <span
       className={
-        "inline-flex w-fit items-center gap-1.5 rounded-full bg-destructive px-3 py-1 text-xs font-bold tabular-nums text-white " +
+        "inline-flex w-fit items-center gap-1.5 rounded-2xl bg-destructive px-3 py-1 text-[11px] font-bold leading-tight tabular-nums text-white min-[400px]:text-xs " +
         (className ?? "")
       }
       title="A lista de Ofertas do dia renova à meia-noite (horário de Brasília)"
     >
       <Clock className="h-3.5 w-3.5" aria-hidden />
       {left === null
-        ? "Sai da lista à meia-noite"
-        : `Sai da lista em ${two(Math.floor(left / 3600))}:${two(Math.floor((left % 3600) / 60))}:${two(left % 60)}`}
+        ? "Oferta do dia acaba à meia-noite"
+        : `Oferta do dia acaba em ${two(Math.floor(left / 3600))}:${two(Math.floor((left % 3600) / 60))}:${two(left % 60)}`}
     </span>
   )
 }
