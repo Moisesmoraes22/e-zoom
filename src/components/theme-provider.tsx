@@ -67,9 +67,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, [theme])
 
   const setTheme = useCallback((next: Theme) => {
-    const root = document.documentElement
-    root.classList.add("theme-transition")
-    window.setTimeout(() => root.classList.remove("theme-transition"), 300)
+    // No crossfade: animating every element's colours (5,000+ on the home) froze phones for ~1 s.
+    // The switch is a single class change, applied in one frame.
     try {
       if (next === "system") localStorage.removeItem(STORAGE_KEY)
       else localStorage.setItem(STORAGE_KEY, next)
