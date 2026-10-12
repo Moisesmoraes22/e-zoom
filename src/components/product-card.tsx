@@ -3,7 +3,7 @@
 import { AnimatePresence, m as motion } from "framer-motion"
 import { useRef } from "react"
 import Link from "next/link"
-import { ArrowUpRight, Bookmark, Flame, Star, Truck } from "lucide-react"
+import { ArrowUpRight, Bookmark, Flame, Star, TrendingDown, Truck } from "lucide-react"
 
 import { ListClock } from "@/components/day-countdown"
 import { OfferLink } from "@/components/offer-link"
@@ -71,11 +71,6 @@ export function ProductCard({
         className="flex flex-1 flex-col transition-transform duration-150 active:scale-[0.99]"
       >
         <div className="relative aspect-square w-full">
-          {cut && (
-            <span className="absolute left-3 top-1.5 z-10 rounded-md bg-cta px-1.5 py-0.5 text-[11px] font-bold text-cta-foreground">
-              Economize {formatCurrency(cut)}
-            </span>
-          )}
           <div
             className={cn(
               "absolute flex items-center justify-center overflow-hidden rounded-xl bg-white",
@@ -119,62 +114,71 @@ export function ProductCard({
             {product.title}
           </h3>
 
-          <div className="flex flex-col">
-            {/* The old price above the current one, with what is saved: "Antes" under the price read as if it were the new one. */}
-            <div className="flex min-h-4 flex-wrap items-baseline gap-x-2 text-xs">
+          {/* 1. What it costs: the old price and what is saved on one line, then the price. */}
+          <div className="flex flex-col gap-1">
+            <div className="flex min-h-5 flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
               {product.originalPrice && discount && (
                 <span className="tabular-nums text-muted-foreground line-through">
                   {formatCurrency(product.originalPrice)}
                 </span>
               )}
-            </div>
-            <div className="flex flex-wrap items-end justify-between gap-x-2">
-              <span
-                className={cn(
-                  "font-extrabold tabular-nums leading-tight text-price",
-                  compact ? "text-[1.6rem]" : "text-[1.6rem] sm:text-3xl",
-                )}
-              >
-                {formatCurrency(product.price)}
-              </span>
-              {product.isFreeShipping ? (
-                <span className="ml-auto flex items-center gap-1 pb-1 text-xs font-semibold text-success">
-                  <Truck className="h-3.5 w-3.5" aria-hidden />
-                  Frete grátis
-                </span>
-              ) : (
-                <span className="ml-auto whitespace-nowrap pb-1 text-[11px] text-muted-foreground">
-                  Frete e condições na loja
+              {cut && (
+                <span className="rounded-md bg-success/10 px-1.5 py-0.5 text-[11px] font-bold text-success">
+                  Economize {formatCurrency(cut)}
                 </span>
               )}
             </div>
+            <span
+              className={cn(
+                "font-extrabold tabular-nums leading-tight text-price",
+                compact ? "text-[1.6rem]" : "text-[1.6rem] sm:text-3xl",
+              )}
+            >
+              {formatCurrency(product.price)}
+            </span>
           </div>
 
-          {/* A recorded drop without a store "previous price": say it plainly, from our own history. */}
-          {!discount && product.isPriceDrop && product.priceHistory && product.priceHistory.length >= 2 && (
-            <span className="text-xs font-semibold text-success">
-              Caiu de {formatCurrency(product.priceHistory[product.priceHistory.length - 2])}
-            </span>
-          )}
-
-          {/* Only offers whose price fell today (since midnight in Brasília): the day's list renews then. */}
-          {product.isPriceDrop && <ListClock dropAt={product.dropAt} />}
-
-          {product.installments && (
-            <span className="text-sm text-foreground">
-              em {product.installments.count}x de {formatCurrency(product.installments.value)}
-            </span>
-          )}
-
-          <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 pt-1 text-xs">
-            {product.rating && (
-              <span className="flex items-center gap-1 text-muted-foreground">
-                <Star className="h-3.5 w-3.5 fill-primary text-primary" aria-hidden />
-                <span className="font-medium text-foreground">{product.rating.toFixed(1)}</span>
-                {product.reviewsCount && <span>({formatReviewCount(product.reviewsCount)})</span>}
+          {/* 2. How it arrives and how it is paid: one quiet line each, always left-aligned under the price. */}
+          <div className="flex flex-col gap-0.5">
+            {product.isFreeShipping ? (
+              <span className="flex items-center gap-1 text-xs font-semibold text-success">
+                <Truck className="h-3.5 w-3.5" aria-hidden />
+                Frete grátis
+              </span>
+            ) : (
+              <span className="text-xs text-muted-foreground">Frete e condições na loja</span>
+            )}
+            {product.installments && (
+              <span className="text-xs text-foreground">
+                em {product.installments.count}x de {formatCurrency(product.installments.value)}
               </span>
             )}
           </div>
+
+          {/* 3. Signals at the bottom (only what exists): rating, a recorded drop from our own history and,
+              for offers whose price fell today (since midnight in Brasília), the day list clock. */}
+          {(product.rating || (!discount && product.isPriceDrop && (product.priceHistory?.length ?? 0) >= 2) || product.isPriceDrop) && (
+            <div className="mt-auto flex flex-col items-start gap-1.5 pt-1">
+              {(product.rating || (!discount && product.isPriceDrop && (product.priceHistory?.length ?? 0) >= 2)) && (
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                  {product.rating && (
+                    <span className="flex items-center gap-1">
+                      <Star className="h-3.5 w-3.5 fill-primary text-primary" aria-hidden />
+                      <span className="font-medium text-foreground">{product.rating.toFixed(1)}</span>
+                      {product.reviewsCount && <span>({formatReviewCount(product.reviewsCount)})</span>}
+                    </span>
+                  )}
+                  {!discount && product.isPriceDrop && product.priceHistory && product.priceHistory.length >= 2 && (
+                    <span className="flex items-center gap-1">
+                      <TrendingDown className="h-3.5 w-3.5" aria-hidden />
+                      Caiu de {formatCurrency(product.priceHistory[product.priceHistory.length - 2])}
+                    </span>
+                  )}
+                </div>
+              )}
+              {product.isPriceDrop && <ListClock dropAt={product.dropAt} />}
+            </div>
+          )}
         </div>
       </Link>
 
