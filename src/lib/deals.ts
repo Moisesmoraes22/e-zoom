@@ -32,7 +32,7 @@ export function categoryCounts(products: Product[], withCovers = false): Categor
     counts.set(p.category, (counts.get(p.category) ?? 0) + 1)
     if (withCovers) groups.set(p.category, [...(groups.get(p.category) ?? []), p])
   }
-  return CATEGORIES.map((c) => ({
+  const sorted = CATEGORIES.map((c) => ({
     slug: c.slug,
     name: c.name,
     ...(withCovers && { covers: coverPhotos(groups.get(c.slug) ?? []) }),
@@ -40,6 +40,11 @@ export function categoryCounts(products: Product[], withCovers = false): Categor
   }))
     .filter((c) => c.count >= MIN_CATEGORY_OFFERS)
     .sort((a, b) => b.count - a.count)
+  // Complete PCs are the niche the site invests in: they follow Electronics in menus and lists.
+  const pc = sorted.find((c) => c.slug === "pc-completo")
+  const rest = sorted.filter((c) => c !== pc)
+  const at = rest.findIndex((c) => c.slug === "eletronicos")
+  return pc && at >= 0 ? [...rest.slice(0, at + 1), pc, ...rest.slice(at + 1)] : sorted
 }
 
 export const discountOf = (p: Pick<Product, "price" | "originalPrice">) =>

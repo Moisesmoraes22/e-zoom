@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto"
 
-import { isBook, isPerfume, isTool, refineCategory } from "../lib/categories.ts"
+import { isBook, isPcCompleto, isPerfume, isTool, refineCategory } from "../lib/categories.ts"
 import { shopeeShopBadge } from "../lib/seller.ts"
 import type { Connector, OfferRow } from "../types.ts"
 
@@ -19,6 +19,10 @@ const KEYWORDS: Record<string, string[]> = {
   casa: ["air fryer", "organizador casa", "luminaria led", "panela antiaderente", "estante", "sapateira", "rack tv", "escrivaninha", "guarda roupa", "cadeira escritorio"],
   moda: ["camiseta masculina", "mochila", "bolsa feminina", "tenis masculino", "chinelo", "sandalia feminina", "mochila infantil"],
   beleza: ["skincare", "secador de cabelo"],
+  "pc-completo": [
+    "pc gamer completo", "computador completo", "pc gamer", "cpu gamer", "mini pc", "pc home office", "pc gamer ryzen",
+    "pc gamer i5", "computador desktop completo", "pc gamer rtx",
+  ],
   perfumes: [
     "perfume arabe", "lattafa", "lattafa asad", "lattafa khamrah", "al haramain", "armaf", "afnan", "rasasi",
     "maison alhambra", "perfume masculino", "perfume feminino", "natura perfume", "natura kaiak", "boticario perfume",
@@ -102,10 +106,12 @@ export function createShopeeConnector(env: NodeJS.ProcessEnv): Connector {
             const price = Number(node.priceMin)
             // Quality floor: real photo, our affiliate link, sane price, proven seller.
             if (!node.imageUrl || !node.offerLink || !(price >= 5)) continue
-            if (Number(node.ratingStar) < 4.3 || (node.sales ?? 0) < 50) continue
+            const floor = category === "pc-completo" ? 5 : 50 // complete PCs sell in smaller volumes
+            if (Number(node.ratingStar) < 4.3 || (node.sales ?? 0) < floor) continue
             // A search for "multimetro" also brings cables and meters: the tools shelf keeps only named tools.
             if (category === "ferramentas" && !isTool(node.productName)) continue
             if (category === "perfumes" && !isPerfume(node.productName)) continue
+            if (category === "pc-completo" && !isPcCompleto(node.productName)) continue
             if (category === "livros" && !isBook(node.productName)) continue
 
             const externalId = `${node.shopId}.${node.itemId}`

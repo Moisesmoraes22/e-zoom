@@ -6,6 +6,17 @@ import { refineCategory } from "../lib/categories.ts"
 // [title, category the store gave, category it must end up in]. Every mistake found in a
 // review goes here, so it can never come back. Add a row whenever a new one is found.
 const CASES: [string, string, string][] = [
+  // complete assembled PCs get their own category; parts and furniture stay where they are
+  ["Pc Gamer Completo Intel Core I5 16gb Ssd 480gb Monitor 24 Teclado Mouse", "informatica", "pc-completo"],
+  ["Kit Pc Gamer Completo Ryzen 5 Ssd + Cadeira Gamer", "casa", "pc-completo"],
+  ["Computador Completo Intel I3 4gb Hd 500gb Monitor 19", "informatica", "pc-completo"],
+  ["Cpu Gamer Ryzen 5 5600g 16gb Ssd 480gb", "informatica", "pc-completo"],
+  ["Mini Pc Intel N100 8gb Ssd 256gb Windows 11", "eletronicos", "pc-completo"],
+  ["Gabinete Pc Gamer Atx Rgb Com 4 Fans Vidro Temperado", "informatica", "informatica"],
+  ["Mesa Para Computador Gamer Escrivaninha Com Prateleira", "casa", "casa"],
+  ["Suporte Para Cpu Gabinete Com Rodinhas", "informatica", "informatica"],
+  ["Notebook Gamer Acer Nitro 5 Intel Core I5 16gb", "informatica", "informatica"],
+  ["Cooler Para Pc Gamer Rgb 120mm", "informatica", "informatica"],
   // fragrances leave "beleza"; room/car scents and care products stay
   ["Perfume Lattafa Asad Eau De Parfum 100ml Masculino", "beleza", "perfumes"],
   ["Natura Kaiak Aventura Desodorante Colônia Masculino 100ml", "beleza", "perfumes"],

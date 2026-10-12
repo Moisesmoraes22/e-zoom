@@ -72,8 +72,14 @@ const BOOK_LEAD = at("mang[aá]s?|b[ií]blias?|livros?|hqs?|(?:box|kit|combo|col
 // "Manga" is also a sleeve and a fruit: clothing words and sleeve lengths rule those out.
 const NOT_BOOK = /(manga (curta|longa|comprida|larga|bufante|princesa|raglan|3\/4|cavada)|blusas?|camisas?|camisetas?|vestidos?|casacos?|jaquetas?|moletom|polpa|suco|fruta|\bkg\b|muda|sorvete|capa (para|de)|porta[- ]?livros?|estante|suporte|marcador|apoio|leitor|luminária|lumin[aá]ria|caneca|camiseta|poster|p[oô]ster|quadro|pel[uú]cia|boneco|action figure|funko|chaveiro|mochila|caderno|agenda|adesivo|mouse ?pad|tapete|jogo|quebra[- ]cabe[cç]a|mesa|prateleira|organizador|kit (?:de )?(?:leitura|escolar)|marca[- ]p[aá]ginas)/i
 
+// Assembled desktop PCs: the title OPENS with the machine (PC Gamer..., Computador Completo..., CPU Gamer...,
+// Mini PC...), so a case, a graphics card or a desk "para computador" never counts.
+const PC_LEAD = lead("pc(?: gamer| completo| montado| desktop| home ?office| office| workstation)?|computador(?:es)?|cpu(?: gamer| completa)?|desktop(?: gamer| completo)?|mini ?pc|all[- ]?in[- ]?one|workstation|nuc|esta[cç][aã]o de trabalho")
+const NOT_PC = /\b(gabinete|suporte|capa|limpeza|adaptador|cooler|water ?cooler|fonte|sem (?:cpu|gabinete|monitor|processador)|somente|apenas (?:o )?(?:gabinete|monitor)|case|ferramenta|jogo|brinquedo|simulador|mouse ?pad|pasta t[eé]rmica|ventoinha|fan)\b/i
+
 /** True when the title is a fragrance / a book: keeps a catalog search for them free of look-alikes. */
 export const isPerfume = (title: string) => PERFUME.test(title) && !NOT_PERFUME.test(title)
+export const isPcCompleto = (title: string) => PC_LEAD.test(title) && !NOT_PC.test(title)
 export const isBook = (title: string) => BOOK_LEAD.test(title) && !NOT_BOOK.test(title)
 
 const RULES: { from: string[]; test: (t: string) => boolean; to: string }[] = [
@@ -81,6 +87,8 @@ const RULES: { from: string[]; test: (t: string) => boolean; to: string }[] = [
   { from: ["beleza", "casa", "brinquedos", "moda", "esporte", "games", "bebes", "saude", "celulares", "eletronicos", "informatica", "arte-papelaria", "musica-filmes", "antiguidades", "festas", "ferramentas", "suplementos", "dj"], to: "livros", test: (t) => BOOK_LEAD.test(t) && !NOT_BOOK.test(t) },
   // Accessories that only talk about perfume (decant syringes, travel bottles) go back to "Beleza".
   { from: ["perfumes"], to: "beleza", test: (t) => PERFUME.test(t) && NOT_PERFUME.test(t) },
+  // A complete PC is its own category (the niche the site invests in), out of "Informática" and the grab bags.
+  { from: ["informatica", "eletronicos", "games", "casa", "esporte", "celulares", ...NOISY], to: "pc-completo", test: isPcCompleto },
   // Fragrances leave "Beleza" and any grab bag they were dropped in.
   { from: ["beleza", "saude", "casa", "moda", "esporte", "suplementos", "joias-relogios", "antiguidades", "festas", "arte-papelaria", "celulares", "eletronicos", "alimentos-bebidas", "agro", "industria"], to: "perfumes", test: (t) => PERFUME.test(t) && !NOT_PERFUME.test(t) },
   { from: ["brinquedos", "bebes", "esporte"], to: "moda", test: (t) => LEAD_SHOE.test(t) },

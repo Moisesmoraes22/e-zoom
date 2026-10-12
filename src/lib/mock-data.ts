@@ -18,6 +18,11 @@ export const CATEGORIES: Category[] = [
     icon: "Tv",
   },
   {
+    slug: "pc-completo",
+    name: "PC Completo Montado",
+    icon: "Cpu",
+  },
+  {
     slug: "informatica",
     name: "Informática",
     icon: "Laptop",

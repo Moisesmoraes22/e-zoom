@@ -1,4 +1,4 @@
-import { isBook, isPerfume, isTool, refineCategory } from "../lib/categories.ts"
+import { isBook, isPcCompleto, isPerfume, isTool, refineCategory } from "../lib/categories.ts"
 import { isDj } from "../lib/dj.ts"
 import { mlSellerLocation, type SellerLocation } from "../lib/location.ts"
 import { mlSellerLeader, type SellerLeader } from "../lib/seller.ts"
@@ -80,6 +80,13 @@ const CATEGORY_TERMS: Record<string, string[]> = {
     "patinete infantil", "bicicleta infantil", "brinquedo educativo", "cozinha infantil", "bloco de montar",
     "boneco de ação", "fantasia infantil", "carrinho de controle remoto", "piscina de bolinhas", "pista de carrinhos",
   ],
+  // Complete assembled PCs, the niche the site invests in: gamer, office, mini and all-in-one.
+  "pc-completo": [
+    "pc gamer completo", "pc gamer", "pc gamer ryzen 5", "pc gamer ryzen 7", "pc gamer intel core i5", "pc gamer i7",
+    "pc gamer rtx", "pc gamer rx 580", "pc gamer gtx 1650", "pc gamer completo com monitor", "computador completo",
+    "computador completo intel i5", "computador completo intel i3", "computador completo home office", "computador desktop",
+    "cpu gamer", "mini pc", "mini pc i5", "all in one pc", "pc workstation", "computador completo ssd monitor teclado mouse",
+  ],
   // Perfumes: Arabian houses, the big Brazilian direct-sales brands and the best known designer lines.
   perfumes: [
     "perfume árabe", "lattafa", "lattafa asad", "lattafa khamrah", "lattafa yara", "al haramain", "armaf club de nuit",
@@ -149,6 +156,7 @@ const CATEGORIES: Record<string, string[]> = {
   instrumentos: ["MLB1182"],
   "joias-relogios": ["MLB3937"],
   livros: ["MLB1196"],
+  "pc-completo": ["MLB430637"], // PC de Mesa
   "musica-filmes": ["MLB1168"],
 }
 
@@ -235,6 +243,7 @@ export function createMercadoLivreConnector(env: NodeJS.ProcessEnv): Connector {
         if (only === "ferramentas" && !isTool(product.name)) return
         // Same for fragrances and books: a search for "natura kaiak" also finds shampoo, "livro" finds stands.
         if (categoryIn === "perfumes" && !isPerfume(product.name)) return
+        if (categoryIn === "pc-completo" && !isPcCompleto(product.name)) return
         if (categoryIn === "livros" && !isBook(product.name)) return
         const category = supplement ? "suplementos" : dj ? "dj" : refineCategory(product.name, categoryIn)
 

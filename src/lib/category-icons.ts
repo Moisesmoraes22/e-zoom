@@ -5,6 +5,7 @@ import {
   Camera,
   Car,
   Clapperboard,
+  Cpu,
   Disc3,
   Dumbbell,
   Factory,
@@ -36,6 +37,7 @@ import {
 
 const ICONS: Record<string, LucideIcon> = {
   "eletronicos": Tv,
+  "pc-completo": Cpu,
   "informatica": Laptop,
   "celulares": Smartphone,
   "acessorios-celular": Cable,
