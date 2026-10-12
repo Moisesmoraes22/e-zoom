@@ -103,7 +103,8 @@ export function ProductCard({
               title={`Aberta ${product.clicks} vezes nos últimos 14 dias`}
             >
               <Flame className="h-3.5 w-3.5" aria-hidden />
-              {product.clicks}
+              {/* "Em alta" only for what is really among the most opened: 3 or more in 14 days. */}
+              {(product.clicks ?? 0) >= 3 ? `Em alta · ${product.clicks}` : product.clicks}
             </span>
           )}
         </div>
