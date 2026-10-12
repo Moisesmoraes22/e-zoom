@@ -23,8 +23,8 @@ export const revalidate = 1800
 
 export const metadata: Metadata = { alternates: { canonical: "/" } }
 
-const FEATURED = 4
-const SHELF = 4
+const FEATURED = 6 // 4 show up to 1535px, 5 from 1536px, 6 from 1800px (see FeaturedOffers)
+const SHELF = 6
 const ROW_SIZE = 12
 /** A shelf this short looks abandoned: it shows from this many offers on, else not at all. */
 const SHELF_MIN = 3

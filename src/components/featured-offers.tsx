@@ -43,9 +43,14 @@ export function FeaturedOffers({
           <ArrowRight className="h-4 w-4" aria-hidden />
         </Link>
       </div>
-      <ul className="grid grid-cols-1 gap-4 min-[480px]:grid-cols-2 lg:grid-cols-4">
+      {/* 4 cards up to 1535px, 5 from 1536px, 6 from 1800px: wide screens fill the row instead of
+          stretching four cards. The 5th and 6th are hidden below those widths. */}
+      <ul className="grid grid-cols-1 gap-4 min-[480px]:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6">
         {offers.map((product, i) => (
-          <li key={product.id}>
+          <li
+            key={product.id}
+            className={i === 4 ? "hidden 2xl:block" : i >= 5 ? "hidden 3xl:block" : undefined}
+          >
             <ProductCard product={product} priority={i < 2} />
           </li>
         ))}

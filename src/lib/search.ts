@@ -152,8 +152,8 @@ export function matchTier(title: string, groups: string[][]): number {
   return groups[0].some((a) => head.startsWith(` ${a} `)) ? 3 : 2
 }
 
-/** Offers per results page (the cards of one page are fetched together): 5 columns x 5 rows on wide screens. */
-export const PAGE_SIZE = 25
+/** Offers per results page (the cards of one page are fetched together): whole rows at 2, 3, 5 and 6 columns. */
+export const PAGE_SIZE = 30
 
 const SEARCH_FIELDS = [
   "id", "title", "price", "originalPrice", "category", "store", "isFreeShipping",
