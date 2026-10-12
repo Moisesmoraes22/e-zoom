@@ -44,7 +44,7 @@ export function FavoritesSheet() {
     retrySync,
   } = useFavorites()
   const [isClearing, setIsClearing] = useState(false)
-  const [blockedTabs, setBlockedTabs] = useState(0)
+  const [pendingIds, setPendingIds] = useState<string[]>([])
   const clearTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const catalog = useSearchIndex()
 
@@ -55,15 +55,30 @@ export function FavoritesSheet() {
   }, [isOpen])
   const current = new Map(catalog.items.map((item) => [item.id, item.price]))
 
-  // Opens every saved offer that is still in the catalog, one tab each (the browser may block extra tabs).
+  /**
+   * Opens a tab. `noopener` is not passed as a feature because window.open then ALWAYS returns null,
+   * which would make a tab that did open look blocked; the opener link is cut afterwards instead.
+   */
+  const openTab = (url: string) => {
+    const tab = window.open(url, "_blank")
+    if (!tab) return false
+    tab.opener = null
+    return true
+  }
+
+  // Opens every saved offer that is still in the catalog, one tab each. A browser lets a tap open ONE
+  // new tab unless pop-ups are allowed for the site: what it blocks waits in `pending`, and each next
+  // tap opens the following one (so every offer opens, with or without the permission).
   const handleOpenAll = () => {
     const live = items.filter((item) => !(catalog.status === "ready" && !current.has(item.id)))
-    let blocked = 0
-    for (const item of live) {
-      recordOfferClick(item)
-      if (!window.open(item.affiliateUrl, "_blank", "noopener,noreferrer")) blocked++
+    const queue = pendingIds.length > 0 ? live.filter((item) => pendingIds.includes(item.id)) : live
+    const waiting: string[] = []
+    for (const item of queue) {
+      // After the first refusal the rest of this tap would be refused too: leave them for the next taps.
+      if (waiting.length === 0 && openTab(item.affiliateUrl)) recordOfferClick(item)
+      else waiting.push(item.id)
     }
-    setBlockedTabs(blocked)
+    setPendingIds(waiting)
   }
 
   const handleClear = () => {
@@ -81,6 +96,7 @@ export function FavoritesSheet() {
     <Sheet
       open={isOpen}
       onOpenChange={(open) => {
+        if (!open) setPendingIds([])
         if (!open && clearTimeoutRef.current) {
           clearTimeout(clearTimeoutRef.current)
           setIsClearing(false)
@@ -324,13 +340,15 @@ export function FavoritesSheet() {
                 onClick={handleOpenAll}
                 className="w-full gap-2 bg-cta text-cta-foreground hover:bg-cta-hover active:scale-[0.98]"
               >
-                Ver ofertas
+                {pendingIds.length > 0
+                  ? `Abrir a próxima (${pendingIds.length} ${pendingIds.length === 1 ? "restante" : "restantes"})`
+                  : "Ver ofertas"}
                 <ExternalLink className="h-4 w-4" aria-hidden />
               </Button>
-              {blockedTabs > 0 && (
+              {pendingIds.length > 0 && (
                 <p role="status" className="text-xs text-muted-foreground">
-                  O navegador bloqueou {blockedTabs} {blockedTabs === 1 ? "aba" : "abas"}. Permita pop-ups
-                  para o E-Zooom e toque de novo, ou use o “Ver oferta” de cada item.
+                  O navegador abre uma aba por toque. Toque de novo para abrir a próxima. Para abrir
+                  todas de uma vez, permita pop-ups para o E-Zooom.
                 </p>
               )}
             </div>
