@@ -189,15 +189,6 @@ export function ProductDetail({
             {(
               <ul className="mt-4 flex flex-wrap gap-2 text-xs font-semibold empty:hidden">
                 <ViewCount offerId={product.id} />
-                {product.dropAt && (
-                  <li className="inline-flex items-center gap-1.5 rounded-full bg-success/10 px-2.5 py-1 text-success">
-                    <TrendingDown className="h-3.5 w-3.5" aria-hidden />
-                    <span>
-                      Caiu{" "}
-                      <TimeAgo iso={product.dropAt} fallback="recentemente" title="Quando o preço caiu pela última vez" />
-                    </span>
-                  </li>
-                )}
                 {(product.clicks ?? 0) >= 3 && (
                   <li className="inline-flex items-center gap-1.5 rounded-full bg-brand/10 px-2.5 py-1 text-brand">
                     <Flame className="h-3.5 w-3.5" aria-hidden />

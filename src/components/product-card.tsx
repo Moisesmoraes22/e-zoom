@@ -8,7 +8,6 @@ import { ArrowUpRight, Bookmark, Flame, Star, Truck } from "lucide-react"
 import { ListClock } from "@/components/day-countdown"
 import { OfferLink } from "@/components/offer-link"
 import { StoreLogo } from "@/components/store-logo"
-import { TimeAgo } from "@/components/time-ago"
 import { discountOf, priceCut } from "@/lib/deals"
 import { useFavorites } from "@/lib/favorites-context"
 import { cardImage } from "@/lib/image-url"
@@ -159,12 +158,6 @@ export function ProductCard({
           )}
 
           {clock && <ListClock />}
-
-          {discount && product.dropAt && (
-            <span className="text-[11px] font-semibold text-success">
-              Caiu <TimeAgo iso={product.dropAt} fallback="recentemente" title="Quando o preço caiu pela última vez" />
-            </span>
-          )}
 
           {product.installments && (
             <span className="text-sm text-foreground">
