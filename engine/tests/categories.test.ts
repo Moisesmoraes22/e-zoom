@@ -6,6 +6,28 @@ import { refineCategory } from "../lib/categories.ts"
 // [title, category the store gave, category it must end up in]. Every mistake found in a
 // review goes here, so it can never come back. Add a row whenever a new one is found.
 const CASES: [string, string, string][] = [
+  // fragrances leave "beleza"; room/car scents and care products stay
+  ["Perfume Lattafa Asad Eau De Parfum 100ml Masculino", "beleza", "perfumes"],
+  ["Natura Kaiak Aventura Desodorante Colônia Masculino 100ml", "beleza", "perfumes"],
+  ["Malbec Desodorante Colônia O Boticário 100ml", "beleza", "perfumes"],
+  ["Body Splash Victoria's Secret Love Spell 250ml", "beleza", "perfumes"],
+  ["Aromatizador De Ambiente Difusor Varetas Perfume Lavanda", "beleza", "beleza"],
+  ["Perfume Para Carro Automotivo Aromatizante", "casa", "casa"],
+  ["Penteadeira Suspensa Espelho Paraty Malbec", "casa", "casa"],
+  ["Kit 3x Algodão 100un Quadrado Bebê Sem Perfume Limpeza Macio", "beleza", "beleza"],
+  ["Base Desinfetante Concentrada Rende até 30L com Perfume Premium", "beleza", "beleza"],
+  ["Natura Todo Dia Hidratante Corporal Creme 400ml", "beleza", "beleza"],
+  ["Sabonete Natura Ekos Castanha 150g", "beleza", "beleza"],
+  // books: manga and Bibles open the title; merch about them does not count
+  ["Mangá One Piece Vol. 1 Panini", "brinquedos", "livros"],
+  ["Bíblia Sagrada NVI Letra Grande Capa Dura", "casa", "livros"],
+  ["Livro Hábitos Atômicos James Clear", "moda", "livros"],
+  ["Box Harry Potter 7 Livros Capa Dura", "brinquedos", "livros"],
+  ["Capa Para Bíblia Feminina Com Zíper", "moda", "moda"],
+  ["Porta Livros Estante Suporte Ajustável", "casa", "casa"],
+  ["Camiseta Naruto Mangá Preta Algodão", "moda", "moda"],
+  ["Kit com 2, 6 ou 8 Blusas Manga Curta Infantil Algodão", "brinquedos", "brinquedos"],
+  ["Manga Palmer Polpa Congelada 1kg", "alimentos-bebidas", "alimentos-bebidas"],
   // shoes filed as sports/fashion
   ["Tênis Feminino Racer Speedzone Fila", "esporte", "moda"],
   ["Vans Old Skool Adulto Unissex", "esporte", "moda"],

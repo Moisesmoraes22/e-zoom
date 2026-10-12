@@ -53,6 +53,11 @@ export const CATEGORIES: Category[] = [
     icon: "Sparkles",
   },
   {
+    slug: "perfumes",
+    name: "Perfumes e Fragrâncias",
+    icon: "SprayCan",
+  },
+  {
     slug: "saude",
     name: "Saúde",
     icon: "HeartPulse",

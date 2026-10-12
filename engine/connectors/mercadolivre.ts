@@ -1,4 +1,4 @@
-import { isTool, refineCategory } from "../lib/categories.ts"
+import { isBook, isPerfume, isTool, refineCategory } from "../lib/categories.ts"
 import { isDj } from "../lib/dj.ts"
 import { mlSellerLocation, type SellerLocation } from "../lib/location.ts"
 import { mlSellerLeader, type SellerLeader } from "../lib/seller.ts"
@@ -79,6 +79,27 @@ const CATEGORY_TERMS: Record<string, string[]> = {
     "boneca", "hot wheels", "lego", "quebra-cabeça", "jogo de tabuleiro", "massinha de modelar", "pelúcia", "nerf",
     "patinete infantil", "bicicleta infantil", "brinquedo educativo", "cozinha infantil", "bloco de montar",
     "boneco de ação", "fantasia infantil", "carrinho de controle remoto", "piscina de bolinhas", "pista de carrinhos",
+  ],
+  // Perfumes: Arabian houses, the big Brazilian direct-sales brands and the best known designer lines.
+  perfumes: [
+    "perfume árabe", "lattafa", "lattafa asad", "lattafa khamrah", "lattafa yara", "al haramain", "armaf club de nuit",
+    "afnan", "rasasi", "ajmal", "arabian oud", "maison alhambra", "fragrance world", "perfume árabe masculino",
+    "perfume árabe feminino", "natura perfume", "natura kaiak", "natura essencial", "natura luna", "natura ekos",
+    "o boticário perfume", "boticário malbec", "boticário egeo", "boticário floratta", "boticário lily", "boticário quasar",
+    "eudora perfume", "avon perfume", "jequiti perfume", "carolina herrera perfume", "paco rabanne perfume",
+    "one million", "invictus", "212 vip", "good girl", "la vie est belle", "dior sauvage", "bleu de chanel",
+    "acqua di gio", "perfume masculino", "perfume feminino", "eau de parfum", "body splash", "colônia masculina",
+    "colônia feminina", "kit perfume", "perfume importado", "perfume infantil",
+  ],
+  // Books: manga, Bibles, best sellers and boxes.
+  livros: [
+    "mangá", "mangá one piece", "mangá naruto", "mangá demon slayer", "mangá jujutsu kaisen", "mangá berserk",
+    "mangá attack on titan", "mangá chainsaw man", "mangá boruto", "mangá dragon ball", "mangá vagabond",
+    "mangá tokyo ghoul", "mangá my hero academia", "mangá blue lock", "mangá box", "bíblia", "bíblia sagrada",
+    "bíblia nvi", "bíblia de estudo", "bíblia letra grande", "bíblia católica", "bíblia king james", "bíblia feminina",
+    "bíblia jesus copy", "livro", "box livros", "box harry potter", "livro best seller", "livro autoajuda",
+    "livro hábitos atômicos", "livro romance", "livro infantil", "livro de colorir", "livro sobre finanças",
+    "livro de receitas", "história em quadrinhos", "hq marvel", "hq dc", "livro devocional",
   ],
   casa: [
     "sofá", "guarda-roupa", "cama box", "colchão", "rack para tv", "estante", "mesa de jantar", "poltrona", "cômoda",
@@ -210,6 +231,9 @@ export function createMercadoLivreConnector(env: NodeJS.ProcessEnv): Connector {
         if (only === "dj" && !dj) return
         // A catalog search for "alicate" also finds nail clippers: keep only what is named as a tool.
         if (only === "ferramentas" && !isTool(product.name)) return
+        // Same for fragrances and books: a search for "natura kaiak" also finds shampoo, "livro" finds stands.
+        if (categoryIn === "perfumes" && !isPerfume(product.name)) return
+        if (categoryIn === "livros" && !isBook(product.name)) return
         const category = supplement ? "suplementos" : dj ? "dj" : refineCategory(product.name, categoryIn)
 
         const url = `https://www.mercadolivre.com.br/p/${id}`

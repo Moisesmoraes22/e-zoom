@@ -58,7 +58,29 @@ const PHONE_ACCESSORY_LEAD = lead(
   "capas?|capinhas?|cases?|pel[ií]culas?|protetor(?:es)? de (?:tela|lente|c[aâ]mera)|vidro temperado|carregador(?:es)?|cabos?|power ?banks?|fontes?|suportes?|pop ?sockets?|anel (?:de )?suporte|lentes?|adaptador(?:es)?|baterias?|telas?|displays?|m[oó]dulos?|gimbal|estabilizador|bast[aã]o de selfie|ring light|trip[eé]|protetor(?:es)? (?:de )?c[aâ]mera|frontal|gaveta|bandeja (?:de )?chip|microfones?|teleprompter|correia|cord[aã]o|pulseiras?"
 )
 
+// Perfumes: named by what they are or by a house that only makes fragrances (Arabian ones). Natura and
+// Boticário also sell skincare, so those brands count only with a fragrance word or one of their lines.
+const PERFUME = word(
+  "perfumes?|col[oô]nias?|eau de (?:parfum|toilette|cologne)|parfum|body splash|[aá]gua de cheiro|fragr[aâ]ncias? (?:masculina|feminina|[aá]rabe)|lattafa|al haramain|armaf|afnan|rasasi|ajmal|arabian oud|maison alhambra|fragrance world|kaiak|malbec|egeo|floratta|quasar|zaad|212 vip|one million|invictus|sauvage|good girl|la vie est belle|bleu de chanel|acqua di gio",
+)
+// Room, car and fabric scents, miniatures-as-toys and bath products only borrow the word.
+const NOT_PERFUME = /(sem perfume|desinfetante|limpeza|detergente|amaciante|lava[- ]roupas|capilar|cabelo|penteadeira|espelho|c[oô]moda|ambient|aromatizador|difusor|odorizador|home spray|vela\b|incenso|carro|automotiv|para (roupas?|tecidos?|len[cç]ois)|sach[eê]|pet\b|c[aã]es|gatos?|sabonete|shampoo|condicionador|hidratante|creme|esfoliante|desodorante (?:antitranspirante|roll|spray aerossol)|brinquedo|boneca|fantasia|porta[- ]perfume|suporte|prateleira|organizador|expositor|embalagem|frasco vazio|vazio)/i
+
+// Books: manga, Bibles, "livro" and comics at the START of the title. Merch about them (cases, shelves,
+// posters, mugs, figures...) is not a book. Also taken from "brinquedos" etc., where stores file them.
+const BOOK_LEAD = at("mang[aá]s?|b[ií]blias?|livros?|hqs?|(?:box|kit|combo|cole[cç][aã]o)\\b.{0,40}?\\b(?:livros?|mang[aá]s?|hqs?)|gibi|quadrinhos?|novo testamento|salmos|devocional")
+// "Manga" is also a sleeve and a fruit: clothing words and sleeve lengths rule those out.
+const NOT_BOOK = /(manga (curta|longa|comprida|larga|bufante|princesa|raglan|3\/4|cavada)|blusas?|camisas?|camisetas?|vestidos?|casacos?|jaquetas?|moletom|polpa|suco|fruta|\bkg\b|muda|sorvete|capa (para|de)|porta[- ]?livros?|estante|suporte|marcador|apoio|leitor|luminária|lumin[aá]ria|caneca|camiseta|poster|p[oô]ster|quadro|pel[uú]cia|boneco|action figure|funko|chaveiro|mochila|caderno|agenda|adesivo|mouse ?pad|tapete|jogo|quebra[- ]cabe[cç]a|mesa|prateleira|organizador|kit (?:de )?(?:leitura|escolar)|marca[- ]p[aá]ginas)/i
+
+/** True when the title is a fragrance / a book: keeps a catalog search for them free of look-alikes. */
+export const isPerfume = (title: string) => PERFUME.test(title) && !NOT_PERFUME.test(title)
+export const isBook = (title: string) => BOOK_LEAD.test(title) && !NOT_BOOK.test(title)
+
 const RULES: { from: string[]; test: (t: string) => boolean; to: string }[] = [
+  // Books come first: a title that opens with "Livro"/"Mangá"/"Bíblia" is one, whatever tree the store used.
+  { from: ["beleza", "casa", "brinquedos", "moda", "esporte", "games", "bebes", "saude", "celulares", "eletronicos", "informatica", "arte-papelaria", "musica-filmes", "antiguidades", "festas", "ferramentas", "suplementos", "dj"], to: "livros", test: (t) => BOOK_LEAD.test(t) && !NOT_BOOK.test(t) },
+  // Fragrances leave "Beleza" and any grab bag they were dropped in.
+  { from: ["beleza", "saude", "casa", "moda", "esporte", "suplementos", "joias-relogios", "antiguidades", "festas", "arte-papelaria", "celulares", "eletronicos", "alimentos-bebidas", "agro", "industria"], to: "perfumes", test: (t) => PERFUME.test(t) && !NOT_PERFUME.test(t) },
   { from: ["brinquedos", "bebes", "esporte"], to: "moda", test: (t) => LEAD_SHOE.test(t) },
   { from: ["games"], to: "moda", test: (t) => lead("camisetas?|camisa").test(t) },
   { from: ["esporte", "festas", "casa", "brinquedos", "acessorios-veiculos"], to: "animais", test: (t) => PET.test(t) },

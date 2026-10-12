@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto"
 
-import { isTool, refineCategory } from "../lib/categories.ts"
+import { isBook, isPerfume, isTool, refineCategory } from "../lib/categories.ts"
 import { shopeeShopBadge } from "../lib/seller.ts"
 import type { Connector, OfferRow } from "../types.ts"
 
@@ -16,7 +16,18 @@ const KEYWORDS: Record<string, string[]> = {
   eletrodomesticos: ["liquidificador", "cafeteira", "aspirador de po", "ferro de passar", "ventilador", "forno eletrico", "batedeira", "chaleira eletrica", "sanduicheira", "panela eletrica"],
   casa: ["air fryer", "organizador casa", "luminaria led", "panela antiaderente", "estante", "sapateira", "rack tv", "escrivaninha", "guarda roupa", "cadeira escritorio"],
   moda: ["camiseta masculina", "mochila", "bolsa feminina", "tenis masculino", "chinelo", "sandalia feminina", "mochila infantil"],
-  beleza: ["skincare", "perfume", "secador de cabelo"],
+  beleza: ["skincare", "secador de cabelo"],
+  perfumes: [
+    "perfume arabe", "lattafa", "lattafa asad", "lattafa khamrah", "al haramain", "armaf", "afnan", "rasasi",
+    "maison alhambra", "perfume masculino", "perfume feminino", "natura perfume", "natura kaiak", "boticario perfume",
+    "boticario malbec", "eudora perfume", "avon perfume", "jequiti perfume", "body splash", "colonia masculina",
+    "colonia feminina", "kit perfume", "perfume importado", "decant perfume",
+  ],
+  livros: [
+    "manga", "manga one piece", "manga naruto", "manga demon slayer", "manga jujutsu kaisen", "biblia sagrada",
+    "biblia nvi", "biblia de estudo", "biblia letra grande", "biblia feminina", "livro", "box livros",
+    "livro best seller", "livro autoajuda", "livro infantil", "livro de colorir", "hq", "livro devocional",
+  ],
   esporte: ["whey protein", "garrafa termica", "tapete yoga", "vara de pesca", "molinete", "kit pesca", "isca artificial", "anzol", "carretilha"],
   games: ["controle gamer", "headset gamer", "mouse gamer"],
   ferramentas: ["furadeira", "parafusadeira", "jogo de ferramentas", "trena", "alicate", "esmerilhadeira", "multimetro", "jogo de chaves", "maleta de ferramentas", "martelete", "ferro de solda", "serra tico tico", "lixadeira", "chave de impacto", "nivel a laser", "compressor de ar", "jogo de brocas", "estacao de solda"],
@@ -89,6 +100,8 @@ export function createShopeeConnector(env: NodeJS.ProcessEnv): Connector {
             if (Number(node.ratingStar) < 4.3 || (node.sales ?? 0) < 50) continue
             // A search for "multimetro" also brings cables and meters: the tools shelf keeps only named tools.
             if (category === "ferramentas" && !isTool(node.productName)) continue
+            if (category === "perfumes" && !isPerfume(node.productName)) continue
+            if (category === "livros" && !isBook(node.productName)) continue
 
             const externalId = `${node.shopId}.${node.itemId}`
             if (offers.has(externalId)) continue
