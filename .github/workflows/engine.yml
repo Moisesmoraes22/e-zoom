@@ -117,6 +117,31 @@ jobs:
           ML_CLIENT_SECRET: ${{ secrets.ML_CLIENT_SECRET }}
           ML_AFFILIATE_URL_TEMPLATE: "{url}?matt_tool=36590912&matt_word=moraesmoises20230303173936"
 
+  # Posts the new price drops to the Telegram channel (3 per run, 15 a day, quiet from 23h to 7h).
+  # Needs the secrets TELEGRAM_BOT_TOKEN and TELEGRAM_POST_CHAT; without them it exits quietly.
+  # A failure here never blocks the collections.
+  publicar:
+    needs: [telegram, mercadolivre, shopee]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: node --import ./engine/tests/alias.mjs engine/publish-telegram.ts
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          # The publishable key is public (it ships in every visitor's browser); the site reads with it.
+          SUPABASE_PUBLISHABLE_KEY: sb_publishable_nXesii2dkO6Y5yEeTvjQuA_ddRV7OQI
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_POST_CHAT: ${{ secrets.TELEGRAM_POST_CHAT }}
+
   # After both collections: fixes known category mistakes still in the catalog and lists the
   # new suspicious ones in this run's summary (Actions tab) for a human to review.
   revisao:
