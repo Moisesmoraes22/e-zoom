@@ -224,6 +224,9 @@ function pickFeatured(products: Product[]): Product[] {
 }
 
 /** Real price drops (recorded) seen in the last two days, biggest drop first. */
+// The page is server-rendered and revalidated; the clock is read here, outside the component body.
+const clockNow = () => Date.now()
+
 function pickDrops(products: Product[], skip: Set<string>, now = Date.now(), windowH = DROP_WINDOW_H): Product[] {
   const drop = (p: Product) => (p.priceHistory ? 1 - p.price / p.priceHistory.at(-2)! : 0)
   return products
@@ -265,7 +268,7 @@ export default async function Home() {
   const shown = new Set(featured.map((p) => p.id))
   // "Ofertas do dia": prices that fell since midnight in Brasília, so the list really renews at midnight.
   // With too few of them (early in the day) the shelf falls back to the last 48 hours, without a clock.
-  const now = Date.now()
+  const now = clockNow()
   const sinceMidnightH = ((now - 3 * 3_600_000) % 86_400_000) / 3_600_000
   const today = live ? pickDrops(products, shown, now, sinceMidnightH) : []
   const isToday = today.length >= SHELF_MIN
