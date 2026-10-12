@@ -229,10 +229,20 @@ const clockNow = () => Date.now()
 
 function pickDrops(products: Product[], skip: Set<string>, now = Date.now(), windowH = DROP_WINDOW_H): Product[] {
   const drop = (p: Product) => (p.priceHistory ? 1 - p.price / p.priceHistory.at(-2)! : 0)
-  return products
+  // Biggest drop first, but a cut beyond 50% counts the same (huge ones are often bad data) and what
+  // buyers have rated well breaks the tie. There is no photo-quality signal in the data, so reviews
+  // are the proxy: catalogue items with ratings tend to have proper photos.
+  const score = (p: Product) => {
+    const proof = p.rating && p.reviewsCount ? (Math.min(p.reviewsCount, 200) / 200) * (p.rating >= 4.3 ? 1 : 0.4) : 0
+    return Math.min(drop(p), 0.5) + 0.25 * proof
+  }
+  const ranked = products
     .filter((p) => !skip.has(p.id) && p.isPriceDrop && p.dropAt && now - Date.parse(p.dropAt) < windowH * 3_600_000)
-    .sort((a, b) => drop(b) - drop(a))
-    .slice(0, SHELF)
+    .sort((a, b) => score(b) - score(a))
+  // The first row shows one offer per store (best of each) before repeating a store.
+  const seen = new Set<string>()
+  const lead = ranked.filter((p) => !seen.has(p.store) && seen.add(p.store))
+  return [...lead, ...ranked.filter((p) => !lead.includes(p))].slice(0, SHELF)
 }
 
 /** A category's best offers (stores mixed), skipping what is already on a shelf. */
