@@ -17,7 +17,7 @@ import {
   TrendingDown,
   type LucideIcon,
 } from "lucide-react";
-import { AnimatePresence, motion, useAnimationControls } from "framer-motion";
+import { AnimatePresence, m as motion, useAnimationControls } from "framer-motion";
 
 import { AccountMenu } from "@/components/account-menu";
 import { useAuth } from "@/components/auth-provider";

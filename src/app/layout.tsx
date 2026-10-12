@@ -2,13 +2,12 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { MotionConfig } from "framer-motion";
 import Script from "next/script";
 import "./globals.css";
 import { AuthProvider } from "@/components/auth-provider";
 import { AdSenseLoader, ClarityLoader, CookieBanner } from "@/components/cookie-consent";
-import { FavoritesFlightLayer } from "@/components/favorites-flight-layer";
-import { FavoritesSheet } from "@/components/favorites-sheet";
+import { LazyOverlays } from "@/components/lazy-overlays";
+import { MotionProvider } from "@/components/motion-provider";
 import { RequestNotice } from "@/components/request-notice";
 import { SiteHeader } from "@/components/site-header";
 import { THEME_INIT_SCRIPT, ThemeProvider } from "@/components/theme-provider";
@@ -62,15 +61,14 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         </a>
         <ThemeProvider>
           <AuthProvider>
-            <MotionConfig reducedMotion="user">
+            <MotionProvider>
               <FavoritesProvider>
                 <SiteHeader categories={categories} showCounts={live} />
                 <RequestNotice />
                 {children}
-                <FavoritesSheet />
-                <FavoritesFlightLayer />
+                <LazyOverlays />
               </FavoritesProvider>
-            </MotionConfig>
+            </MotionProvider>
           </AuthProvider>
         </ThemeProvider>
         <Analytics />

@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useId, useRef } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m as motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import Link, { type LinkProps } from "next/link";
 
