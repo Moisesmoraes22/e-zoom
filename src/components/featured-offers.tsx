@@ -14,6 +14,7 @@ export function FeaturedOffers({
   href = "/busca?ordenacao=relevancia",
   linkLabel = "Ver todas as ofertas",
   aside,
+  clock = false,
 }: {
   offers: Product[]
   id?: string
@@ -23,6 +24,8 @@ export function FeaturedOffers({
   linkLabel?: string
   /** Something small beside the title (a real countdown, for instance). */
   aside?: ReactNode
+  /** Show the list-renewal clock on each card (only for a list that really renews). */
+  clock?: boolean
 }) {
   if (offers.length === 0) return null
   return (
@@ -46,7 +49,7 @@ export function FeaturedOffers({
       <ul className="grid grid-cols-1 gap-4 min-[480px]:grid-cols-2 lg:grid-cols-4">
         {offers.map((product, i) => (
           <li key={product.id}>
-            <ProductCard product={product} priority={i < 2} />
+            <ProductCard product={product} priority={i < 2} clock={clock} />
           </li>
         ))}
       </ul>

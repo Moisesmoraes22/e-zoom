@@ -319,6 +319,7 @@ export default async function Home() {
               : "Quedas que registramos nas últimas 48 horas, da maior para a menor."
           }
           aside={isToday ? <DayCountdown /> : undefined}
+          clock={isToday}
           href="/busca?ordenacao=desconto"
           linkLabel="Ver ofertas com desconto"
         />

@@ -5,6 +5,7 @@ import { useRef } from "react"
 import Link from "next/link"
 import { ArrowUpRight, Bookmark, Flame, Star, Truck } from "lucide-react"
 
+import { ListClock } from "@/components/day-countdown"
 import { OfferLink } from "@/components/offer-link"
 import { StoreLogo } from "@/components/store-logo"
 import { TimeAgo } from "@/components/time-ago"
@@ -26,6 +27,7 @@ export function ProductCard({
   label,
   compact = false,
   priority = false,
+  clock = false,
 }: {
   product: Product
   className?: string
@@ -35,6 +37,8 @@ export function ProductCard({
   priority?: boolean
   /** Small tag above the title, e.g. "Achado E-Zooom". */
   label?: string
+  /** Today's list: a real clock to the list renewal (midnight in Brasília) under the price. */
+  clock?: boolean
 }) {
   const { toggleFavorite, isFavorite, launchFlight } = useFavorites()
   const favorited = isFavorite(product.id)
@@ -93,6 +97,19 @@ export function ProductCard({
               className="h-full w-full object-contain p-1 transition-transform duration-500 motion-safe:group-hover:scale-105"
             />
           </div>
+          {/* Real count of opens of this offer (14 days); only shown from 3 on. */}
+          {(product.clicks ?? 0) >= 3 && (
+            <span
+              className={cn(
+                "absolute z-10 inline-flex items-center gap-1 rounded-full bg-orange-600 px-2.5 py-1 text-xs font-bold tabular-nums text-white",
+                compact ? "bottom-4 right-4" : "bottom-5 right-5",
+              )}
+              title={`Aberta ${product.clicks} vezes nos últimos 14 dias`}
+            >
+              <Flame className="h-3.5 w-3.5" aria-hidden />
+              {product.clicks}
+            </span>
+          )}
         </div>
 
         <div className={cn("flex flex-1 flex-col gap-1.5", compact ? "px-3 pb-2" : "px-4 pb-3")}>
@@ -141,20 +158,12 @@ export function ProductCard({
             </span>
           )}
 
-          {((product.clicks ?? 0) >= 3 || (discount && product.dropAt)) && (
-            <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] font-semibold">
-              {discount && product.dropAt && (
-                <span className="text-success">
-                  Caiu <TimeAgo iso={product.dropAt} fallback="recentemente" title="Quando o preço caiu pela última vez" />
-                </span>
-              )}
-              {(product.clicks ?? 0) >= 3 && (
-                <span className="inline-flex items-center gap-1 text-brand">
-                  <Flame className="h-3 w-3" aria-hidden />
-                  {product.clicks} aberturas
-                </span>
-              )}
-            </div>
+          {clock && <ListClock />}
+
+          {discount && product.dropAt && (
+            <span className="text-[11px] font-semibold text-success">
+              Caiu <TimeAgo iso={product.dropAt} fallback="recentemente" title="Quando o preço caiu pela última vez" />
+            </span>
           )}
 
           {product.installments && (

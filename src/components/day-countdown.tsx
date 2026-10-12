@@ -1,7 +1,7 @@
 "use client"
 
 import { Clock } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useSyncExternalStore } from "react"
 
 const HOUR = 3_600_000
 const DAY = 24 * HOUR
@@ -21,7 +21,6 @@ export function DayCountdown() {
       const nextMidnight = Math.floor((now - BRASILIA) / DAY) * DAY + DAY + BRASILIA
       setLeft(nextMidnight - now)
     }
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- clock read after mount, so the server HTML stays static
     tick()
     const timer = setInterval(() => {
       if (!document.hidden) tick()
@@ -35,6 +34,63 @@ export function DayCountdown() {
     <span className="inline-flex items-center gap-1.5 rounded-full bg-brand/10 px-3 py-1 text-xs font-semibold text-brand">
       <Clock className="h-3.5 w-3.5" aria-hidden />
       {left === null ? "Renova à meia-noite" : <>Renova em {hours} h {minutes} min</>}
+    </span>
+  )
+}
+
+// One shared 1 s clock for every card pill on the page (a timer per card would be dozens of intervals).
+const listeners = new Set<() => void>()
+let timer: ReturnType<typeof setInterval> | undefined
+let cached = 0
+
+const secondsToMidnight = () => {
+  const now = Date.now()
+  const nextMidnight = Math.floor((now - BRASILIA) / DAY) * DAY + DAY + BRASILIA
+  return Math.floor((nextMidnight - now) / 1000)
+}
+
+function subscribe(listener: () => void) {
+  listeners.add(listener)
+  if (listeners.size === 1) {
+    cached = secondsToMidnight()
+    timer = setInterval(() => {
+      if (document.hidden) return
+      const next = secondsToMidnight()
+      if (next === cached) return
+      cached = next
+      listeners.forEach((notify) => notify())
+    }, 1000)
+  }
+  return () => {
+    listeners.delete(listener)
+    if (listeners.size === 0) clearInterval(timer)
+  }
+}
+
+const snapshot = () => (listeners.size > 0 ? cached : secondsToMidnight())
+const serverSnapshot = () => null
+
+const two = (n: number) => String(n).padStart(2, "0")
+
+/**
+ * "Sai da lista em 04:43:27": the card belongs to today's list ("Ofertas do dia"), which renews at
+ * midnight in Brasília. It says when the offer LEAVES OUR LIST, not that the store's offer ends:
+ * the stores do not tell us that, so the label never claims it.
+ */
+export function ListClock({ className }: { className?: string }) {
+  const left = useSyncExternalStore<number | null>(subscribe, snapshot, serverSnapshot)
+  return (
+    <span
+      className={
+        "inline-flex w-fit items-center gap-1.5 rounded-full bg-destructive px-3 py-1 text-xs font-bold tabular-nums text-white " +
+        (className ?? "")
+      }
+      title="A lista de Ofertas do dia renova à meia-noite (horário de Brasília)"
+    >
+      <Clock className="h-3.5 w-3.5" aria-hidden />
+      {left === null
+        ? "Sai da lista à meia-noite"
+        : `Sai da lista em ${two(Math.floor(left / 3600))}:${two(Math.floor((left % 3600) / 60))}:${two(left % 60)}`}
     </span>
   )
 }
