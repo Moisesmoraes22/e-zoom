@@ -26,16 +26,22 @@ function set(next: IndexState) {
   listeners.forEach((listener) => listener())
 }
 
+/** The route serves the catalogue in parts: { items, parts }. */
+const fetchPart = (part: number) =>
+  fetch(`/api/search-index?part=${part}`).then((response) => {
+    if (!response.ok) throw new Error(String(response.status))
+    return response.json() as Promise<{ items: IndexItem[]; parts: number }>
+  })
+
 /** Starts the one-time fetch (a failed one can be retried by calling again). */
 export function loadSearchIndex() {
   if (state.status === "loading" || state.status === "ready") return
   set({ status: "loading", items: [] })
-  fetch("/api/search-index")
-    .then((response) => {
-      if (!response.ok) throw new Error(String(response.status))
-      return response.json() as Promise<IndexItem[]>
+  fetchPart(0)
+    .then(async (first) => {
+      const rest = await Promise.all(Array.from({ length: first.parts - 1 }, (_, i) => fetchPart(i + 1)))
+      set({ status: "ready", items: [...first.items, ...rest.flatMap((r) => r.items)] })
     })
-    .then((items) => set({ status: "ready", items }))
     .catch(() => set({ status: "error", items: [] }))
 }
 
