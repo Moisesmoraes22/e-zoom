@@ -8,7 +8,7 @@ import type { Product } from "@/lib/types"
  * and favourited. Nothing here is ever sent to the server. Old events fade (half-life 7
  * days), so the profile follows what the person wants now.
  */
-export type InterestKind = "search" | "view" | "click" | "favorite"
+export type InterestKind = "search" | "view" | "click" | "favorite" | "pick"
 
 interface InterestEvent {
   t: number
@@ -20,9 +20,15 @@ interface InterestEvent {
 
 export const INTERESTS_KEY = "ezoom:interests:v1"
 export const INTERESTS_CHANGED = "ezoom:interests-changed"
+/** The welcome questions: answered once ("done" / "skip"), and the budget they asked for (a limit in R$). */
+export const ONBOARDED_KEY = "ezoom:onboarded:v1"
+export const BUDGET_KEY = "ezoom:budget"
+/** Asks the welcome dialog to open again ("Mudar preferências"). */
+export const WELCOME_OPEN = "ezoom:welcome-open"
 const MAX_EVENTS = 150
 const HALF_LIFE_MS = 7 * 86_400_000
-const WEIGHT: Record<InterestKind, number> = { favorite: 5, click: 4, search: 3, view: 2 }
+// "pick" is what the person said they want in the welcome questions: the strongest signal, and it never fades.
+const WEIGHT: Record<InterestKind, number> = { pick: 6, favorite: 5, click: 4, search: 3, view: 2 }
 /** Below this much (decayed) weight there is not enough to recommend anything. */
 export const MIN_PROFILE_WEIGHT = 4
 
@@ -52,8 +58,11 @@ function record(event: Omit<InterestEvent, "t">) {
     const last = past.at(-1)
     // The same product opened again right away (reload, double effect) counts once.
     if (last && last.kind === event.kind && last.id === event.id && event.id && Date.now() - last.t < 60_000) return
-    const events = [...past, { ...event, t: Date.now() }].slice(-MAX_EVENTS)
-    localStorage.setItem(INTERESTS_KEY, JSON.stringify(events))
+    const events = [...past, { ...event, t: Date.now() }]
+    // The chosen categories are never pushed out by newer events.
+    const picks = events.filter((e) => e.kind === "pick")
+    const rest = events.filter((e) => e.kind !== "pick").slice(-(MAX_EVENTS - picks.length))
+    localStorage.setItem(INTERESTS_KEY, JSON.stringify([...picks, ...rest]))
     window.dispatchEvent(new Event(INTERESTS_CHANGED))
   } catch {
     // storage blocked or full: no profile, the site works the same
@@ -66,9 +75,35 @@ export const recordProduct = (kind: Exclude<InterestKind, "search">, p: Pick<Pro
 export const recordSearch = (query: string) =>
   record({ kind: "search", terms: queryGroups(query).map((g) => g[0]).filter((w) => w.length >= 3) })
 
+/** The categories chosen in the welcome questions (from the raw stored events). */
+export function pickedCategories(raw: string): string[] {
+  try {
+    const parsed = JSON.parse(raw || "[]")
+    if (!Array.isArray(parsed)) return []
+    return parsed.filter((e: InterestEvent) => e?.kind === "pick" && e.category).map((e: InterestEvent) => e.category as string)
+  } catch {
+    return []
+  }
+}
+
+/** Replaces the chosen categories (the rest of the history stays) and the budget ("" = no limit). */
+export function savePicks(categories: string[], budget: string) {
+  try {
+    const past = readEvents().filter((e) => e.kind !== "pick")
+    const picks = categories.map((category) => ({ t: Date.now(), kind: "pick" as const, category, terms: [] as string[] }))
+    localStorage.setItem(INTERESTS_KEY, JSON.stringify([...picks, ...past].slice(0, MAX_EVENTS)))
+    if (budget) localStorage.setItem(BUDGET_KEY, budget)
+    else localStorage.removeItem(BUDGET_KEY)
+    window.dispatchEvent(new Event(INTERESTS_CHANGED))
+  } catch {
+    // storage blocked: the site works the same, just not adapted
+  }
+}
+
 export function clearInterests() {
   try {
     localStorage.removeItem(INTERESTS_KEY)
+    localStorage.removeItem(BUDGET_KEY)
     window.dispatchEvent(new Event(INTERESTS_CHANGED))
   } catch {}
 }
@@ -89,7 +124,7 @@ export function buildProfile(raw: string, now = Date.now()): Profile {
   } catch {}
   const profile: Profile = { categories: new Map(), terms: new Map(), seen: new Set(), total: 0 }
   for (const e of events) {
-    const w = WEIGHT[e.kind] * 0.5 ** (Math.max(0, now - e.t) / HALF_LIFE_MS)
+    const w = WEIGHT[e.kind] * (e.kind === "pick" ? 1 : 0.5 ** (Math.max(0, now - e.t) / HALF_LIFE_MS))
     profile.total += w
     if (e.category) profile.categories.set(e.category, (profile.categories.get(e.category) ?? 0) + w)
     for (const term of e.terms) {

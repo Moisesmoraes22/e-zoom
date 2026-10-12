@@ -7,7 +7,9 @@ import { DayCountdown } from "@/components/day-countdown"
 import { FeaturedOffers } from "@/components/featured-offers"
 import { HomeHero } from "@/components/home-hero"
 import { HowToBuy } from "@/components/how-to-buy"
+import { ForYouSection } from "@/components/for-you-section"
 import { InterestsSection } from "@/components/interests-section"
+import { LazyWelcome } from "@/components/lazy-welcome"
 import { PriceChips } from "@/components/price-chips"
 import { ProductRow } from "@/components/product-row"
 import { SiteFooter } from "@/components/site-footer"
@@ -342,6 +344,8 @@ export default async function Home() {
   // The price band sits after the PC shelf (which follows Electronics) so the PCs come right after
   // Electronics; without that shelf it goes after Electronics.
   const priceBandAfter = rows.some((row) => row.slug === "pc-completo") ? "pc-completo" : "eletronicos"
+  // The welcome questions offer the categories that really have offers (most offers first).
+  const welcomeCategories = categoryCounts(products).slice(0, 18).map((c) => ({ slug: c.slug, name: c.name }))
   const highlighted = categoryCounts(products, true)
     .filter((c) => HIGHLIGHT.includes(c.slug))
     .sort((a, b) => HIGHLIGHT.indexOf(a.slug) - HIGHLIGHT.indexOf(b.slug))
@@ -359,6 +363,7 @@ export default async function Home() {
       <HomeHero />
       <StoreStrip counts={storeCounts} />
       <FeaturedOffers offers={featured} />
+      <ForYouSection />
       <StoresSection counts={storeCounts} />
       {drops.length >= SHELF_MIN && (
         <FeaturedOffers
@@ -406,6 +411,7 @@ export default async function Home() {
       <CouponsSection coupons={coupons} endingSoon={endsSoon.length > 0} />
       <HowToBuy />
       <SiteFooter />
+      <LazyWelcome categories={welcomeCategories} />
     </main>
   )
 }

@@ -2,7 +2,7 @@
 
 import { useSyncExternalStore } from "react"
 
-import { INTERESTS_CHANGED, INTERESTS_KEY, PERSONALIZE_KEY } from "@/lib/interest-profile"
+import { BUDGET_KEY, INTERESTS_CHANGED, INTERESTS_KEY, PERSONALIZE_KEY } from "@/lib/interest-profile"
 
 const subscribe = (notify: () => void) => {
   window.addEventListener(INTERESTS_CHANGED, notify)
@@ -23,6 +23,9 @@ const read = (key: string) => {
 
 /** The stored interests (raw JSON, "" on the server or when empty); updates when they change. */
 export const useInterestsRaw = () => useSyncExternalStore(subscribe, () => read(INTERESTS_KEY), () => "")
+
+/** The budget chosen in the welcome questions: a limit in R$ as text, "" for none. */
+export const useBudget = () => useSyncExternalStore(subscribe, () => read(BUDGET_KEY), () => "")
 
 /** Whether lists may be reordered by the profile (on unless the visitor turned it off). */
 export function usePersonalize(): [boolean, (on: boolean) => void] {
