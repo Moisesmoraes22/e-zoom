@@ -26,7 +26,6 @@ export function ProductCard({
   label,
   compact = false,
   priority = false,
-  clock = false,
 }: {
   product: Product
   className?: string
@@ -36,8 +35,6 @@ export function ProductCard({
   priority?: boolean
   /** Small tag above the title, e.g. "Achado E-Zooom". */
   label?: string
-  /** Today's list: a real clock to the list renewal (midnight in Brasília) under the price. */
-  clock?: boolean
 }) {
   const { toggleFavorite, isFavorite, launchFlight } = useFavorites()
   const favorited = isFavorite(product.id)
@@ -96,8 +93,8 @@ export function ProductCard({
               className="h-full w-full object-contain p-1 transition-transform duration-500 motion-safe:group-hover:scale-105"
             />
           </div>
-          {/* Real count of opens of this offer (14 days); only shown from 3 on. */}
-          {(product.clicks ?? 0) >= 3 && (
+          {/* Real count of opens of this offer (14 days); only shown from 2 on. */}
+          {(product.clicks ?? 0) >= 2 && (
             <span
               className={cn(
                 "absolute z-10 inline-flex items-center gap-1 rounded-full bg-orange-600 px-2.5 py-1 text-xs font-bold tabular-nums text-white",
@@ -157,7 +154,8 @@ export function ProductCard({
             </span>
           )}
 
-          {clock && <ListClock />}
+          {/* Only offers whose price fell today (since midnight in Brasília): the day's list renews then. */}
+          {product.isPriceDrop && <ListClock dropAt={product.dropAt} />}
 
           {product.installments && (
             <span className="text-sm text-foreground">

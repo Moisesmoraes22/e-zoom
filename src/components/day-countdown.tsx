@@ -77,7 +77,7 @@ const two = (n: number) => String(n).padStart(2, "0")
  * renews at midnight in Brasília. The label names the DAILY offer, not the store's promotion: the
  * stores do not tell us when theirs ends, so the text never claims it.
  */
-export function ListClock({ className }: { className?: string }) {
+function ClockPill({ className }: { className?: string }) {
   const left = useSyncExternalStore<number | null>(subscribe, snapshot, serverSnapshot)
   return (
     <span
@@ -93,4 +93,18 @@ export function ListClock({ className }: { className?: string }) {
         : `Oferta do dia acaba em ${two(Math.floor(left / 3600))}:${two(Math.floor((left % 3600) / 60))}:${two(left % 60)}`}
     </span>
   )
+}
+
+const clockNow = () => Date.now()
+
+/** Start of the current day in Brasília, as a timestamp. */
+const brasiliaDayStart = (now: number) => Math.floor((now - BRASILIA) / DAY) * DAY + BRASILIA
+
+/**
+ * The pill, only on offers that really are "of the day": the price fell since midnight in Brasília.
+ * Everything else renders nothing (and does not subscribe to the clock).
+ */
+export function ListClock({ dropAt, className }: { dropAt?: string; className?: string }) {
+  if (!dropAt || Date.parse(dropAt) < brasiliaDayStart(clockNow())) return null
+  return <ClockPill className={className} />
 }

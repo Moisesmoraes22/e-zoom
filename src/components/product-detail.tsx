@@ -189,7 +189,7 @@ export function ProductDetail({
             {(
               <ul className="mt-4 flex flex-wrap gap-2 text-xs font-semibold empty:hidden">
                 <ViewCount offerId={product.id} />
-                {(product.clicks ?? 0) >= 3 && (
+                {(product.clicks ?? 0) >= 2 && (
                   <li className="inline-flex items-center gap-1.5 rounded-full bg-brand/10 px-2.5 py-1 text-brand">
                     <Flame className="h-3.5 w-3.5" aria-hidden />
                     Aberta {product.clicks} vezes nos últimos 14 dias
