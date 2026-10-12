@@ -64,7 +64,7 @@ const PERFUME = word(
   "perfumes?|col[oô]nias?|eau de (?:parfum|toilette|cologne)|parfum|body splash|[aá]gua de cheiro|fragr[aâ]ncias? (?:masculina|feminina|[aá]rabe)|lattafa|al haramain|armaf|afnan|rasasi|ajmal|arabian oud|maison alhambra|fragrance world|kaiak|malbec|egeo|floratta|quasar|zaad|212 vip|one million|invictus|sauvage|good girl|la vie est belle|bleu de chanel|acqua di gio",
 )
 // Room, car and fabric scents, miniatures-as-toys and bath products only borrow the word.
-const NOT_PERFUME = /(sem perfume|desinfetante|limpeza|detergente|amaciante|lava[- ]roupas|capilar|cabelo|penteadeira|espelho|c[oô]moda|ambient|aromatizador|difusor|odorizador|home spray|vela\b|incenso|carro|automotiv|para (roupas?|tecidos?|len[cç]ois)|sach[eê]|pet\b|c[aã]es|gatos?|sabonete|shampoo|condicionador|hidratante|creme|esfoliante|desodorante (?:antitranspirante|roll|spray aerossol)|brinquedo|boneca|fantasia|porta[- ]perfume|suporte|prateleira|organizador|expositor|embalagem|frasco vazio|vazio)/i
+const NOT_PERFUME = /(seringa|adaptador|transferi|funil|pipeta|dispensador|atomizador|borrifador|flacone\b|recarreg[aá]vel|^(?:kit |\d+\/?[\d\/]* ?(?:pcs?|pe[cç]as?)? ?)?(?:\d+ )?frascos?\b|frascos? de perfume|\bfrascos? (?:de )?vidro (?:spray|para)|\bfrascos?\b.{0,20}\b(?:decant|[aâ]mbar)|\d+\s*frascos?\b|sem perfume|desinfetante|limpeza|detergente|amaciante|lava[- ]roupas|capilar|cabelo|penteadeira|espelho|c[oô]moda|ambient|aromatizador|difusor|odorizador|home spray|vela\b|incenso|carro|automotiv|para (roupas?|tecidos?|len[cç]ois)|sach[eê]|pet\b|c[aã]es|gatos?|sabonete|shampoo|condicionador|hidratante|creme|esfoliante|desodorante (?:antitranspirante|roll|spray aerossol)|brinquedo|boneca|fantasia|porta[- ]perfume|suporte|prateleira|organizador|expositor|embalagem|frasco vazio|vazio)/i
 
 // Books: manga, Bibles, "livro" and comics at the START of the title. Merch about them (cases, shelves,
 // posters, mugs, figures...) is not a book. Also taken from "brinquedos" etc., where stores file them.
@@ -79,6 +79,8 @@ export const isBook = (title: string) => BOOK_LEAD.test(title) && !NOT_BOOK.test
 const RULES: { from: string[]; test: (t: string) => boolean; to: string }[] = [
   // Books come first: a title that opens with "Livro"/"Mangá"/"Bíblia" is one, whatever tree the store used.
   { from: ["beleza", "casa", "brinquedos", "moda", "esporte", "games", "bebes", "saude", "celulares", "eletronicos", "informatica", "arte-papelaria", "musica-filmes", "antiguidades", "festas", "ferramentas", "suplementos", "dj"], to: "livros", test: (t) => BOOK_LEAD.test(t) && !NOT_BOOK.test(t) },
+  // Accessories that only talk about perfume (decant syringes, travel bottles) go back to "Beleza".
+  { from: ["perfumes"], to: "beleza", test: (t) => PERFUME.test(t) && NOT_PERFUME.test(t) },
   // Fragrances leave "Beleza" and any grab bag they were dropped in.
   { from: ["beleza", "saude", "casa", "moda", "esporte", "suplementos", "joias-relogios", "antiguidades", "festas", "arte-papelaria", "celulares", "eletronicos", "alimentos-bebidas", "agro", "industria"], to: "perfumes", test: (t) => PERFUME.test(t) && !NOT_PERFUME.test(t) },
   { from: ["brinquedos", "bebes", "esporte"], to: "moda", test: (t) => LEAD_SHOE.test(t) },
