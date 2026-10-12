@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 
 import { AuthCard } from "@/components/auth/auth-ui"
 import { OpenFavoritesButton, SignOutButton } from "@/components/auth/account-actions"
+import { ProfileEditor } from "@/components/auth/profile-editor"
 import { createClient } from "@/lib/supabase/server"
 
 export const metadata: Metadata = { title: "Minha conta" }
@@ -22,16 +23,7 @@ export default async function ContaPage() {
 
   return (
     <AuthCard title="Minha conta">
-      <dl className="flex flex-col gap-4 text-sm">
-        <div>
-          <dt className="text-muted-foreground">Nome</dt>
-          <dd className="mt-0.5 font-medium text-foreground">{metadataName || "Não informado"}</dd>
-        </div>
-        <div>
-          <dt className="text-muted-foreground">E-mail</dt>
-          <dd className="mt-0.5 break-all font-medium text-foreground">{claims.email}</dd>
-        </div>
-      </dl>
+      <ProfileEditor initialName={metadataName ?? ""} email={claims.email ?? ""} />
 
       <hr className="my-6 border-border" />
 

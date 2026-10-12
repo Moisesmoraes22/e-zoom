@@ -20,6 +20,7 @@ import { AnimatePresence, m as motion, useAnimationControls } from "framer-motio
 
 import { AccountMenu } from "@/components/account-menu";
 import { useAuth } from "@/components/auth-provider";
+import { Avatar } from "@/components/avatar";
 import { SearchBar } from "@/components/search-bar";
 import { ThemeMenu } from "@/components/theme-menu";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -258,7 +259,13 @@ export function SiteHeader({
                   <div className="-mx-3 flex flex-col gap-1" onClick={(event) => {
                     if ((event.target as HTMLElement).closest("a")) setMobileOpen(false);
                   }}>
-                    <p className="truncate px-3 text-xs text-muted-foreground">{user.email}</p>
+                    <div className="flex items-center gap-3 px-3 pb-1">
+                      <Avatar url={user.avatarUrl} label={user.name || user.email || "Conta"} className="h-10 w-10 text-base" />
+                      <div className="min-w-0">
+                        {user.name && <p className="truncate text-sm font-semibold text-foreground">{user.name}</p>}
+                        <p className="truncate text-xs text-muted-foreground">{user.email}</p>
+                      </div>
+                    </div>
                     <MenuLink href="/conta" className="min-h-11">
                       Minha conta
                     </MenuLink>

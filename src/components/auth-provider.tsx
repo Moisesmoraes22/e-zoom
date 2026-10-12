@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation"
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react"
 
+import { safeAvatarUrl } from "@/lib/avatar"
 import { hasSessionCookie, supabaseConfigured } from "@/lib/supabase/config"
 
 // The Supabase browser library is about 90 KB gzipped, so a visitor without a stored session never
@@ -13,6 +14,8 @@ export interface AuthUser {
   id: string
   email: string | null
   name: string | null
+  /** Profile photo (our avatars bucket only), or null. */
+  avatarUrl: string | null
 }
 
 type AuthState =
@@ -63,6 +66,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                   id: user.id,
                   email: user.email ?? null,
                   name: (user.user_metadata?.full_name as string | undefined) ?? null,
+                  avatarUrl: safeAvatarUrl(user.user_metadata?.avatar_url),
                 },
               }
             : { status: "anonymous", user: null },

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { useRef, useState } from "react"
 
 import { useAuth } from "@/components/auth-provider"
+import { Avatar } from "@/components/avatar"
 import { useFavorites } from "@/lib/favorites-context"
 import { useDismiss } from "@/lib/use-dismiss"
 import { cn } from "@/lib/utils"
@@ -45,7 +46,6 @@ export function AccountMenu({ className, tone = "default" }: { className?: strin
   }
 
   const label = user.name || user.email || "Conta"
-  const initial = label.trim().charAt(0).toUpperCase()
 
   return (
     <div ref={rootRef} className={cn("relative", className)}>
@@ -58,15 +58,7 @@ export function AccountMenu({ className, tone = "default" }: { className?: strin
         onClick={() => setOpen((v) => !v)}
         className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
-        <span
-          aria-hidden
-          className={cn(
-            "flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold",
-            tone === "onBrand" ? "bg-white text-hero" : "bg-primary text-primary-foreground",
-          )}
-        >
-          {initial || <User className="h-4 w-4" />}
-        </span>
+        <Avatar url={user.avatarUrl} label={label} tone={tone} className="h-9 w-9 text-sm" />
       </button>
 
       {open && (
