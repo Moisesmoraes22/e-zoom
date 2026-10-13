@@ -14,6 +14,8 @@ export function productJsonLd(product: Product, siteUrl: string) {
     name: product.title,
     image: [product.image],
     sku: product.id,
+    // Built only from what the page shows: the name, the store and the price (and free shipping, when the store says so).
+    description: `${product.title}. Oferta no ${STORE_NAMES[product.store]} por R$ ${product.price.toFixed(2).replace(".", ",")}${product.isFreeShipping ? ", com frete grátis" : ""}. A compra é feita na loja.`,
     ...(product.reviewsCount && product.rating
       ? { aggregateRating: { "@type": "AggregateRating", ratingValue: product.rating, reviewCount: product.reviewsCount } }
       : {}),
@@ -24,6 +26,16 @@ export function productJsonLd(product: Product, siteUrl: string) {
       price: product.price.toFixed(2),
       availability: "https://schema.org/InStock",
       seller: { "@type": "Organization", name: STORE_NAMES[product.store] },
+      // Only when the store marks the offer as free shipping. Return policy and GTIN are not known to us, so they are not claimed.
+      ...(product.isFreeShipping
+        ? {
+            shippingDetails: {
+              "@type": "OfferShippingDetails",
+              shippingRate: { "@type": "MonetaryAmount", value: 0, currency: "BRL" },
+              shippingDestination: { "@type": "DefinedRegion", addressCountry: "BR" },
+            },
+          }
+        : {}),
     },
   }
 }
