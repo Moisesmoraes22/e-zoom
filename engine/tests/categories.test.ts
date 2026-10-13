@@ -125,6 +125,15 @@ const CASES: [string, string, string][] = [
   ["Bebê Reborn Boneca Silicone Menina", "bebes", "brinquedos"],
   ["Cabo Carregador Usb-c Tipo C Turbo 60w", "cameras", "eletronicos"],
   ["Garrafa Squeeze Plastico 750 Ml Academia", "festas", "esporte"],
+  // personal hygiene
+  ["Creme Dental Colgate Total 12 Clean Mint 90g", "beleza", "higiene-cuidados"],
+  ["Desodorante Aerosol Rexona Masculino Active 150ml", "beleza", "higiene-cuidados"],
+  ["Kit 3 Escova Dental Oral-B Indicator Macia", "casa", "higiene-cuidados"],
+  ["Absorvente Always Noites Tranquilas com Abas 8 unidades", "saude", "higiene-cuidados"],
+  ["Aparelho de Barbear Gillette Prestobarba3 com 4 unidades", "beleza", "higiene-cuidados"],
+  ["Saboneteira Porta Sabonete Parede Inox", "casa", "casa"],
+  ["Base Para Sabonete Artesanal Glicerina Branca 1kg", "arte-papelaria", "arte-papelaria"],
+  ["Desodorante de Ambiente Aerosol Lavanda 360ml", "casa", "casa"],
   // pet shop
   ["Ração Premier Pet Cães Adultos Raças Pequenas 15kg", "alimentos-bebidas", "animais"],
   ["Antipulgas Bravecto Cães 10 a 20kg", "saude", "animais"],

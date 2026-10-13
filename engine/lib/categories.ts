@@ -110,6 +110,16 @@ const PET_CONTEXT = /(?:\b(?:para|p\/|pra|de|do|da) (?:c[aã]es|c[aã]o|cachorro
 const NOT_PET = /(cachorro[- ]quente|hot ?dog|ra[cç][aã]o (?:de )?jogo|pet(?:ala|r[oó]leo|rolina)\b)/i
 export const isPet = (title: string) => (PET_ITEM_LEAD.test(title) || PET_CONTEXT.test(title)) && !NOT_PET.test(title)
 
+// Personal hygiene: oral care, soap, deodorant, sanitary pads and hair removal, named at the start.
+// Craft soap bases, pet products, dispensers and holders only borrow the words.
+const HIGIENE_LEAD = lead(
+  "creme dental|cremes dentais|pasta de dente|gel dental|escovas? (?:dental|dentais|de dentes?)|enxaguante bucal|fio dental|antiss[eé]ptico bucal|colgate|oral-?b|sensodyne|listerine|cepacol|close ?up|sabonetes?|desodorantes?|antitranspirantes?|absorventes?|protetor di[aá]rio|coletor menstrual|l[aâ]minas? de barbear|aparelhos? de barbear|barbeador(?:es)?|gillette|cera depilat[oó]ria|creme depilat[oó]rio|depilador(?:es)?|espuma de barbear|hastes? flex[ií]veis|cotonetes?|sabonete [ií]ntimo"
+)
+const NOT_HIGIENE = /(porta[- ]|saboneteira|dispenser|suporte|\bpet\b|c[aã]es|gatos?|cachorro|ambiente|autom[oó]tiv|carro|brinquedo|boneca|molde|forma\b|ess[eê]ncia|corante|base (?:para|de) sabonete|glicerina|kit (?:para )?fazer|artesanal para|lembrancinha|chaveiro|decora[cç][aã]o|vaso|pa[ií]s)/i
+// Soap alone is not moved by the refine rules (a Natura soap is a gift in "Beleza"); a soap search still fills the category.
+const SABONETE_LEAD = lead("sabonetes?(?! [ií]ntimo)")
+export const isHigiene = (title: string) => HIGIENE_LEAD.test(title) && !NOT_HIGIENE.test(title)
+
 /** True when the title is a fragrance / a book: keeps a catalog search for them free of look-alikes. */
 export const isPerfume = (title: string) => PERFUME.test(title) && !NOT_PERFUME.test(title)
 export const isPcCompleto = (title: string) => PC_LEAD.test(title) && !NOT_PC.test(title)
@@ -137,6 +147,8 @@ const RULES: { from: string[]; test: (t: string) => boolean; to: string }[] = [
   // Dermocosmetics and herbs leave the grab bags of beauty and health (never the supplements niche).
   { from: ["beleza", "saude", "casa", "esporte", "moda", "brinquedos"], to: "dermocosmeticos", test: isDermocosmetico },
   { from: ["saude", "beleza", "casa", "esporte", "alimentos-bebidas", "agro", "festas", "arte-papelaria"], to: "ervas-naturais", test: isErvas },
+  // Oral care, soap, deodorant, pads and hair removal have their own category.
+  { from: ["beleza", "saude", "casa", "moda", "esporte", "bebes", "alimentos-bebidas", "agro", "festas", "arte-papelaria", "antiguidades"], to: "higiene-cuidados", test: (t) => isHigiene(t) && !SABONETE_LEAD.test(t) },
   // Make-up brushes belong to "Beleza"; rings, cords, chains and bracelets to "Joias e Relógios".
   { from: ["casa", "moda", "arte-papelaria", "festas", "esporte", "saude", "brinquedos", "antiguidades"], to: "beleza", test: isMakeupBrush },
   { from: ["moda", "beleza", "casa", "esporte", "saude", "arte-papelaria", "festas", "antiguidades"], to: "joias-relogios", test: isJoia },

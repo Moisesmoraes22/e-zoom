@@ -1,4 +1,4 @@
-import { isArtBrush, isBook, isDermocosmetico, isErvas, isJoiaLookalike, isPcCompleto, isPerfume, isTool, refineCategory } from "../lib/categories.ts"
+import { isArtBrush, isBook, isDermocosmetico, isErvas, isHigiene, isJoiaLookalike, isPcCompleto, isPerfume, isTool, refineCategory } from "../lib/categories.ts"
 import { isDj } from "../lib/dj.ts"
 import { mlSellerLocation, type SellerLocation } from "../lib/location.ts"
 import { mlSellerLeader, type SellerLeader } from "../lib/seller.ts"
@@ -63,7 +63,12 @@ const CATEGORY_TERMS: Record<string, string[]> = {
     "cabo coaxial", "balun", "alarme residencial", "central de alarme", "videoporteiro", "câmera de segurança",
     "câmera instantânea", "gopro", "tripé", "ring light", "cartão de memória", "drone",
   ],
-  saude: ["termômetro digital", "aparelho de pressão", "oxímetro", "massageador", "balança digital", "colchão ortopédico"],
+  saude: [
+    "termômetro digital", "aparelho de pressão", "oxímetro", "massageador", "balança digital", "colchão ortopédico",
+    "joelheira", "tornozeleira", "munhequeira", "cotoveleira", "cinta lombar", "cinta abdominal", "palmilha ortopédica",
+    "meia de compressão", "curativo", "esparadrapo", "gaze", "atadura", "algodão", "kit primeiros socorros",
+    "nebulizador", "inalador", "glicosímetro",
+  ],
   // Fishing lives inside "esporte" (as at Mercado Livre).
   esporte: [
     "vara de pesca", "molinete", "carretilha", "linha de pesca", "isca artificial", "kit pesca completo", "anzol",
@@ -136,6 +141,25 @@ const CATEGORY_TERMS: Record<string, string[]> = {
     "óleo essencial de eucalipto", "valeriana", "passiflora", "ginkgo biloba", "ginseng", "fitoterápico", "tintura mãe",
     "ervas para chá",
   ],
+  // Personal hygiene (a pharmacy shelf): oral care, soap, deodorant, pads, shaving and hair removal.
+  "higiene-cuidados": [
+    "creme dental", "creme dental colgate", "creme dental sensodyne", "creme dental oral-b", "creme dental close up",
+    "creme dental infantil", "escova dental", "escova dental elétrica", "escova de dente infantil", "enxaguante bucal",
+    "enxaguante bucal listerine", "enxaguante bucal cepacol", "fio dental", "sabonete", "sabonete líquido",
+    "sabonete em barra", "sabonete íntimo", "sabonete dove", "sabonete nivea", "desodorante", "desodorante aerosol",
+    "desodorante roll-on", "desodorante rexona", "desodorante dove", "desodorante nivea", "desodorante masculino",
+    "desodorante feminino", "antitranspirante", "absorvente", "absorvente always", "absorvente intimus",
+    "protetor diário", "coletor menstrual", "aparelho de barbear", "lâmina de barbear gillette", "aparelho de barbear bic",
+    "espuma de barbear", "cera depilatória", "creme depilatório veet", "depilador elétrico", "cotonete", "hastes flexíveis",
+  ],
+  // Baby care (diapers, wipes, bottles, pacifiers), searched by the shelf's best known names.
+  bebes: [
+    "fralda descartável", "fralda huggies", "fralda pampers", "fralda babysec", "fralda mamypoko", "fralda personal",
+    "fralda geriátrica", "fralda geriátrica tena", "fralda noturna", "lenço umedecido", "lenço umedecido huggies",
+    "mamadeira", "mamadeira lillo", "mamadeira avent", "chupeta", "chupeta lillo", "chupeta nuk", "mordedor",
+    "babador", "prendedor de chupeta", "esterilizador de mamadeira", "bomba tira leite", "shampoo infantil",
+    "sabonete infantil", "colônia infantil", "creme para assaduras", "pomada para assaduras",
+  ],
   // Pet shop: food, beds, accessories and medicine for dogs and cats.
   animais: [
     "ração para cães", "ração para cães filhotes", "ração para cães adultos", "ração para gatos", "ração para gatos castrados",
@@ -158,8 +182,14 @@ const CATEGORY_TERMS: Record<string, string[]> = {
     "aliança de compromisso", "aliança de namoro", "pulseira masculina", "pulseira feminina", "pulseira de prata 925",
     "pulseira de couro masculina", "pulseira de aço masculina", "bracelete feminino", "bracelete masculino", "kit pulseiras",
   ],
-  // Make-up brushes (the rest of "beleza" comes from the category's best sellers).
+  // Make-up brushes, hair care and manicure (the rest of "beleza" comes from the category's best sellers).
   beleza: [
+    "creme para pentear", "leave-in", "finalizador capilar", "ativador de cachos", "óleo capilar", "óleo de argan",
+    "sérum capilar", "tônico capilar", "máscara de hidratação capilar", "shampoo", "condicionador", "shampoo anticaspa",
+    "shampoo neutrox", "shampoo pantene", "shampoo elseve", "shampoo salon line", "tintura de cabelo", "coloração",
+    "tintura wella", "tintura igora", "descolorante", "pó descolorante", "água oxigenada", "progressiva", "alisante",
+    "escova de cabelo", "pente", "esmalte", "esmalte colorama", "removedor de esmalte", "acetona", "alicate de unha",
+    "cortador de unha", "lixa de unha", "kit manicure",
     "pincel de maquiagem", "kit pincéis de maquiagem", "pincéis de maquiagem profissional", "pincel para base",
     "pincel para pó", "pincel de blush", "pincel de sombra", "pincel esfumar", "pincel delineador", "pincel de contorno",
     "pincel para corretivo", "pincel kabuki", "pincel macrilan", "pincel ricca",
@@ -171,7 +201,7 @@ const CATEGORY_TERMS: Record<string, string[]> = {
   ],
 }
 /** Many brand searches: collected once a day by their own workflow, not in every 30 minute run. */
-const DAILY_NICHES = new Set(["perfumes", "livros", "instrumentos", "dermocosmeticos", "ervas-naturais", "joias-relogios", "beleza", "animais"])
+const DAILY_NICHES = new Set(["perfumes", "livros", "instrumentos", "dermocosmeticos", "ervas-naturais", "joias-relogios", "beleza", "animais", "higiene-cuidados", "bebes", "saude"])
 const PER_TERM = 25 // offers kept per term
 const CATEGORY_PER_TERM = 15 // same, for the category terms in the scheduled run (ML_ONLY runs use PER_TERM)
 // Most catalog hits have no active seller (items -> 404), so we scan a few pages per term.
@@ -305,6 +335,7 @@ export function createMercadoLivreConnector(env: NodeJS.ProcessEnv): Connector {
         if (categoryIn === "ervas-naturais" && !isErvas(product.name)) return
         // A "pincel" search also finds paint and kitchen brushes; "pulseira" finds smartwatch straps.
         if (categoryIn === "beleza" && isArtBrush(product.name)) return
+        if (categoryIn === "higiene-cuidados" && !isHigiene(product.name)) return
         if (categoryIn === "joias-relogios" && isJoiaLookalike(product.name)) return
         const category = supplement ? "suplementos" : dj ? "dj" : refineCategory(product.name, categoryIn)
 

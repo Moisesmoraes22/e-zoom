@@ -1,13 +1,13 @@
 import { createHash } from "node:crypto"
 
-import { isArtBrush, isBook, isDermocosmetico, isErvas, isJoiaLookalike, isPcCompleto, isPerfume, isTool, refineCategory } from "../lib/categories.ts"
+import { isArtBrush, isBook, isDermocosmetico, isErvas, isHigiene, isJoiaLookalike, isPcCompleto, isPerfume, isTool, refineCategory } from "../lib/categories.ts"
 import { shopeeShopBadge } from "../lib/seller.ts"
 import type { Connector, OfferRow } from "../types.ts"
 
 const ENDPOINT = "https://open-api.affiliate.shopee.com.br/graphql"
 const PER_KEYWORD = 50
 /** Collected once a day by their own workflow (engine-nichos.yml), not in every run. */
-const DAILY_NICHES = new Set(["perfumes", "livros", "instrumentos", "dermocosmeticos", "ervas-naturais", "joias-relogios", "beleza", "animais"])
+const DAILY_NICHES = new Set(["perfumes", "livros", "instrumentos", "dermocosmeticos", "ervas-naturais", "joias-relogios", "beleza", "animais", "higiene-cuidados", "bebes", "saude"])
 const MAX_OFFERS = 4500 // every category (about 3.5k after the quality filter); a low cap stops the last ones empty
 
 /** Best sellers per search term, filed under the site's own category slugs. */
@@ -18,7 +18,19 @@ const KEYWORDS: Record<string, string[]> = {
   eletrodomesticos: ["liquidificador", "cafeteira", "aspirador de po", "ferro de passar", "ventilador", "forno eletrico", "batedeira", "chaleira eletrica", "sanduicheira", "panela eletrica"],
   casa: ["air fryer", "organizador casa", "luminaria led", "panela antiaderente", "estante", "sapateira", "rack tv", "escrivaninha", "guarda roupa", "cadeira escritorio"],
   moda: ["camiseta masculina", "mochila", "bolsa feminina", "tenis masculino", "chinelo", "sandalia feminina", "mochila infantil"],
+  "higiene-cuidados": [
+    "creme dental", "creme dental colgate", "creme dental sensodyne", "escova dental", "escova dental eletrica",
+    "enxaguante bucal", "fio dental", "sabonete", "sabonete liquido", "sabonete intimo", "desodorante", "desodorante aerosol",
+    "desodorante roll on", "antitranspirante", "absorvente", "absorvente always", "protetor diario", "coletor menstrual",
+    "aparelho de barbear", "lamina de barbear", "espuma de barbear", "cera depilatoria", "creme depilatorio",
+    "depilador eletrico", "cotonete", "hastes flexiveis",
+  ],
   beleza: [
+    "creme para pentear", "leave in", "finalizador capilar", "ativador de cachos", "oleo capilar", "oleo de argan",
+    "serum capilar", "tonico capilar", "mascara de hidratacao capilar", "shampoo", "condicionador", "shampoo anticaspa",
+    "tintura de cabelo", "coloracao", "descolorante", "po descolorante", "agua oxigenada", "progressiva", "alisante",
+    "escova de cabelo", "pente", "esmalte", "removedor de esmalte", "acetona", "alicate de unha", "cortador de unha",
+    "lixa de unha", "kit manicure",
     "skincare", "secador de cabelo", "pincel de maquiagem", "kit pinceis maquiagem", "pincel para base", "pincel de po",
     "pincel esfumar", "pincel blush", "pincel delineador", "pincel kabuki", "pinceis macrilan", "pincel ricca",
   ],
@@ -72,7 +84,16 @@ const KEYWORDS: Record<string, string[]> = {
   cameras: ["camera ip wifi", "camera de seguranca", "kit cftv", "dvr", "camera externa", "videoporteiro"],
   brinquedos: ["brinquedo infantil", "boneca", "lego", "hot wheels", "quebra cabeca", "massinha de modelar", "pelucia", "patinete infantil", "nerf"],
   "acessorios-veiculos": ["som automotivo", "capa de banco carro", "tapete automotivo", "suporte celular carro", "aspirador automotivo", "camera de re", "carregador veicular"],
-  bebes: ["fralda", "mamadeira"],
+  bebes: [
+    "fralda", "fralda descartavel", "fralda huggies", "fralda pampers", "fralda geriatrica", "lenco umedecido",
+    "mamadeira", "chupeta", "mordedor", "babador", "esterilizador de mamadeira", "bomba tira leite", "shampoo infantil",
+    "sabonete infantil", "pomada para assaduras",
+  ],
+  saude: [
+    "termometro digital", "aparelho de pressao", "oximetro", "joelheira", "tornozeleira", "munhequeira", "cotoveleira",
+    "cinta lombar", "cinta abdominal", "palmilha ortopedica", "meia de compressao", "curativo", "esparadrapo", "gaze",
+    "atadura", "algodao", "kit primeiros socorros", "nebulizador", "glicosimetro",
+  ],
 }
 
 interface Node {
@@ -148,6 +169,7 @@ export function createShopeeConnector(env: NodeJS.ProcessEnv): Connector {
             if (category === "dermocosmeticos" && !isDermocosmetico(node.productName)) continue
             if (category === "ervas-naturais" && !isErvas(node.productName)) continue
             if (category === "beleza" && isArtBrush(node.productName)) continue
+            if (category === "higiene-cuidados" && !isHigiene(node.productName)) continue
             if (category === "joias-relogios" && isJoiaLookalike(node.productName)) continue
 
             const externalId = `${node.shopId}.${node.itemId}`

@@ -1,5 +1,6 @@
 import {
   Baby,
+  Bath,
   BookOpen,
   Cable,
   Camera,
@@ -50,6 +51,7 @@ const ICONS: Record<string, LucideIcon> = {
   "perfumes": SprayCan,
   "dermocosmeticos": Droplets,
   "ervas-naturais": Leaf,
+  "higiene-cuidados": Bath,
   "saude": HeartPulse,
   "esporte": Dumbbell,
   "suplementos": Pill,

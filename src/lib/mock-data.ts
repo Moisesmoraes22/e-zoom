@@ -73,6 +73,11 @@ export const CATEGORIES: Category[] = [
     icon: "Leaf",
   },
   {
+    slug: "higiene-cuidados",
+    name: "Higiene e Cuidados",
+    icon: "Bath",
+  },
+  {
     slug: "saude",
     name: "Saúde",
     icon: "HeartPulse",
