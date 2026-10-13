@@ -67,6 +67,8 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
                 <RequestNotice />
                 {children}
                 <LazyOverlays />
+                {/* Inside MotionProvider: its animation features (LazyMotion strict) are loaded there. */}
+                <CookieBanner />
               </FavoritesProvider>
             </MotionProvider>
           </AuthProvider>
@@ -75,7 +77,6 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         <SpeedInsights />
         <ClarityLoader />
         <AdSenseLoader />
-        <CookieBanner />
       </body>
     </html>
   );
