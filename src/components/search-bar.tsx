@@ -3,7 +3,7 @@
 import { ArrowRight, Clock, Loader2, Search, TriangleAlert, X } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useEffect, useId, useMemo, useRef, useState } from "react"
+import { useDeferredValue, useEffect, useId, useMemo, useRef, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { categoryIcon } from "@/lib/category-icons"
@@ -79,18 +79,23 @@ export function SearchBar({
   const [recent, setRecent] = useState<string[]>([])
   const index = useSearchIndex()
 
-  const query = value.trim()
+  // What was typed (for submitting) vs. what the suggestions are computed from (deferred: the field never waits for them).
+  const typed = value.trim()
+  const query = useDeferredValue(value).trim()
   const normalized = normalizeText(query)
+
+  // Per-category counts only change with the catalogue, not with each keystroke.
+  const categoryCounts = useMemo(() => {
+    const counts = new Map<string, number>()
+    for (const item of index.items) counts.set(item.category, (counts.get(item.category) ?? 0) + 1)
+    return counts
+  }, [index.items])
 
   // Real data only: products and per-category counts come from the live catalog.
   const { rows, message } = useMemo(() => {
     const rows: Row[] = []
     let message: { text: string; tone: "info" | "error" } | null = null
 
-    const categoryCounts = new Map<string, number>()
-    for (const item of index.items) {
-      categoryCounts.set(item.category, (categoryCounts.get(item.category) ?? 0) + 1)
-    }
     const categoryRow = (slug: string, name: string): Row => {
       const Icon = categoryIcon(slug)
       const count = categoryCounts.get(slug) ?? 0
@@ -124,11 +129,21 @@ export function SearchBar({
     } else if (index.status === "ready") {
       const groups = queryGroups(query)
       // Nothing searchable typed ("!!!"): no suggestions (matchTier would let everything in).
-      ;(groups.length ? index.items : [])
-        .map((item) => ({ item, tier: matchTier(item.title, groups) }))
-        .filter((e) => e.tier > 0)
-        .sort((a, b) => b.tier - a.tier) // stable: same tier keeps catalog order
-        .slice(0, 5)
+      const best: { item: (typeof index.items)[number]; tier: number }[] = []
+      if (groups.length) {
+        for (const item of index.items) {
+          const tier = matchTier(item.title, groups)
+          if (tier === 0) continue
+          // Kept sorted by tier, earlier catalogue position first on ties; only five are ever held.
+          let at = best.length
+          while (at > 0 && best[at - 1].tier < tier) at--
+          if (at < 5) {
+            best.splice(at, 0, { item, tier })
+            if (best.length > 5) best.pop()
+          }
+        }
+      }
+      best
         .map((e) => e.item)
         .forEach((item) =>
           rows.push({
@@ -161,7 +176,7 @@ export function SearchBar({
       message = { text: "Carregando sugestões…", tone: "info" }
     }
     return { rows, message }
-  }, [index, normalized, query, recent])
+  }, [index, categoryCounts, normalized, query, recent])
 
   const go = (href: string, remember?: string) => {
     if (remember) saveRecent(remember)
@@ -175,7 +190,7 @@ export function SearchBar({
       go(rows[active].href, rows[active].remember)
       return
     }
-    go(query ? searchHref(query) : "/busca", query || undefined)
+    go(typed ? searchHref(typed) : "/busca", typed || undefined)
   }
 
   const handleKeyDown = (event: React.KeyboardEvent) => {

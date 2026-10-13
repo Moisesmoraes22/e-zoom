@@ -141,9 +141,21 @@ export function queryGroups(query: string): string[][] {
  * matched from its middle); 2 = every word appears as a whole word; 3 = same, and the
  * title starts with the first word.
  */
+// Normalizing a title (NFKD + regexes) is the expensive part of a match, and the same ~20k titles are matched
+// on every keystroke: it is done once per title. ponytail: grows with the catalogue, bounded by its size.
+const paddedTitles = new Map<string, string>()
+function paddedTitle(title: string): string {
+  let padded = paddedTitles.get(title)
+  if (padded === undefined) {
+    padded = ` ${normalizeText(title).replace(/[^a-z0-9]+/g, " ")} `
+    paddedTitles.set(title, padded)
+  }
+  return padded
+}
+
 export function matchTier(title: string, groups: string[][]): number {
   if (groups.length === 0) return 1
-  const padded = ` ${normalizeText(title).replace(/[^a-z0-9]+/g, " ")} `
+  const padded = paddedTitle(title)
   if (!groups.every((alts) => alts.some((a) => padded.includes(` ${a}`)))) return 0
   const whole = groups.every((alts) => alts.some((a) => padded.includes(` ${a} `)))
   if (!whole) return 1
