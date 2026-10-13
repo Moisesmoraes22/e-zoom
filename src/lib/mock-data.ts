@@ -124,7 +124,7 @@ export const CATEGORIES: Category[] = [
   },
   {
     slug: "animais",
-    name: "Animais",
+    name: "Pet",
     icon: "PawPrint",
   },
   {

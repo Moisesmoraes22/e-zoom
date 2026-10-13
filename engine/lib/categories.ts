@@ -101,6 +101,15 @@ const ART_BRUSH = /(pintura|art[ií]stic|aquarela|acr[ií]lic|tinta|parede|churr
 const JOIA_LEAD = lead("cord[aã]o|cord[oõ]es|correntes?|colar|colares|an[eé]is|anel|alian[cç]as?|pulseiras?|braceletes?|pingentes?|gargantilhas?")
 const NOT_JOIA = /(celular|smartphone|iphone|apple watch|smart ?watch|smartband|galaxy (?:watch|fit)|mi band|xiaomi band|rel[oó]gio inteligente|crach[aá]|chaveiro|chaves?\b|[oó]culos|m[aá]scara|pet\b|c[aã]es|cachorro|gatos?|beb[eê]|ring ?light|suporte|veda[cç][aã]o|o-?ring|encanamento|torneira|cano\b|tubo|el[eé]trico|\bled\b|luz\b|usb|cabo\b|carregador|arduino|bicicleta|freio|\bmoto\b|carro\b|automotiv|cortina|jardim|pesca|viol[aã]o|guitarra|ukulele|boxe|muay|academia|fitness|medidor|press[aã]o arterial|oxímetro|repelente|mosquito|pulga|cinta|luva|bolsa|mochila|brinquedo|boneca|decora[cç][aã]o|cabelo|banho|massag|acupress|ortop|cervical|galvaniz|motosserra|port[aã]o|trator|industrial|cadeado|reboque)/i
 
+// Pet shop: food, treats, beds, collars, toys, hygiene and parasite control. Several of these nouns mean
+// something else alone ("cama", "guia", "fonte", "peitoral"), so they only count with a pet word.
+const PET_ITEM_LEAD = lead(
+  "ra[cç][aã]o|ra[cç][oõ]es|petiscos?|bifinhos?|sach[eê]s?(?= (?:para|de) (?:gatos?|c[aã]es|c[aã]o|cachorros?))|areia (?:higi[eê]nica|sanit[aá]ria)|granulado sanit[aá]rio|tapete higi[eê]nico|coleiras?|caminhas?|casinhas?|arranhadores?|comedouros?|bebedouros?|antipulgas?|verm[ií]fugos?|antiparasit[aá]rios?|bravecto|nexgard|simparic|frontline|advocate|drontal|capstar|caixa de transporte|bolsa de transporte|cama(?= (?:para|de|pet))"
+)
+const PET_CONTEXT = /(?:\b(?:para|p\/|pra|de|do|da) (?:c[aã]es|c[aã]o|cachorros?|cachorrinhos?|gatos?|gatinhos?|pets?|filhotes?)\b|\bpets?\b)/i
+const NOT_PET = /(cachorro[- ]quente|hot ?dog|ra[cç][aã]o (?:de )?jogo|pet(?:ala|r[oó]leo|rolina)\b)/i
+export const isPet = (title: string) => (PET_ITEM_LEAD.test(title) || PET_CONTEXT.test(title)) && !NOT_PET.test(title)
+
 /** True when the title is a fragrance / a book: keeps a catalog search for them free of look-alikes. */
 export const isPerfume = (title: string) => PERFUME.test(title) && !NOT_PERFUME.test(title)
 export const isPcCompleto = (title: string) => PC_LEAD.test(title) && !NOT_PC.test(title)
@@ -134,6 +143,8 @@ const RULES: { from: string[]; test: (t: string) => boolean; to: string }[] = [
   { from: ["brinquedos", "bebes", "esporte"], to: "moda", test: (t) => LEAD_SHOE.test(t) },
   { from: ["games"], to: "moda", test: (t) => lead("camisetas?|camisa").test(t) },
   { from: ["esporte", "festas", "casa", "brinquedos", "acessorios-veiculos"], to: "animais", test: (t) => PET.test(t) },
+  // Food, medicine, hygiene and accessories "para cães/gatos/pet" filed anywhere else go to the pet shop.
+  { from: ["moda", "beleza", "saude", "alimentos-bebidas", "agro", "ferramentas", "construcao", "arte-papelaria", "antiguidades", "industria", "acessorios-celular"], to: "animais", test: isPet },
   { from: ["esporte"], to: "bebes", test: (t) => /^colch[aã]o para carrinho/i.test(t) },
   { from: ["bebes"], to: "brinquedos", test: (t) => /reborn/i.test(t) },
   // (A CFTV cable stays with the cameras: the CFTV rule below would send it straight back.)

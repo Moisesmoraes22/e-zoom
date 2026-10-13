@@ -7,7 +7,7 @@ import type { Connector, OfferRow } from "../types.ts"
 const ENDPOINT = "https://open-api.affiliate.shopee.com.br/graphql"
 const PER_KEYWORD = 50
 /** Collected once a day by their own workflow (engine-nichos.yml), not in every run. */
-const DAILY_NICHES = new Set(["perfumes", "livros", "instrumentos", "dermocosmeticos", "ervas-naturais", "joias-relogios", "beleza"])
+const DAILY_NICHES = new Set(["perfumes", "livros", "instrumentos", "dermocosmeticos", "ervas-naturais", "joias-relogios", "beleza", "animais"])
 const MAX_OFFERS = 4500 // every category (about 3.5k after the quality filter); a low cap stops the last ones empty
 
 /** Best sellers per search term, filed under the site's own category slugs. */
@@ -21,6 +21,16 @@ const KEYWORDS: Record<string, string[]> = {
   beleza: [
     "skincare", "secador de cabelo", "pincel de maquiagem", "kit pinceis maquiagem", "pincel para base", "pincel de po",
     "pincel esfumar", "pincel blush", "pincel delineador", "pincel kabuki", "pinceis macrilan", "pincel ricca",
+  ],
+  animais: [
+    "racao para caes", "racao para gatos", "racao para filhotes", "racao premier", "racao golden", "sache para gatos",
+    "petisco para caes", "bifinho para caes", "cama para cachorro", "caminha pet", "cama para gatos",
+    "casinha para cachorro", "coleira para cachorro", "peitoral para cachorro", "guia para cachorro",
+    "arranhador para gatos", "comedouro para cachorro", "bebedouro para gatos", "fonte para gatos",
+    "caixa de transporte pet", "roupa para cachorro", "brinquedo para cachorro", "brinquedo para gatos",
+    "mordedor para caes", "tapete higienico", "areia higienica para gatos", "escova pet", "antipulgas para caes",
+    "antipulgas para gatos", "vermifugo para caes", "vermifugo para gatos", "bravecto", "nexgard", "simparic",
+    "shampoo para cachorro", "shampoo para gatos", "suplemento para caes", "vitamina para caes",
   ],
   "joias-relogios": [
     "cordao masculino", "cordao prata masculino", "cordao feminino", "corrente masculina", "corrente feminina",

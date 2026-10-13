@@ -136,6 +136,20 @@ const CATEGORY_TERMS: Record<string, string[]> = {
     "óleo essencial de eucalipto", "valeriana", "passiflora", "ginkgo biloba", "ginseng", "fitoterápico", "tintura mãe",
     "ervas para chá",
   ],
+  // Pet shop: food, beds, accessories and medicine for dogs and cats.
+  animais: [
+    "ração para cães", "ração para cães filhotes", "ração para cães adultos", "ração para gatos", "ração para gatos castrados",
+    "ração premier", "ração golden", "ração royal canin", "ração pedigree", "ração whiskas", "ração special dog",
+    "ração quatree", "ração farmina", "sachê para gatos", "petisco para cães", "bifinho para cães", "osso para cães",
+    "cama para cachorro", "caminha pet", "cama para gatos", "casinha para cachorro", "casinha para gatos",
+    "coleira para cachorro", "peitoral para cachorro", "guia para cachorro", "arranhador para gatos",
+    "comedouro para cachorro", "bebedouro para gatos", "fonte para gatos", "caixa de transporte pet",
+    "roupa para cachorro", "brinquedo para cachorro", "brinquedo para gatos", "mordedor para cães", "tapete higiênico",
+    "areia higiênica para gatos", "caixa de areia para gatos", "escova para pet", "focinheira",
+    "antipulgas para cães", "antipulgas para gatos", "vermífugo para cães", "vermífugo para gatos",
+    "antiparasitário para cães", "bravecto", "nexgard", "simparic", "frontline", "shampoo para cachorro",
+    "shampoo para gatos", "suplemento para cães", "vitamina para cães", "remédio para cachorro",
+  ],
   // Jewellery for men and women: cords, chains, rings, bracelets (watches come from the category's best sellers).
   "joias-relogios": [
     "cordão masculino", "cordão masculino prata", "cordão masculino ouro 18k", "cordão feminino", "corrente masculina",
@@ -157,7 +171,7 @@ const CATEGORY_TERMS: Record<string, string[]> = {
   ],
 }
 /** Many brand searches: collected once a day by their own workflow, not in every 30 minute run. */
-const DAILY_NICHES = new Set(["perfumes", "livros", "instrumentos", "dermocosmeticos", "ervas-naturais", "joias-relogios", "beleza"])
+const DAILY_NICHES = new Set(["perfumes", "livros", "instrumentos", "dermocosmeticos", "ervas-naturais", "joias-relogios", "beleza", "animais"])
 const PER_TERM = 25 // offers kept per term
 const CATEGORY_PER_TERM = 15 // same, for the category terms in the scheduled run (ML_ONLY runs use PER_TERM)
 // Most catalog hits have no active seller (items -> 404), so we scan a few pages per term.

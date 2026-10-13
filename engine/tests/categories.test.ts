@@ -125,6 +125,15 @@ const CASES: [string, string, string][] = [
   ["Bebê Reborn Boneca Silicone Menina", "bebes", "brinquedos"],
   ["Cabo Carregador Usb-c Tipo C Turbo 60w", "cameras", "eletronicos"],
   ["Garrafa Squeeze Plastico 750 Ml Academia", "festas", "esporte"],
+  // pet shop
+  ["Ração Premier Pet Cães Adultos Raças Pequenas 15kg", "alimentos-bebidas", "animais"],
+  ["Antipulgas Bravecto Cães 10 a 20kg", "saude", "animais"],
+  ["Shampoo Neutro Para Cachorro e Gatos 500ml", "beleza", "animais"],
+  ["Cama Para Gatos Redonda Pelúcia Antiderrapante", "casa", "animais"],
+  ["Cama Box Casal Queen Colchão Ortopédico", "casa", "casa"],
+  ["Fonte de Alimentação 12v 5a Bivolt", "ferramentas", "ferramentas"],
+  ["Peitoral Academia Supino Halter 20kg", "esporte", "esporte"],
+  ["Sachê Cachorro Quente Tempero Molho 200g", "alimentos-bebidas", "alimentos-bebidas"],
   // make-up brushes and jewellery
   ["Kit 12 Pincéis de Maquiagem Profissional Esfumar Base Pó Blush", "casa", "beleza"],
   ["Pincel Kabuki Para Base Líquida e Pó Compacto", "moda", "beleza"],
