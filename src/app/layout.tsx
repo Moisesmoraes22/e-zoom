@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     process.env.NEXT_PUBLIC_SITE_URL ?? "https://ezooom.com.br",
   ),
   title: {
-    default: "E-Zooom — Hub de ofertas",
+    default: "E-Zooom — Ofertas do Mercado Livre, Shopee e Amazon",
     template: "%s — E-Zooom",
   },
   description:
