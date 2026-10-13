@@ -125,6 +125,12 @@ const CASES: [string, string, string][] = [
   ["Bebê Reborn Boneca Silicone Menina", "bebes", "brinquedos"],
   ["Cabo Carregador Usb-c Tipo C Turbo 60w", "cameras", "eletronicos"],
   ["Garrafa Squeeze Plastico 750 Ml Academia", "festas", "esporte"],
+  // pet look-alikes and pet items filed as baby or medicine talk
+  ["Casinha de Boneca Infantil com Móveis Acompanha Parquinho em Mdf", "animais", "brinquedos"],
+  ["Casinha Para Cachorro Pequeno Plástico Desmontável", "animais", "animais"],
+  ["Au.migos Pets Lenço Umedecido Para Cães E Gatos", "bebes", "animais"],
+  ["Mordedor Natural Desidratado Bully Stick Para Cães", "bebes", "animais"],
+  ["Mordedor Silicone Bebê Anel Refrigerante", "bebes", "bebes"],
   // personal hygiene
   ["Creme Dental Colgate Total 12 Clean Mint 90g", "beleza", "higiene-cuidados"],
   ["Desodorante Aerosol Rexona Masculino Active 150ml", "beleza", "higiene-cuidados"],

@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto"
 
-import { isArtBrush, isBook, isDermocosmetico, isErvas, isHigiene, isJoiaLookalike, isPcCompleto, isPerfume, isTool, refineCategory } from "../lib/categories.ts"
+import { isArtBrush, isBook, isDermocosmetico, isErvas, isHigiene, isJoiaLookalike, isPetLookalike, isPcCompleto, isPerfume, isTool, refineCategory } from "../lib/categories.ts"
 import { shopeeShopBadge } from "../lib/seller.ts"
 import type { Connector, OfferRow } from "../types.ts"
 
@@ -170,6 +170,7 @@ export function createShopeeConnector(env: NodeJS.ProcessEnv): Connector {
             if (category === "ervas-naturais" && !isErvas(node.productName)) continue
             if (category === "beleza" && isArtBrush(node.productName)) continue
             if (category === "higiene-cuidados" && !isHigiene(node.productName)) continue
+            if (category === "animais" && isPetLookalike(node.productName)) continue
             if (category === "joias-relogios" && isJoiaLookalike(node.productName)) continue
 
             const externalId = `${node.shopId}.${node.itemId}`

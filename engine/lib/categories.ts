@@ -106,16 +106,19 @@ const NOT_JOIA = /(celular|smartphone|iphone|apple watch|smart ?watch|smartband|
 const PET_ITEM_LEAD = lead(
   "ra[cç][aã]o|ra[cç][oõ]es|petiscos?|bifinhos?|sach[eê]s?(?= (?:para|de) (?:gatos?|c[aã]es|c[aã]o|cachorros?))|areia (?:higi[eê]nica|sanit[aá]ria)|granulado sanit[aá]rio|tapete higi[eê]nico|coleiras?|caminhas?|casinhas?|arranhadores?|comedouros?|bebedouros?|antipulgas?|verm[ií]fugos?|antiparasit[aá]rios?|bravecto|nexgard|simparic|frontline|advocate|drontal|capstar|caixa de transporte|bolsa de transporte|cama(?= (?:para|de|pet))"
 )
-const PET_CONTEXT = /(?:\b(?:para|p\/|pra|de|do|da) (?:c[aã]es|c[aã]o|cachorros?|cachorrinhos?|gatos?|gatinhos?|pets?|filhotes?)\b|\bpets?\b)/i
+const PET_CONTEXT = /(?:\b(?:para|p\/|pra|de|do|da) (?:c[aã]es|c[aã]o|cachorros?|cachorrinhos?|gatos?|gatinhos?|pets?|filhotes?)\b|\bpets?\b|bully ?sticks?)/i
 const NOT_PET = /(cachorro[- ]quente|hot ?dog|ra[cç][aã]o (?:de )?jogo|pet(?:ala|r[oó]leo|rolina)\b)/i
 export const isPet = (title: string) => (PET_ITEM_LEAD.test(title) || PET_CONTEXT.test(title)) && !NOT_PET.test(title)
+/** Looks like a pet item by its first word ("Casinha de Boneca") but is a toy. */
+export const isPetLookalike = (title: string) =>
+  !PET_CONTEXT.test(title) && /(boneca|barbie|montessori|infantil|casinha de (?:boneca|brinquedo|madeira))/i.test(title)
 
 // Personal hygiene: oral care, soap, deodorant, sanitary pads and hair removal, named at the start.
 // Craft soap bases, pet products, dispensers and holders only borrow the words.
 const HIGIENE_LEAD = lead(
   "creme dental|cremes dentais|pasta de dente|gel dental|escovas? (?:dental|dentais|de dentes?)|enxaguante bucal|fio dental|antiss[eé]ptico bucal|colgate|oral-?b|sensodyne|listerine|cepacol|close ?up|sabonetes?|desodorantes?|antitranspirantes?|absorventes?|protetor di[aá]rio|coletor menstrual|l[aâ]minas? de barbear|aparelhos? de barbear|barbeador(?:es)?|gillette|cera depilat[oó]ria|creme depilat[oó]rio|depilador(?:es)?|espuma de barbear|hastes? flex[ií]veis|cotonetes?|sabonete [ií]ntimo"
 )
-const NOT_HIGIENE = /(porta[- ]|saboneteira|dispenser|suporte|\bpet\b|c[aã]es|gatos?|cachorro|ambiente|autom[oó]tiv|carro|brinquedo|boneca|molde|forma\b|ess[eê]ncia|corante|base (?:para|de) sabonete|glicerina|kit (?:para )?fazer|artesanal para|lembrancinha|chaveiro|decora[cç][aã]o|vaso|pa[ií]s)/i
+const NOT_HIGIENE = /(porta[- ]|saboneteira|dispenser|suporte|\bpet\b|c[aã]es|gatos?|cachorro|ambiente|autom[oó]tiv|carro|brinquedo|boneca|molde|forma\b|ess[eê]ncia|corante|base (?:para|de) sabonete|glicerina|kit (?:para )?fazer|artesanal para|lembrancinha|chaveiro|decora[cç][aã]o|vaso|pa[ií]s|candid[ií]ase|vaginose|infec[cç][aã]o|micose|trata(?:mento)? de)/i
 // Soap alone is not moved by the refine rules (a Natura soap is a gift in "Beleza"); a soap search still fills the category.
 const SABONETE_LEAD = lead("sabonetes?(?! [ií]ntimo)")
 export const isHigiene = (title: string) => HIGIENE_LEAD.test(title) && !NOT_HIGIENE.test(title)
@@ -156,7 +159,8 @@ const RULES: { from: string[]; test: (t: string) => boolean; to: string }[] = [
   { from: ["games"], to: "moda", test: (t) => lead("camisetas?|camisa").test(t) },
   { from: ["esporte", "festas", "casa", "brinquedos", "acessorios-veiculos"], to: "animais", test: (t) => PET.test(t) },
   // Food, medicine, hygiene and accessories "para cães/gatos/pet" filed anywhere else go to the pet shop.
-  { from: ["moda", "beleza", "saude", "alimentos-bebidas", "agro", "ferramentas", "construcao", "arte-papelaria", "antiguidades", "industria", "acessorios-celular"], to: "animais", test: isPet },
+  { from: ["moda", "beleza", "saude", "bebes", "alimentos-bebidas", "agro", "ferramentas", "construcao", "arte-papelaria", "antiguidades", "industria", "acessorios-celular"], to: "animais", test: isPet },
+  { from: ["animais"], to: "brinquedos", test: isPetLookalike },
   { from: ["esporte"], to: "bebes", test: (t) => /^colch[aã]o para carrinho/i.test(t) },
   { from: ["bebes"], to: "brinquedos", test: (t) => /reborn/i.test(t) },
   // (A CFTV cable stays with the cameras: the CFTV rule below would send it straight back.)

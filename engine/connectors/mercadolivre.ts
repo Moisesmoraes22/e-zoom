@@ -1,4 +1,4 @@
-import { isArtBrush, isBook, isDermocosmetico, isErvas, isHigiene, isJoiaLookalike, isPcCompleto, isPerfume, isTool, refineCategory } from "../lib/categories.ts"
+import { isArtBrush, isBook, isDermocosmetico, isErvas, isHigiene, isJoiaLookalike, isPetLookalike, isPcCompleto, isPerfume, isTool, refineCategory } from "../lib/categories.ts"
 import { isDj } from "../lib/dj.ts"
 import { mlSellerLocation, type SellerLocation } from "../lib/location.ts"
 import { mlSellerLeader, type SellerLeader } from "../lib/seller.ts"
@@ -336,6 +336,7 @@ export function createMercadoLivreConnector(env: NodeJS.ProcessEnv): Connector {
         // A "pincel" search also finds paint and kitchen brushes; "pulseira" finds smartwatch straps.
         if (categoryIn === "beleza" && isArtBrush(product.name)) return
         if (categoryIn === "higiene-cuidados" && !isHigiene(product.name)) return
+        if (categoryIn === "animais" && isPetLookalike(product.name)) return
         if (categoryIn === "joias-relogios" && isJoiaLookalike(product.name)) return
         const category = supplement ? "suplementos" : dj ? "dj" : refineCategory(product.name, categoryIn)
 
