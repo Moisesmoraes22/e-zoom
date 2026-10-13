@@ -16,6 +16,17 @@ jobs:
   mercadolivre:
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    # Cada grupo e uma coleta propria: o motor so grava no fim, entao uma coleta unica com tudo estourava o
+    # limite de tempo e perdia tudo. Uma oferta so some depois de 48 h sem ser vista, entao dividir e seguro.
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        group:
+          - "perfumes,livros"
+          - "instrumentos,dermocosmeticos,ervas-naturais"
+          - "joias-relogios,beleza,saude"
+          - "animais,higiene-cuidados,bebes"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -30,7 +41,7 @@ jobs:
           ML_CLIENT_ID: ${{ secrets.ML_CLIENT_ID }}
           ML_CLIENT_SECRET: ${{ secrets.ML_CLIENT_SECRET }}
           ML_AFFILIATE_URL_TEMPLATE: "{url}?matt_tool=36590912&matt_word=moraesmoises20230303173936"
-          ML_ONLY: "perfumes,livros,instrumentos,dermocosmeticos,ervas-naturais,joias-relogios,beleza,animais,higiene-cuidados,bebes,saude"
+          ML_ONLY: ${{ matrix.group }}
 
   shopee:
     runs-on: ubuntu-latest
