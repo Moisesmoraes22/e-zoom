@@ -49,6 +49,8 @@ const CSP_REPORT_ONLY = [
 ].join("; ");
 
 const nextConfig: NextConfig = {
+  // Imagem Docker do servidor proprio (deploy/Dockerfile); na Vercel nao muda nada.
+  output: process.env.STANDALONE ? "standalone" : undefined,
   env: {
     NEXT_PUBLIC_SUPABASE_URL: url,
     NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: key,

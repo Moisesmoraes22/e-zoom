@@ -1,0 +1,9 @@
+# HTTPS automatico (Let's Encrypt). Precisa que o DNS ja aponte para este servidor.
+ezooom.com.br {
+	encode zstd gzip
+	reverse_proxy app:3000
+}
+
+www.ezooom.com.br {
+	redir https://ezooom.com.br{uri} permanent
+}
