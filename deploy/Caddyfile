@@ -7,3 +7,8 @@ ezooom.com.br {
 www.ezooom.com.br {
 	redir https://ezooom.com.br{uri} permanent
 }
+
+n8n.ezooom.com.br {
+	encode zstd gzip
+	reverse_proxy n8n:5678
+}

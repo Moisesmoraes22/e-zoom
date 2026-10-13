@@ -4,6 +4,8 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 git pull --ff-only origin main
 cd deploy
+# Chave que cifra as credenciais do n8n: criada uma vez e nunca trocada (trocar perde as credenciais salvas).
+grep -q '^N8N_ENCRYPTION_KEY=' .env || echo "N8N_ENCRYPTION_KEY=$(openssl rand -hex 24)" >> .env
 docker compose up -d --build
 docker image prune -f >/dev/null
 echo "OK: $(git rev-parse --short HEAD) no ar"
