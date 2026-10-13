@@ -157,9 +157,9 @@ const RULES: { from: string[]; test: (t: string) => boolean; to: string }[] = [
   { from: ["moda", "beleza", "casa", "esporte", "saude", "arte-papelaria", "festas", "antiguidades"], to: "joias-relogios", test: isJoia },
   { from: ["brinquedos", "bebes", "esporte"], to: "moda", test: (t) => LEAD_SHOE.test(t) },
   { from: ["games"], to: "moda", test: (t) => lead("camisetas?|camisa").test(t) },
-  { from: ["esporte", "festas", "casa", "brinquedos", "acessorios-veiculos"], to: "animais", test: (t) => PET.test(t) },
+  { from: ["esporte", "festas", "casa", "brinquedos", "acessorios-veiculos"], to: "animais", test: (t) => PET.test(t) && !isPetLookalike(t) },
   // Food, medicine, hygiene and accessories "para cães/gatos/pet" filed anywhere else go to the pet shop.
-  { from: ["moda", "beleza", "saude", "bebes", "alimentos-bebidas", "agro", "ferramentas", "construcao", "arte-papelaria", "antiguidades", "industria", "acessorios-celular"], to: "animais", test: isPet },
+  { from: ["moda", "beleza", "saude", "bebes", "alimentos-bebidas", "agro", "ferramentas", "construcao", "arte-papelaria", "antiguidades", "industria", "acessorios-celular"], to: "animais", test: (t) => isPet(t) && !isPetLookalike(t) },
   { from: ["animais"], to: "brinquedos", test: isPetLookalike },
   { from: ["esporte"], to: "bebes", test: (t) => /^colch[aã]o para carrinho/i.test(t) },
   { from: ["bebes"], to: "brinquedos", test: (t) => /reborn/i.test(t) },
