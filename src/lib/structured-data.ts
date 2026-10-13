@@ -57,4 +57,23 @@ export function itemListJsonLd(products: Pick<Product, "id" | "title">[], siteUr
 }
 
 /** JSON for a <script type="application/ld+json">: "<" is escaped so a title can never close the tag. */
+/** The site as a whole: its name and the search box Google may show under the result. */
+export function siteJsonLd(siteUrl: string) {
+  return [
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: "E-Zooom",
+      url: siteUrl,
+      inLanguage: "pt-BR",
+      potentialAction: {
+        "@type": "SearchAction",
+        target: { "@type": "EntryPoint", urlTemplate: `${siteUrl}/busca?q={search_term_string}` },
+        "query-input": "required name=search_term_string",
+      },
+    },
+    { "@context": "https://schema.org", "@type": "Organization", name: "E-Zooom", url: siteUrl, logo: `${siteUrl}/brand/email-logo.png` },
+  ]
+}
+
 export const serializeJsonLd = (data: unknown) => JSON.stringify(data).replace(/</g, "\\u003c")

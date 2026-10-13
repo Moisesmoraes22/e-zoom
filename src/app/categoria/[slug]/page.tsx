@@ -29,6 +29,7 @@ export async function generateMetadata({
   const count = products.filter((p) => p.category === slug).length
   return {
     title: `Ofertas de ${category.name}`,
+    alternates: { canonical: `/categoria/${slug}` },
     description:
       live && count > 0
         ? `${count} ${count === 1 ? "oferta" : "ofertas"} de ${category.name} do Mercado Livre, da Shopee e da Amazon, com preço, desconto e histórico.`

@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import { Suspense } from "react"
 
 import { ListingFallback } from "@/components/listing-fallback"
@@ -7,7 +8,9 @@ import { categoryCounts } from "@/lib/deals"
 import { getCatalog } from "@/lib/offers"
 import { PAGE_SIZE, sortProducts } from "@/lib/search"
 
-export const metadata = {
+// Internal search results are endless thin variations of the catalogue: out of the index, links still followed.
+export const metadata: Metadata = {
+  robots: { index: false, follow: true },
   title: "Buscar ofertas",
   description:
     "Pesquise ofertas do Mercado Livre, da Shopee e da Amazon, filtre por categoria, loja, preço e desconto.",

@@ -19,6 +19,7 @@ import { getCoupons } from "@/lib/coupons"
 import { darkPhotos } from "@/lib/photo-check"
 import { byClicks, byFeatured, byRelevance, categoryCounts, countByStoreId } from "@/lib/deals"
 import { getCatalog } from "@/lib/offers"
+import { serializeJsonLd, siteJsonLd } from "@/lib/structured-data"
 import type { Product } from "@/lib/types"
 
 export const revalidate = 1800
@@ -360,6 +361,10 @@ export default async function Home() {
 
   return (
     <main id="conteudo" className="bg-background">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(siteJsonLd(process.env.NEXT_PUBLIC_SITE_URL ?? "https://ezooom.com.br")) }}
+      />
       <HomeHero />
       <StoreStrip counts={storeCounts} />
       <FeaturedOffers offers={featured} />

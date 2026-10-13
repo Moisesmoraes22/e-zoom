@@ -45,7 +45,8 @@ export async function generateMetadata({
       : { title: "Oferta não encontrada" }
   }
   return {
-    title: product.title,
+    // Google shows about 60 characters: long store titles are cut at a word (the page heading keeps it whole).
+    title: product.title.length > 70 ? `${product.title.slice(0, 70).replace(/\s+\S*$/, "")}…` : product.title,
     description: `${product.title} por ${formatCurrency(product.price)} em ${STORES[product.store].name}. Veja o histórico de preço e vá direto para a loja.`,
     alternates: { canonical: `/produto/${product.id}` },
     // What WhatsApp, Telegram and Facebook show when the page is shared.
