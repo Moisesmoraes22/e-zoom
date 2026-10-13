@@ -3,13 +3,13 @@ import { notFound } from "next/navigation"
 import { Suspense } from "react"
 
 import { ListingFallback } from "@/components/listing-fallback"
-import { SearchResults } from "@/components/search-results"
+import { SearchLoader } from "@/components/search-loader"
 import { SiteFooter } from "@/components/site-footer"
 import { CATEGORIES } from "@/lib/mock-data"
 import { categoryCounts } from "@/lib/deals"
 import { breadcrumbJsonLd, itemListJsonLd, serializeJsonLd } from "@/lib/structured-data"
 import { getCatalog } from "@/lib/offers"
-import { PAGE_SIZE, sortProducts, toSearchItem } from "@/lib/search"
+import { PAGE_SIZE, sortProducts } from "@/lib/search"
 
 export const revalidate = 1800
 
@@ -46,7 +46,7 @@ export default async function CategoriaPage({
   const category = CATEGORIES.find((c) => c.slug === slug)
   if (!category) notFound()
   const { products, live } = await getCatalog()
-  // Only this category travels with the page: it is the only one the list can show.
+  // Only the first page travels with the HTML; the rest of the category is fetched right after (search-loader).
   const inCategory = products.filter((p) => p.category === category.slug)
   const seedCards = sortProducts(inCategory, "relevance").slice(0, PAGE_SIZE)
   const site = process.env.NEXT_PUBLIC_SITE_URL ?? "https://ezooom.com.br"
@@ -76,10 +76,10 @@ export default async function CategoriaPage({
           <ListingFallback title={`Ofertas em ${category.name}`} total={inCategory.length} cards={seedCards} />
         }
       >
-        <SearchResults
+        <SearchLoader
           categories={categoryCounts(products)}
-          products={inCategory.map(toSearchItem)}
           seedCards={seedCards}
+          total={inCategory.length}
           categorySlug={category.slug}
           categoryName={category.name}
         />

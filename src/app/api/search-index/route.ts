@@ -7,8 +7,12 @@ import { toSearchItem } from "@/lib/search"
 const PART_SIZE = 4000
 
 export async function GET(request: Request) {
-  const part = Math.max(0, Number(new URL(request.url).searchParams.get("part")) || 0)
-  const { products } = await getCatalog()
+  const params = new URL(request.url).searchParams
+  const part = Math.max(0, Number(params.get("part")) || 0)
+  const category = params.get("category")
+  const { products: catalog } = await getCatalog()
+  // A category page asks only for its own category, so it never downloads the whole catalogue.
+  const products = category ? catalog.filter((p) => p.category === category) : catalog
   const items = products.slice(part * PART_SIZE, (part + 1) * PART_SIZE).map(toSearchItem)
   return Response.json(
     { items, parts: Math.max(1, Math.ceil(products.length / PART_SIZE)) },
