@@ -91,11 +91,27 @@ const ERVAS_LEAD = lead(
 )
 const NOT_ERVAS = /(ch[aá] (?:de )?(?:panela|beb[eê]|revela[cç][aã]o|cozinha|bar|lingerie)|x[ií]caras?|bules?|infusor|caneca|jogo de ch[aá]|kit (?:de )?ch[aá] (?:de )?(?:panela|beb[eê])|aparelho|bandeja|porta[- ]|garrafa|chaleira|coador|difusor|umidificador|aromatizador|vela\b|sabonete|shampoo|brinquedo|boneca|decora[cç][aã]o|artificial|vaso|jardim|semente|muda\b|adubo|fertilizante|tapete|cortina|ra[cç][aã]o|pet\b|c[aã]es|gatos?|roupa|camisa|camiseta|chimarr[aã]o|cuia|tereré|terere)/i
 
+// Make-up brushes: a brush named FOR make-up. Paint, art, kitchen and barbecue brushes only borrow the word.
+const MAKEUP_WORDS = /(maquiagem|maquilhagem|make[- ]?up|\bbase\b|p[oó] (?:compacto|solto|facial)|blush|sombra|esfuma|delinea|contorno|corretivo|iluminador|sobrancelha|batom|kabuki|macrilan|ricca)/i
+const NOT_MAKEUP_BRUSH = /(pintura|art[ií]stic|aquarela|acr[ií]lic|tinta|parede|rolo\b|unhas?|nail|manicure|esmalte|barba|churrasco|culin|cozinha|confeit|silicone|artesanato|escolar|limpeza|vaso|sanit|a[eé]rografo|aerografo|[oó]leo|massa|marcenaria)/i
+const ART_BRUSH = /(pintura|art[ií]stic|aquarela|acr[ií]lic|tinta|parede|churrasco|culin|cozinha|confeit|artesanato|escolar|limpeza|vaso|sanit|a[eé]rografo|aerografo|marcenaria)/i
+
+// Jewellery: rings, cords, chains, necklaces, bracelets, named at the start. Straps for smartwatches and
+// phones, key cords, pet collars, plumbing rings and hardware chains only borrow the word.
+const JOIA_LEAD = lead("cord[aã]o|cord[oõ]es|correntes?|colar|colares|an[eé]is|anel|alian[cç]as?|pulseiras?|braceletes?|pingentes?|gargantilhas?")
+const NOT_JOIA = /(celular|smartphone|iphone|apple watch|smart ?watch|smartband|galaxy (?:watch|fit)|mi band|xiaomi band|rel[oó]gio inteligente|crach[aá]|chaveiro|chaves?\b|[oó]culos|m[aá]scara|pet\b|c[aã]es|cachorro|gatos?|beb[eê]|ring ?light|suporte|veda[cç][aã]o|o-?ring|encanamento|torneira|cano\b|tubo|el[eé]trico|\bled\b|luz\b|usb|cabo\b|carregador|arduino|bicicleta|freio|\bmoto\b|carro\b|automotiv|cortina|jardim|pesca|viol[aã]o|guitarra|ukulele|boxe|muay|academia|fitness|medidor|press[aã]o arterial|oxímetro|repelente|mosquito|pulga|cinta|luva|bolsa|mochila|brinquedo|boneca|decora[cç][aã]o|cabelo|banho|massag|acupress|ortop|cervical|galvaniz|motosserra|port[aã]o|trator|industrial|cadeado|reboque)/i
+
 /** True when the title is a fragrance / a book: keeps a catalog search for them free of look-alikes. */
 export const isPerfume = (title: string) => PERFUME.test(title) && !NOT_PERFUME.test(title)
 export const isPcCompleto = (title: string) => PC_LEAD.test(title) && !NOT_PC.test(title)
 export const isDermocosmetico = (title: string) => DERMO.test(title) && !NOT_DERMO.test(title)
 export const isErvas = (title: string) => ERVAS_LEAD.test(title) && !NOT_ERVAS.test(title)
+export const isMakeupBrush = (title: string) => /pinc(?:el|[eé]is)/i.test(title) && MAKEUP_WORDS.test(title) && !NOT_MAKEUP_BRUSH.test(title)
+/** A brush that is clearly not for make-up (paint, art, kitchen): kept out of "Beleza". */
+export const isArtBrush = (title: string) => /pinc(?:el|[eé]is)/i.test(title) && ART_BRUSH.test(title) && !isMakeupBrush(title)
+export const isJoia = (title: string) => JOIA_LEAD.test(title) && !NOT_JOIA.test(title)
+/** Opens like jewellery but is a watch strap, phone cord, pet collar or hardware chain. */
+export const isJoiaLookalike = (title: string) => JOIA_LEAD.test(title) && NOT_JOIA.test(title)
 export const isBook = (title: string) => BOOK_LEAD.test(title) && !NOT_BOOK.test(title)
 
 const RULES: { from: string[]; test: (t: string) => boolean; to: string }[] = [
@@ -112,6 +128,9 @@ const RULES: { from: string[]; test: (t: string) => boolean; to: string }[] = [
   // Dermocosmetics and herbs leave the grab bags of beauty and health (never the supplements niche).
   { from: ["beleza", "saude", "casa", "esporte", "moda", "brinquedos"], to: "dermocosmeticos", test: isDermocosmetico },
   { from: ["saude", "beleza", "casa", "esporte", "alimentos-bebidas", "agro", "festas", "arte-papelaria"], to: "ervas-naturais", test: isErvas },
+  // Make-up brushes belong to "Beleza"; rings, cords, chains and bracelets to "Joias e Relógios".
+  { from: ["casa", "moda", "arte-papelaria", "festas", "esporte", "saude", "brinquedos", "antiguidades"], to: "beleza", test: isMakeupBrush },
+  { from: ["moda", "beleza", "casa", "esporte", "saude", "arte-papelaria", "festas", "antiguidades"], to: "joias-relogios", test: isJoia },
   { from: ["brinquedos", "bebes", "esporte"], to: "moda", test: (t) => LEAD_SHOE.test(t) },
   { from: ["games"], to: "moda", test: (t) => lead("camisetas?|camisa").test(t) },
   { from: ["esporte", "festas", "casa", "brinquedos", "acessorios-veiculos"], to: "animais", test: (t) => PET.test(t) },

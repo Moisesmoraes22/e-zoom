@@ -1,4 +1,4 @@
-import { isBook, isDermocosmetico, isErvas, isPcCompleto, isPerfume, isTool, refineCategory } from "../lib/categories.ts"
+import { isArtBrush, isBook, isDermocosmetico, isErvas, isJoiaLookalike, isPcCompleto, isPerfume, isTool, refineCategory } from "../lib/categories.ts"
 import { isDj } from "../lib/dj.ts"
 import { mlSellerLocation, type SellerLocation } from "../lib/location.ts"
 import { mlSellerLeader, type SellerLeader } from "../lib/seller.ts"
@@ -136,6 +136,20 @@ const CATEGORY_TERMS: Record<string, string[]> = {
     "óleo essencial de eucalipto", "valeriana", "passiflora", "ginkgo biloba", "ginseng", "fitoterápico", "tintura mãe",
     "ervas para chá",
   ],
+  // Jewellery for men and women: cords, chains, rings, bracelets (watches come from the category's best sellers).
+  "joias-relogios": [
+    "cordão masculino", "cordão masculino prata", "cordão masculino ouro 18k", "cordão feminino", "corrente masculina",
+    "corrente feminina", "corrente de prata 925", "colar feminino", "colar masculino", "pingente masculino",
+    "pingente feminino", "anel masculino", "anel feminino", "anel de prata 925", "anel de aço inoxidável",
+    "aliança de compromisso", "aliança de namoro", "pulseira masculina", "pulseira feminina", "pulseira de prata 925",
+    "pulseira de couro masculina", "pulseira de aço masculina", "bracelete feminino", "bracelete masculino", "kit pulseiras",
+  ],
+  // Make-up brushes (the rest of "beleza" comes from the category's best sellers).
+  beleza: [
+    "pincel de maquiagem", "kit pincéis de maquiagem", "pincéis de maquiagem profissional", "pincel para base",
+    "pincel para pó", "pincel de blush", "pincel de sombra", "pincel esfumar", "pincel delineador", "pincel de contorno",
+    "pincel para corretivo", "pincel kabuki", "pincel macrilan", "pincel ricca",
+  ],
   casa: [
     "sofá", "guarda-roupa", "cama box", "colchão", "rack para tv", "estante", "mesa de jantar", "poltrona", "cômoda",
     "sapateira", "escrivaninha", "cadeira de escritório", "painel para tv", "mesa de centro", "criado mudo",
@@ -143,7 +157,7 @@ const CATEGORY_TERMS: Record<string, string[]> = {
   ],
 }
 /** Many brand searches: collected once a day by their own workflow, not in every 30 minute run. */
-const DAILY_NICHES = new Set(["perfumes", "livros", "instrumentos", "dermocosmeticos", "ervas-naturais"])
+const DAILY_NICHES = new Set(["perfumes", "livros", "instrumentos", "dermocosmeticos", "ervas-naturais", "joias-relogios", "beleza"])
 const PER_TERM = 25 // offers kept per term
 const CATEGORY_PER_TERM = 15 // same, for the category terms in the scheduled run (ML_ONLY runs use PER_TERM)
 // Most catalog hits have no active seller (items -> 404), so we scan a few pages per term.
@@ -275,6 +289,9 @@ export function createMercadoLivreConnector(env: NodeJS.ProcessEnv): Connector {
         if (categoryIn === "livros" && !isBook(product.name)) return
         if (categoryIn === "dermocosmeticos" && !isDermocosmetico(product.name)) return
         if (categoryIn === "ervas-naturais" && !isErvas(product.name)) return
+        // A "pincel" search also finds paint and kitchen brushes; "pulseira" finds smartwatch straps.
+        if (categoryIn === "beleza" && isArtBrush(product.name)) return
+        if (categoryIn === "joias-relogios" && isJoiaLookalike(product.name)) return
         const category = supplement ? "suplementos" : dj ? "dj" : refineCategory(product.name, categoryIn)
 
         const url = `https://www.mercadolivre.com.br/p/${id}`

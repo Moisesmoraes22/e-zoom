@@ -1,13 +1,13 @@
 import { createHash } from "node:crypto"
 
-import { isBook, isDermocosmetico, isErvas, isPcCompleto, isPerfume, isTool, refineCategory } from "../lib/categories.ts"
+import { isArtBrush, isBook, isDermocosmetico, isErvas, isJoiaLookalike, isPcCompleto, isPerfume, isTool, refineCategory } from "../lib/categories.ts"
 import { shopeeShopBadge } from "../lib/seller.ts"
 import type { Connector, OfferRow } from "../types.ts"
 
 const ENDPOINT = "https://open-api.affiliate.shopee.com.br/graphql"
 const PER_KEYWORD = 50
 /** Collected once a day by their own workflow (engine-nichos.yml), not in every run. */
-const DAILY_NICHES = new Set(["perfumes", "livros", "instrumentos", "dermocosmeticos", "ervas-naturais"])
+const DAILY_NICHES = new Set(["perfumes", "livros", "instrumentos", "dermocosmeticos", "ervas-naturais", "joias-relogios", "beleza"])
 const MAX_OFFERS = 4500 // every category (about 3.5k after the quality filter); a low cap stops the last ones empty
 
 /** Best sellers per search term, filed under the site's own category slugs. */
@@ -18,7 +18,16 @@ const KEYWORDS: Record<string, string[]> = {
   eletrodomesticos: ["liquidificador", "cafeteira", "aspirador de po", "ferro de passar", "ventilador", "forno eletrico", "batedeira", "chaleira eletrica", "sanduicheira", "panela eletrica"],
   casa: ["air fryer", "organizador casa", "luminaria led", "panela antiaderente", "estante", "sapateira", "rack tv", "escrivaninha", "guarda roupa", "cadeira escritorio"],
   moda: ["camiseta masculina", "mochila", "bolsa feminina", "tenis masculino", "chinelo", "sandalia feminina", "mochila infantil"],
-  beleza: ["skincare", "secador de cabelo"],
+  beleza: [
+    "skincare", "secador de cabelo", "pincel de maquiagem", "kit pinceis maquiagem", "pincel para base", "pincel de po",
+    "pincel esfumar", "pincel blush", "pincel delineador", "pincel kabuki", "pinceis macrilan", "pincel ricca",
+  ],
+  "joias-relogios": [
+    "cordao masculino", "cordao prata masculino", "cordao feminino", "corrente masculina", "corrente feminina",
+    "colar feminino", "colar masculino", "anel masculino", "anel feminino", "anel de prata 925", "alianca de compromisso",
+    "alianca de namoro", "pulseira masculina", "pulseira feminina", "pulseira de prata 925", "pulseira de couro masculina",
+    "bracelete feminino", "bracelete masculino", "kit pulseiras",
+  ],
   "pc-completo": [
     "pc gamer completo", "computador completo", "pc gamer", "cpu gamer", "mini pc", "pc home office", "pc gamer ryzen",
     "pc gamer i5", "computador desktop completo", "pc gamer rtx",
@@ -128,6 +137,8 @@ export function createShopeeConnector(env: NodeJS.ProcessEnv): Connector {
             if (category === "livros" && !isBook(node.productName)) continue
             if (category === "dermocosmeticos" && !isDermocosmetico(node.productName)) continue
             if (category === "ervas-naturais" && !isErvas(node.productName)) continue
+            if (category === "beleza" && isArtBrush(node.productName)) continue
+            if (category === "joias-relogios" && isJoiaLookalike(node.productName)) continue
 
             const externalId = `${node.shopId}.${node.itemId}`
             if (offers.has(externalId)) continue

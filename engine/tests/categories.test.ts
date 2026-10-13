@@ -125,6 +125,18 @@ const CASES: [string, string, string][] = [
   ["Bebê Reborn Boneca Silicone Menina", "bebes", "brinquedos"],
   ["Cabo Carregador Usb-c Tipo C Turbo 60w", "cameras", "eletronicos"],
   ["Garrafa Squeeze Plastico 750 Ml Academia", "festas", "esporte"],
+  // make-up brushes and jewellery
+  ["Kit 12 Pincéis de Maquiagem Profissional Esfumar Base Pó Blush", "casa", "beleza"],
+  ["Pincel Kabuki Para Base Líquida e Pó Compacto", "moda", "beleza"],
+  ["Pincel Para Pintura Artística Aquarela Kit 10 Peças", "arte-papelaria", "arte-papelaria"],
+  ["Pincel de Silicone Culinário Para Confeitaria", "casa", "casa"],
+  ["Cordão Masculino Prata 925 Groumet 60cm", "moda", "joias-relogios"],
+  ["Anel Feminino Folheado A Ouro 18k Solitário", "beleza", "joias-relogios"],
+  ["Kit 3 Pulseiras Masculinas Couro Trançado", "moda", "joias-relogios"],
+  ["Pulseira Para Apple Watch Series 9 Silicone", "moda", "moda"],
+  ["Cordão Para Celular Lanyard Pescoço", "moda", "moda"],
+  ["Anel De Vedação Borracha O-ring Kit", "casa", "casa"],
+  ["Corrente Galvanizada 8mm Elo Curto 10 Metros", "casa", "casa"],
   // look-alikes in the store's own tools tree
   ["Chuveiro elétrico de parede Lorenzetti 7.8kW", "ferramentas", "eletrodomesticos"],
   ["Lavadora De Alta Pressão Wap Ousada 1500w", "ferramentas", "eletrodomesticos"],
