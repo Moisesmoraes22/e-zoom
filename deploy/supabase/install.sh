@@ -26,9 +26,10 @@ setenv ADDITIONAL_REDIRECT_URLS "$SITE/**,https://www.ezooom.com.br/**"
 setenv ENABLE_ANONYMOUS_USERS true
 setenv DISABLE_SIGNUP false
 setenv ENABLE_PHONE_SIGNUP false
-# So o Caddy (na propria VPS) fala com o gateway: a porta nao fica aberta para a internet.
-setenv API_GW_HTTP_PORT 127.0.0.1:8000
-setenv KONG_HTTP_PORT 127.0.0.1:8000
+# Porta no endereco interno do Docker (172.17.0.1): o Caddy, que roda em container, chega nela, e ela nao
+# fica aberta para a internet. Em 127.0.0.1 o Caddy nao alcancaria.
+setenv API_GW_HTTP_PORT 172.17.0.1:8000
+setenv KONG_HTTP_PORT 172.17.0.1:8000
 setenv COMPOSE_FILE docker-compose.yml:docker-compose.override.yml
 
 # E-mail (confirmacao de conta, recuperar senha): SMTP do Resend, so se ainda nao estiver configurado.
@@ -64,5 +65,5 @@ for i in $(seq 1 60); do
 done
 docker compose ps --format 'table {{.Name}}\t{{.Status}}'
 echo
-echo "Supabase proprio no ar em http://127.0.0.1:8000 (https://$API_HOST depois do passo do Caddy)."
+echo "Supabase proprio no ar em http://172.17.0.1:8000 (https://$API_HOST depois do passo do Caddy)."
 echo "Painel: https://$API_HOST  (usuario e senha em /opt/supabase/.env: DASHBOARD_USERNAME / DASHBOARD_PASSWORD)"
