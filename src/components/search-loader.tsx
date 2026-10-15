@@ -30,12 +30,15 @@ export function SearchLoader({
   total,
   categorySlug,
   categoryName,
+  query,
 }: {
   seedCards: Product[]
   categories: CategoryCount[]
   total: number
   categorySlug?: string
   categoryName?: string
+  /** The search typed on /busca: its first page is already in `seedCards`. */
+  query?: string
 }) {
   const [items, setItems] = useState<SearchItem[] | null>(null)
 
@@ -53,8 +56,8 @@ export function SearchLoader({
   }, [categorySlug])
 
   if (!items) {
-    const title = categoryName ? `Ofertas em ${categoryName}` : "Todas as ofertas"
-    return <ListingFallback title={title} total={total} cards={seedCards} />
+    const title = query ? `Ofertas para “${query}”` : categoryName ? `Ofertas em ${categoryName}` : "Todas as ofertas"
+    return <ListingFallback title={title} total={total} cards={seedCards} searching={!!query && total === 0} loadingMore />
   }
   return (
     <SearchResults
