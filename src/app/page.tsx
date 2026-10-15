@@ -11,7 +11,7 @@ import { ForYouSection } from "@/components/for-you-section"
 import { InterestsSection } from "@/components/interests-section"
 import { LazyWelcome } from "@/components/lazy-welcome"
 import { PriceChips } from "@/components/price-chips"
-import { ProductRow } from "@/components/product-row"
+import { LazyProductRow } from "@/components/lazy-product-row"
 import { SiteFooter } from "@/components/site-footer"
 import { StoreStrip } from "@/components/store-strip"
 import { StoresSection } from "@/components/stores-section"
@@ -408,9 +408,9 @@ export default async function Home() {
       {!rows.some((row) => row.slug === priceBandAfter) && <PriceChips products={products} />}
       {rows.map((row) => (
         <Fragment key={row.slug}>
-          <ProductRow
+          <LazyProductRow
             title={row.title}
-            products={row.items}
+            ids={row.items.map((p) => p.id)}
             href={`/categoria/${row.slug}`}
             linkLabel={row.linkLabel}
             chips={row.chips.length === 0 ? undefined : row.chips.map((c) => ({ label: c.label, href: `/busca?q=${encodeURIComponent(c.q)}` }))}
