@@ -1,13 +1,13 @@
 import { createHash } from "node:crypto"
 
 import { isArtBrush, isBook, isDermocosmetico, isErvas, isGpu, isHigiene, isJoiaLookalike, isPetLookalike, isPcCompleto, isPerfume, isTool, refineCategory } from "../lib/categories.ts"
+import { DAILY_NICHES } from "../lib/daily-niches.ts"
 import { shopeeShopBadge } from "../lib/seller.ts"
 import type { Connector, OfferRow } from "../types.ts"
 
 const ENDPOINT = "https://open-api.affiliate.shopee.com.br/graphql"
 const PER_KEYWORD = 50
 /** Collected once a day by their own workflow (engine-nichos.yml), not in every run. */
-const DAILY_NICHES = new Set(["perfumes", "livros", "instrumentos", "dermocosmeticos", "ervas-naturais", "joias-relogios", "beleza", "animais", "higiene-cuidados", "bebes", "saude", "placas-de-video"])
 const MAX_OFFERS = 4500 // every category (about 3.5k after the quality filter); a low cap stops the last ones empty
 
 /** Best sellers per search term, filed under the site's own category slugs. */

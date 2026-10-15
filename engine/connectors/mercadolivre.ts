@@ -1,4 +1,5 @@
 import { isArtBrush, isBook, isDermocosmetico, isErvas, isGpu, isHigiene, isJoiaLookalike, isPetLookalike, isPcCompleto, isPerfume, isTool, refineCategory } from "../lib/categories.ts"
+import { DAILY_NICHES } from "../lib/daily-niches.ts"
 import { isDj } from "../lib/dj.ts"
 import { mlSellerLocation, type SellerLocation } from "../lib/location.ts"
 import { mlSellerLeader, type SellerLeader } from "../lib/seller.ts"
@@ -227,8 +228,6 @@ const CATEGORY_TERMS: Record<string, string[]> = {
     "armário de cozinha", "balcão", "penteadeira", "estante para livros", "prateleira",
   ],
 }
-/** Many brand searches: collected once a day by their own workflow, not in every 30 minute run. */
-const DAILY_NICHES = new Set(["perfumes", "livros", "instrumentos", "dermocosmeticos", "ervas-naturais", "joias-relogios", "beleza", "animais", "higiene-cuidados", "bebes", "saude", "placas-de-video"])
 const PER_TERM = 25 // offers kept per term
 const CATEGORY_PER_TERM = 15 // same, for the category terms in the scheduled run (ML_ONLY runs use PER_TERM)
 // Most catalog hits have no active seller (items -> 404), so we scan a few pages per term.

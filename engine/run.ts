@@ -4,6 +4,7 @@ import { createMercadoLivreConnector } from "./connectors/mercadolivre.ts"
 import { createShopeeConnector } from "./connectors/shopee.ts"
 import { createTelegramConnector } from "./connectors/telegram.ts"
 import { withoutBlocked } from "./lib/blocklist.ts"
+import { DAILY_NICHES } from "./lib/daily-niches.ts"
 import type { Connector } from "./types.ts"
 
 const CONNECTORS: Record<string, (env: NodeJS.ProcessEnv) => Connector> = {
@@ -64,23 +65,30 @@ async function main() {
       upserted += chunk.length
     }
 
-    // Offers that left the source stop showing after a grace period of 48h. Telegram prices are
-    // the post's and Amazon moves them several times a day, but the Telegram channel is the only
-    // source of Amazon offers: at 24h the store nearly vanished from the site.
+    // Offers that left the source stop showing after a grace period without being seen. The stores' own
+    // lists are walked every 30 minutes, so 24 h is plenty. The daily niches are walked once a day (and a
+    // scheduled run can start late), so they keep 48 h: a 24 h limit would switch them off for a while each
+    // day. Telegram prices are the post's and Amazon moves them several times a day, but the Telegram channel
+    // is the only source of Amazon offers: at 24h the store nearly vanished from the site, so it keeps 48 h too.
     // Skipped on empty runs so a Telegram outage can't wipe the catalog.
     if (offers.length > 0) {
       // Only the stores this run brought: the Shopee and Mercado Livre APIs share source "api".
       const stores = [...new Set(offers.map((o) => o.store_id))]
+      const hoursAgo = (h: number) => new Date(Date.now() - h * 3600_000).toISOString()
+      const niches = [...DAILY_NICHES]
       for (const source of new Set(offers.map((o) => o.source))) {
-        const cutoff = new Date(Date.now() - 48 * 3600_000).toISOString()
-        const { error } = await supabase
-          .from("offers")
-          .update({ is_active: false })
-          .eq("source", source)
-          .in("store_id", stores)
-          .eq("is_active", true)
-          .lt("last_seen_at", cutoff)
-        if (error) throw error
+        const live = () =>
+          supabase.from("offers").update({ is_active: false }).eq("source", source).in("store_id", stores).eq("is_active", true)
+        const long = 48
+        const short = source === "api" ? 24 : 48 // Telegram (Amazon): see above
+        // Not a daily niche (or no category at all): the short limit.
+        const regular = await live()
+          .lt("last_seen_at", hoursAgo(short))
+          .or(`category_slug.is.null,category_slug.not.in.(${niches.join(",")})`)
+        if (regular.error) throw regular.error
+        // A daily niche: the long limit.
+        const daily = await live().lt("last_seen_at", hoursAgo(long)).in("category_slug", niches)
+        if (daily.error) throw daily.error
       }
     }
 

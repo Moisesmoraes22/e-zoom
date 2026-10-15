@@ -8,8 +8,8 @@ import { formatCurrency } from "@/lib/utils"
 const FROM_STORE: Partial<Record<Product["store"], string>> = { mercado_livre: "do", shopee: "da", amazon: "da" }
 
 /**
- * "Esta oferta acabou": shown for an offer that left the stores' lists (they last 48 h without
- * being seen). The last price is shown as a record, never as a price to buy at, and there is no
+ * "Esta oferta acabou": shown for an offer that left the stores' lists (they last 24 h without
+ * being seen; 48 h for the once-a-day categories and the Amazon posts). The last price is shown as a record, never as a price to buy at, and there is no
  * button to the store: the link may no longer lead to this price.
  */
 export function ClosedOffer({

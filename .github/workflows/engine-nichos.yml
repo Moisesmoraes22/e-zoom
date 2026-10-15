@@ -1,7 +1,7 @@
 name: Coleta diaria de nichos
 
 # Perfumes e livros fazem dezenas de buscas por marca: rodam uma vez por dia aqui, e nao a cada
-# coleta (engine.yml). As ofertas ficam frescas porque uma oferta so some depois de 48 h sem ser vista.
+# coleta (engine.yml). As ofertas ficam frescas porque uma oferta dessas so some depois de 48 h sem ser vista.
 # Mesmo grupo de concorrencia da coleta normal: nunca duas ao mesmo tempo.
 concurrency:
   group: coleta
