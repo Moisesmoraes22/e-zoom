@@ -35,12 +35,12 @@ assertNotSecret(key);
  */
 const CSP_REPORT_ONLY = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' https://va.vercel-scripts.com https://www.clarity.ms https://scripts.clarity.ms https://pagead2.googlesyndication.com https://partner.googleadservices.com https://tpc.googlesyndication.com https://www.googletagservices.com https://*.adtrafficquality.google",
+  "script-src 'self' 'unsafe-inline' https://www.clarity.ms https://scripts.clarity.ms https://pagead2.googlesyndication.com https://partner.googleadservices.com https://tpc.googlesyndication.com https://www.googletagservices.com https://*.adtrafficquality.google",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https:",
-  "media-src 'self' blob: https://*.supabase.co",
+  "media-src 'self' blob: https://api.ezooom.com.br",
   "font-src 'self' data:",
-  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://vitals.vercel-insights.com https://*.clarity.ms https://api.pwnedpasswords.com https://pagead2.googlesyndication.com https://*.adtrafficquality.google https://*.doubleclick.net",
+  "connect-src 'self' https://api.ezooom.com.br wss://api.ezooom.com.br https://*.clarity.ms https://api.pwnedpasswords.com https://pagead2.googlesyndication.com https://*.adtrafficquality.google https://*.doubleclick.net",
   "frame-src https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://*.google.com https://*.doubleclick.net https://*.adtrafficquality.google",
   "frame-ancestors 'self'",
   "object-src 'none'",
