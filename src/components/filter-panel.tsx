@@ -26,6 +26,7 @@ export function FilterPanel({
   storeCounts,
   availableStores,
   categories,
+  priceCounts,
 }: {
   filters: ProductFilters
   onChange: (patch: Partial<ProductFilters>) => void
@@ -35,6 +36,8 @@ export function FilterPanel({
   availableStores: StoreSource[]
   /** Pass to show the category filter (omit on a category page, where it is fixed). */
   categories?: CategoryCount[]
+  /** Matches per price range under the other active filters; ranges with none are not listed. */
+  priceCounts?: Record<PriceRange, number>
 }) {
   // The desktop panel and the mobile sheet can both be mounted: keep their radio groups apart.
   const groupName = useId()
@@ -70,7 +73,8 @@ export function FilterPanel({
         </Button>
       </div>
 
-      {categories && categories.length > 0 && (
+      {/* One category (or none) is no choice: the group only shows when there is something to pick between. */}
+      {categories && (categories.length > 1 || !!filters.category) && (
         <fieldset className="flex flex-col gap-1">
           <legend className={legend}>Categoria</legend>
           <label className={option}>
@@ -81,7 +85,12 @@ export function FilterPanel({
               onChange={() => onChange({ category: undefined })}
               className="h-4 w-4 accent-primary"
             />
-            Todas
+            <span className="flex flex-1 items-center justify-between">
+              Todas
+              <span className="text-xs tabular-nums text-muted-foreground/80">
+                {categories.reduce((total, c) => total + c.count, 0)}
+              </span>
+            </span>
           </label>
           {categories.map((category) => (
             <label key={category.slug} className={cn(option, "justify-between")}>
@@ -127,15 +136,22 @@ export function FilterPanel({
 
       <fieldset className="flex flex-col gap-1">
         <legend className={legend}>Preço</legend>
-        {PRICE_RANGES.map((range) => (
-          <label key={range.value} className={option}>
+        {PRICE_RANGES.filter(
+          (range) => !priceCounts || priceCounts[range.value] > 0 || filters.priceRanges.includes(range.value),
+        ).map((range) => (
+          <label key={range.value} className={cn(option, "justify-between")}>
             <input
               type="checkbox"
               checked={filters.priceRanges.includes(range.value)}
               onChange={() => togglePriceRange(range.value)}
               className="h-4 w-4 rounded accent-primary"
             />
-            {range.label}
+            <span className="flex flex-1 items-center justify-between">
+              {range.label}
+              {priceCounts && (
+                <span className="text-xs tabular-nums text-muted-foreground/80">{priceCounts[range.value]}</span>
+              )}
+            </span>
           </label>
         ))}
       </fieldset>

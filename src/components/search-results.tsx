@@ -24,6 +24,7 @@ import {
   EMPTY_FILTERS,
   isPriceRange,
   PAGE_SIZE,
+  PRICE_RANGES,
   type PriceRange,
   filterProducts,
   SORT_PARAMS,
@@ -116,7 +117,6 @@ function SearchResultsInner({
       ...patch,
       category: categorySlug ?? ("category" in patch ? patch.category : prev.category),
     }))
-  const categoryFilter = categorySlug ? undefined : categories
 
   // Supplements and DJ: quick chips by kind of product (whey, creatina, ... / controladoras, cabos, ...).
   const [kind, setKind] = useState<string | null>(null)
@@ -155,6 +155,30 @@ function SearchResultsInner({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [baseProducts, query, filters],
   )
+  // Each filter group offers what exists UNDER THE OTHER filters (the typed words included), with its own
+  // count, so it never shows a choice with nothing behind it ("Pet" for a creatine search) and never
+  // lists a category that has no offers for what was searched.
+  const categoryFilter = useMemo(() => {
+    if (categorySlug) return undefined
+    const counts = new Map<string, number>()
+    for (const p of filterProducts(baseProducts, { ...baseFilters, category: undefined })) {
+      counts.set(p.category, (counts.get(p.category) ?? 0) + 1)
+    }
+    return categories
+      .map((c) => ({ ...c, count: counts.get(c.slug) ?? 0 }))
+      .filter((c) => c.count > 0 || c.slug === filters.category)
+      .sort((a, b) => b.count - a.count)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [baseProducts, query, filters, categories, categorySlug])
+  const priceCounts = useMemo(() => {
+    const found = filterProducts(baseProducts, { ...baseFilters, priceRanges: [] })
+    return Object.fromEntries(
+      PRICE_RANGES.map((r) => [r.value, filterProducts(found, { ...EMPTY_FILTERS, priceRanges: [r.value] }).length]),
+    ) as Record<PriceRange, number>
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [baseProducts, query, filters])
+  const listedStores = availableStores.filter((id) => (storeCounts[id] ?? 0) > 0 || filters.stores.includes(id))
+
   const results = useMemo(
     () => sortProducts(filterProducts(baseProducts, baseFilters), sort, query),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -236,7 +260,8 @@ function SearchResultsInner({
               filters={filters}
               onChange={handleFilterChange}
               storeCounts={storeCounts}
-              availableStores={availableStores}
+              availableStores={listedStores}
+              priceCounts={priceCounts}
               categories={categoryFilter}
             />
           </div>
@@ -385,7 +410,8 @@ function SearchResultsInner({
             filters={filters}
             onChange={handleFilterChange}
             storeCounts={storeCounts}
-            availableStores={availableStores}
+            availableStores={listedStores}
+            priceCounts={priceCounts}
             categories={categoryFilter}
           />
           <Button
