@@ -58,12 +58,14 @@ type Catalog = { products: Product[]; live: boolean }
  * asking at the same time. Without it each page regeneration (and each of the build's parallel
  * workers) read ~13 pages of rows from the database on its own: timeouts at build, load at runtime.
  */
-const CATALOG_TTL_MS = 5 * 60_000
+const CATALOG_TTL_MS = 30 * 60_000 // each read is the whole catalogue (about 27k rows): it is the main database egress
+/** The last read that worked: served when the database is unreachable or over its quota, so pages keep their offers. */
+let lastGood: Catalog | null = null
 let catalogMemo: { at: number; value: Promise<Catalog> } | null = null
 
 export const getCatalog = cache((): Promise<Catalog> => {
   if (!catalogMemo || Date.now() - catalogMemo.at > CATALOG_TTL_MS) {
-    const entry = { at: Date.now(), value: readCatalog() }
+    const entry = { at: Date.now(), value: readCatalogOrStale() }
     catalogMemo = entry
     // A failed read must not be remembered: the next request tries again.
     entry.value.catch(() => {
@@ -72,6 +74,18 @@ export const getCatalog = cache((): Promise<Catalog> => {
   }
   return catalogMemo.value
 })
+
+async function readCatalogOrStale(): Promise<Catalog> {
+  try {
+    const catalog = await readCatalog()
+    if (catalog.live) lastGood = catalog
+    return catalog
+  } catch (error) {
+    if (!lastGood) throw error
+    console.error("[catalogue] read failed, serving the last good copy:", error)
+    return lastGood
+  }
+}
 
 async function readCatalog(): Promise<Catalog> {
   const { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } = process.env

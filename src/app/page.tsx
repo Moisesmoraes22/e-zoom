@@ -16,6 +16,7 @@ import { SiteFooter } from "@/components/site-footer"
 import { StoreStrip } from "@/components/store-strip"
 import { StoresSection } from "@/components/stores-section"
 import { getCoupons } from "@/lib/coupons"
+import { rotation } from "@/lib/hero-select"
 import { darkPhotos } from "@/lib/photo-check"
 import { byClicks, byFeatured, byRelevance, categoryCounts, countByStoreId } from "@/lib/deals"
 import { getCatalog } from "@/lib/offers"
@@ -223,7 +224,12 @@ const HIGHLIGHT = ["eletronicos", "pc-completo", "moda", "alimentos-bebidas", "f
  * seen today, one per store first so no store takes the whole shelf, then the rest by rank.
  */
 function pickFeatured(products: Product[]): Product[] {
+  // The best-ranked 24 are all real highlights; which of them lead rotates every few hours, so the shelf
+  // does not show the same offers for days.
+  const now = Date.now()
   const ranked = byFeatured(products)
+    .slice(0, 24)
+    .sort((a, b) => rotation(a.id, now) - rotation(b.id, now))
   const picked: Product[] = []
   const stores = new Set<string>()
   for (const p of ranked) {

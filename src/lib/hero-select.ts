@@ -7,6 +7,18 @@ export const HERO_MAX = 4
 const MAX_PER_STORE = 2
 const MAX_PER_CATEGORY = 2
 const DAY = 86_400_000
+/** How long one rotation lasts: the lead offers change this often (the page is regenerated every 30 minutes). */
+export const ROTATE_MS = 4 * 3_600_000
+
+/**
+ * Stable pseudo-random number in [0, 1) per offer and per rotation window. It only decides who leads among
+ * offers that are about equally good: the real ranking terms (discount, history, lowest price) are untouched.
+ */
+export function rotation(id: string, now: number): number {
+  let h = Math.floor(now / ROTATE_MS) ^ 0x9e3779b1
+  for (let i = 0; i < id.length; i++) h = Math.imul(h ^ id.charCodeAt(i), 16777619)
+  return ((h >>> 0) % 1000) / 1000
+}
 
 const discountOf = (p: Pick<Product, "price" | "originalPrice">) =>
   p.originalPrice && p.originalPrice > p.price
@@ -48,7 +60,7 @@ export function heroRank(p: Pick<Product, "price" | "originalPrice" | "priceHist
 export function selectHeroOffers(products: Product[], now = Date.now()): Product[] {
   const pool = products
     .filter((p) => p.price > 0 && p.store && /^https?:\/\//.test(p.image))
-    .map((p) => ({ p, score: heroRank(p, now) }))
+    .map((p) => ({ p, score: heroRank(p, now) + rotation(p.id, now) * 12 })) // < 30: a real discount still wins
     .sort(
       (a, b) =>
         b.score - a.score ||
