@@ -1,27 +1,12 @@
 import { ArrowRight } from "lucide-react"
 import Link from "next/link"
 
-/**
- * The three drawings are illustrations (public/como-comprar): decorative, so they carry no alt text;
- * what the visitor reads (titles, texts, the note about the stores) is live text below each one.
- * Width and height are the files' own, so the page does not shift while they load.
- */
+import { CheckArt, ChooseArt, FinishArt } from "@/components/how-to-buy-art"
+
 const STEPS = [
-  {
-    title: "Escolha a oferta",
-    text: "Encontre o produto e clique para ver na loja.",
-    image: { src: "/como-comprar/passo-1.webp", width: 548, height: 308 },
-  },
-  {
-    title: "Confira as condições na loja",
-    text: "Verifique preço, frete e prazo de entrega.",
-    image: { src: "/como-comprar/passo-2.webp", width: 518, height: 312 },
-  },
-  {
-    title: "Finalize a compra por lá",
-    text: "Conclua seu pedido no site da loja.",
-    image: { src: "/como-comprar/passo-3.webp", width: 540, height: 318 },
-  },
+  { title: "Escolha a oferta", text: "Encontre o produto e clique para ver na loja.", art: <ChooseArt /> },
+  { title: "Confira as condições na loja", text: "Verifique preço, frete e prazo de entrega.", art: <CheckArt /> },
+  { title: "Finalize a compra por lá", text: "Conclua seu pedido no site da loja.", art: <FinishArt /> },
 ]
 
 /** "Gostou de uma oferta? Veja como comprar." The site never sells: it points to the store. */
@@ -40,18 +25,8 @@ export function HowToBuy() {
           {STEPS.map((step, i) => (
             <li key={step.title} className="relative flex flex-col">
               {/* The drawings sit on the page's own light blue; in the dark theme they keep that panel. */}
-              <div className="flex aspect-[16/9] items-center justify-center overflow-hidden rounded-3xl dark:bg-[#eff7fe] dark:p-2">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={step.image.src}
-                  width={step.image.width}
-                  height={step.image.height}
-                  alt=""
-                  loading="lazy"
-                  decoding="async"
-                  className="h-full w-full object-contain"
-                />
-              </div>
+              {/* The drawings are decorative (the text below says it all); in the dark theme they keep a light panel. */}
+              <div className="aspect-[56/32] overflow-hidden rounded-3xl dark:bg-[#eff7fe]">{step.art}</div>
 
               {/* The dashed arrow that leads to the next step (side by side only). */}
               {i < STEPS.length - 1 && (
