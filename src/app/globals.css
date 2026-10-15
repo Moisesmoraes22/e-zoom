@@ -284,3 +284,13 @@
 @media (prefers-reduced-motion: reduce) {
   .lens-row { animation: none; }
 }
+
+/* Barra fina sob o campo de busca enquanto a pesquisa e enviada (search-bar.tsx). */
+@keyframes search-sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(300%);
+  }
+}

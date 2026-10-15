@@ -3,7 +3,7 @@
 import { ArrowRight, Clock, Loader2, Search, TriangleAlert, X } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useDeferredValue, useEffect, useId, useMemo, useRef, useState } from "react"
+import { useDeferredValue, useEffect, useId, useMemo, useRef, useState, useTransition } from "react"
 
 import { Button } from "@/components/ui/button"
 import { categoryIcon } from "@/lib/category-icons"
@@ -78,6 +78,8 @@ export function SearchBar({
   const [active, setActive] = useState(-1)
   const [recent, setRecent] = useState<string[]>([])
   const index = useSearchIndex()
+  // True from the moment a search is sent until the next page is on screen: the bar shows it is working.
+  const [pending, startTransition] = useTransition()
 
   // What was typed (for submitting) vs. what the suggestions are computed from (deferred: the field never waits for them).
   const typed = value.trim()
@@ -181,7 +183,7 @@ export function SearchBar({
   const go = (href: string, remember?: string) => {
     if (remember) saveRecent(remember)
     setOpen(false)
-    router.push(href)
+    startTransition(() => router.push(href))
   }
 
   const handleSubmit = (event: React.FormEvent) => {
@@ -233,8 +235,10 @@ export function SearchBar({
       <form
         onSubmit={handleSubmit}
         role="search"
+        aria-busy={pending}
         className={cn(
           "flex w-full items-center gap-2 border transition-colors",
+          pending && "pointer-events-none opacity-80",
           variant === "default" &&
             "rounded-full border-border bg-background shadow-lg shadow-foreground/5 focus-within:border-primary focus-within:ring-2 focus-within:ring-ring/30",
           variant === "hero" &&
@@ -244,7 +248,11 @@ export function SearchBar({
           variant === "default" && (size === "lg" ? "p-1.5 sm:p-2" : "p-1"),
         )}
       >
-        <Search className={cn("ml-3 h-5 w-5 shrink-0", onBlue ? "text-slate-500" : "text-muted-foreground")} aria-hidden />
+        {pending ? (
+          <Loader2 className="ml-3 h-5 w-5 shrink-0 animate-spin text-brand motion-reduce:animate-none" aria-hidden />
+        ) : (
+          <Search className={cn("ml-3 h-5 w-5 shrink-0", onBlue ? "text-slate-500" : "text-muted-foreground")} aria-hidden />
+        )}
         <input
           value={value}
           onChange={(event) => {
@@ -299,25 +307,40 @@ export function SearchBar({
             type="submit"
             className={cn("shrink-0 rounded-full active:scale-95", size === "lg" ? "px-6" : "px-4 text-xs")}
           >
-            Pesquisar
+            {pending ? "Buscando…" : "Pesquisar"}
           </Button>
         ) : variant === "hero" ? (
           <button
             type="submit"
             className="h-11 shrink-0 cursor-pointer rounded-lg bg-footer-bar px-5 text-sm font-bold text-white transition-colors hover:bg-footer-bar/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95 sm:px-7 sm:text-base"
           >
-            Buscar ofertas
+            {pending ? "Buscando…" : "Buscar ofertas"}
           </button>
         ) : (
           <button
             type="submit"
-            aria-label="Buscar"
+            aria-label={pending ? "Buscando" : "Buscar"}
             className="flex h-9 w-10 shrink-0 cursor-pointer items-center justify-center rounded-md bg-footer-bar text-white transition-colors hover:bg-footer-bar/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95"
           >
-            <Search className="h-4 w-4" aria-hidden />
+            {pending ? (
+              <Loader2 className="h-4 w-4 animate-spin motion-reduce:animate-none" aria-hidden />
+            ) : (
+              <Search className="h-4 w-4" aria-hidden />
+            )}
           </button>
         )}
       </form>
+      <span className="sr-only" role="status" aria-live="polite">
+        {pending ? "Buscando ofertas…" : ""}
+      </span>
+      {pending && (
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-x-3 -bottom-1 h-0.5 overflow-hidden rounded-full bg-primary/20"
+        >
+          <span className="block h-full w-1/3 animate-[search-sweep_1s_ease-in-out_infinite] rounded-full bg-primary motion-reduce:animate-none" />
+        </span>
+      )}
 
       {showPanel && (
         <div
