@@ -1,13 +1,13 @@
 import { createHash } from "node:crypto"
 
-import { isArtBrush, isBook, isDermocosmetico, isErvas, isHigiene, isJoiaLookalike, isPetLookalike, isPcCompleto, isPerfume, isTool, refineCategory } from "../lib/categories.ts"
+import { isArtBrush, isBook, isDermocosmetico, isErvas, isGpu, isHigiene, isJoiaLookalike, isPetLookalike, isPcCompleto, isPerfume, isTool, refineCategory } from "../lib/categories.ts"
 import { shopeeShopBadge } from "../lib/seller.ts"
 import type { Connector, OfferRow } from "../types.ts"
 
 const ENDPOINT = "https://open-api.affiliate.shopee.com.br/graphql"
 const PER_KEYWORD = 50
 /** Collected once a day by their own workflow (engine-nichos.yml), not in every run. */
-const DAILY_NICHES = new Set(["perfumes", "livros", "instrumentos", "dermocosmeticos", "ervas-naturais", "joias-relogios", "beleza", "animais", "higiene-cuidados", "bebes", "saude"])
+const DAILY_NICHES = new Set(["perfumes", "livros", "instrumentos", "dermocosmeticos", "ervas-naturais", "joias-relogios", "beleza", "animais", "higiene-cuidados", "bebes", "saude", "placas-de-video"])
 const MAX_OFFERS = 4500 // every category (about 3.5k after the quality filter); a low cap stops the last ones empty
 
 /** Best sellers per search term, filed under the site's own category slugs. */
@@ -18,6 +18,15 @@ const KEYWORDS: Record<string, string[]> = {
   eletrodomesticos: ["liquidificador", "cafeteira", "aspirador de po", "ferro de passar", "ventilador", "forno eletrico", "batedeira", "chaleira eletrica", "sanduicheira", "panela eletrica"],
   casa: ["air fryer", "organizador casa", "luminaria led", "panela antiaderente", "estante", "sapateira", "rack tv", "escrivaninha", "guarda roupa", "cadeira escritorio"],
   moda: ["camiseta masculina", "mochila", "bolsa feminina", "tenis masculino", "chinelo", "sandalia feminina", "mochila infantil"],
+  "placas-de-video": [
+    "placa de video", "placa de video gamer", "placa de video nvidia", "placa de video amd", "placa de video rtx 4060",
+    "placa de video rtx 4070", "placa de video rtx 3060", "placa de video rtx 3050", "placa de video rtx 5060",
+    "placa de video gtx 1650", "placa de video gtx 1660", "placa de video gt 710", "placa de video gt 730",
+    "placa de video gt 1030", "placa de video rx 580", "placa de video rx 6600", "placa de video rx 7600",
+    "placa de video rx 550", "placa de video rx 570", "placa de video 2gb", "placa de video 4gb", "placa de video 8gb",
+    "placa de video 12gb", "placa de video low profile", "placa de video gddr6", "placa de video ddr3",
+    "placa de video arc", "placa de video quadro", "placa de video geforce", "placa de video radeon",
+  ],
   "higiene-cuidados": [
     "creme dental", "creme dental colgate", "creme dental sensodyne", "escova dental", "escova dental eletrica",
     "enxaguante bucal", "fio dental", "sabonete", "sabonete liquido", "sabonete intimo", "desodorante", "desodorante aerosol",
@@ -159,7 +168,8 @@ export function createShopeeConnector(env: NodeJS.ProcessEnv): Connector {
             const price = Number(node.priceMin)
             // Quality floor: real photo, our affiliate link, sane price, proven seller.
             if (!node.imageUrl || !node.offerLink || !(price >= 5)) continue
-            const floor = category === "pc-completo" ? 5 : 50 // complete PCs sell in smaller volumes
+            // Complete PCs and graphics cards sell in smaller volumes.
+            const floor = category === "pc-completo" ? 5 : category === "placas-de-video" ? 10 : 50
             if (Number(node.ratingStar) < 4.3 || (node.sales ?? 0) < floor) continue
             // A search for "multimetro" also brings cables and meters: the tools shelf keeps only named tools.
             if (category === "ferramentas" && !isTool(node.productName)) continue
@@ -170,6 +180,7 @@ export function createShopeeConnector(env: NodeJS.ProcessEnv): Connector {
             if (category === "ervas-naturais" && !isErvas(node.productName)) continue
             if (category === "beleza" && isArtBrush(node.productName)) continue
             if (category === "higiene-cuidados" && !isHigiene(node.productName)) continue
+            if (category === "placas-de-video" && !isGpu(node.productName)) continue
             if (category === "animais" && isPetLookalike(node.productName)) continue
             if (category === "joias-relogios" && isJoiaLookalike(node.productName)) continue
 

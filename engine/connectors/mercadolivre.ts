@@ -1,4 +1,4 @@
-import { isArtBrush, isBook, isDermocosmetico, isErvas, isHigiene, isJoiaLookalike, isPetLookalike, isPcCompleto, isPerfume, isTool, refineCategory } from "../lib/categories.ts"
+import { isArtBrush, isBook, isDermocosmetico, isErvas, isGpu, isHigiene, isJoiaLookalike, isPetLookalike, isPcCompleto, isPerfume, isTool, refineCategory } from "../lib/categories.ts"
 import { isDj } from "../lib/dj.ts"
 import { mlSellerLocation, type SellerLocation } from "../lib/location.ts"
 import { mlSellerLeader, type SellerLeader } from "../lib/seller.ts"
@@ -141,6 +141,33 @@ const CATEGORY_TERMS: Record<string, string[]> = {
     "óleo essencial de eucalipto", "valeriana", "passiflora", "ginkgo biloba", "ginseng", "fitoterápico", "tintura mãe",
     "ervas para chá",
   ],
+  // Graphics cards of every kind: NVIDIA, AMD, Intel, workstation and entry level, by model and by maker.
+  "placas-de-video": [
+    "placa de vídeo", "placa de vídeo gamer", "placa de vídeo nvidia", "placa de vídeo amd", "placa de vídeo intel arc",
+    "placa de vídeo rtx 5090", "placa de vídeo rtx 5080", "placa de vídeo rtx 5070 ti", "placa de vídeo rtx 5070",
+    "placa de vídeo rtx 5060 ti", "placa de vídeo rtx 5060", "placa de vídeo rtx 4090", "placa de vídeo rtx 4080 super",
+    "placa de vídeo rtx 4070 ti super", "placa de vídeo rtx 4070 super", "placa de vídeo rtx 4070", "placa de vídeo rtx 4060 ti",
+    "placa de vídeo rtx 4060", "placa de vídeo rtx 3090", "placa de vídeo rtx 3080", "placa de vídeo rtx 3070",
+    "placa de vídeo rtx 3060 ti", "placa de vídeo rtx 3060", "placa de vídeo rtx 3050", "placa de vídeo rtx 2080",
+    "placa de vídeo rtx 2070", "placa de vídeo rtx 2060", "placa de vídeo gtx 1660 super", "placa de vídeo gtx 1660 ti",
+    "placa de vídeo gtx 1650", "placa de vídeo gtx 1630", "placa de vídeo gtx 1080", "placa de vídeo gtx 1070",
+    "placa de vídeo gtx 1060", "placa de vídeo gtx 1050 ti", "placa de vídeo gt 1030", "placa de vídeo gt 730",
+    "placa de vídeo gt 710", "placa de vídeo gt 610", "placa de vídeo gt 210",
+    "placa de vídeo rx 9070 xt", "placa de vídeo rx 9060 xt", "placa de vídeo rx 7900 xtx", "placa de vídeo rx 7800 xt",
+    "placa de vídeo rx 7700 xt", "placa de vídeo rx 7600", "placa de vídeo rx 6800 xt", "placa de vídeo rx 6750 xt",
+    "placa de vídeo rx 6700 xt", "placa de vídeo rx 6600", "placa de vídeo rx 6500 xt", "placa de vídeo rx 6400",
+    "placa de vídeo rx 5700 xt", "placa de vídeo rx 5600 xt", "placa de vídeo rx 580", "placa de vídeo rx 570",
+    "placa de vídeo rx 560", "placa de vídeo rx 550", "placa de vídeo radeon vega", "placa de vídeo r7 240",
+    "placa de vídeo arc a770", "placa de vídeo arc a750", "placa de vídeo arc a580", "placa de vídeo arc a380",
+    "placa de vídeo arc b580", "placa de vídeo quadro", "placa de vídeo profissional workstation", "placa de vídeo rtx a2000",
+    "placa de vídeo rtx a4000", "placa de vídeo low profile", "placa de vídeo 2gb", "placa de vídeo 4gb",
+    "placa de vídeo 6gb", "placa de vídeo 8gb", "placa de vídeo 12gb", "placa de vídeo 16gb", "placa de vídeo gddr6",
+    "placa de vídeo gddr5", "placa de vídeo ddr3", "placa de vídeo pci express", "placa de vídeo asus", "placa de vídeo asus tuf",
+    "placa de vídeo rog strix", "placa de vídeo msi ventus", "placa de vídeo gigabyte windforce", "placa de vídeo zotac",
+    "placa de vídeo galax", "placa de vídeo palit", "placa de vídeo pny", "placa de vídeo xfx", "placa de vídeo sapphire",
+    "placa de vídeo powercolor", "placa de vídeo asrock", "placa de vídeo inno3d", "placa de vídeo colorful",
+    "placa de vídeo afox", "placa de vídeo gainward", "placa de vídeo pcyes", "placa de vídeo mancer",
+  ],
   // Personal hygiene (a pharmacy shelf): oral care, soap, deodorant, pads, shaving and hair removal.
   "higiene-cuidados": [
     "creme dental", "creme dental colgate", "creme dental sensodyne", "creme dental oral-b", "creme dental close up",
@@ -201,7 +228,7 @@ const CATEGORY_TERMS: Record<string, string[]> = {
   ],
 }
 /** Many brand searches: collected once a day by their own workflow, not in every 30 minute run. */
-const DAILY_NICHES = new Set(["perfumes", "livros", "instrumentos", "dermocosmeticos", "ervas-naturais", "joias-relogios", "beleza", "animais", "higiene-cuidados", "bebes", "saude"])
+const DAILY_NICHES = new Set(["perfumes", "livros", "instrumentos", "dermocosmeticos", "ervas-naturais", "joias-relogios", "beleza", "animais", "higiene-cuidados", "bebes", "saude", "placas-de-video"])
 const PER_TERM = 25 // offers kept per term
 const CATEGORY_PER_TERM = 15 // same, for the category terms in the scheduled run (ML_ONLY runs use PER_TERM)
 // Most catalog hits have no active seller (items -> 404), so we scan a few pages per term.
@@ -336,6 +363,8 @@ export function createMercadoLivreConnector(env: NodeJS.ProcessEnv): Connector {
         // A "pincel" search also finds paint and kitchen brushes; "pulseira" finds smartwatch straps.
         if (categoryIn === "beleza" && isArtBrush(product.name)) return
         if (categoryIn === "higiene-cuidados" && !isHigiene(product.name)) return
+        // A "rtx" or "placa de vídeo" search also finds laptops, holders and cables: only the cards themselves stay.
+        if (categoryIn === "placas-de-video" && !isGpu(product.name)) return
         if (categoryIn === "animais" && isPetLookalike(product.name)) return
         if (categoryIn === "joias-relogios" && isJoiaLookalike(product.name)) return
         const category = supplement ? "suplementos" : dj ? "dj" : refineCategory(product.name, categoryIn)

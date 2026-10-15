@@ -23,6 +23,11 @@ export const CATEGORIES: Category[] = [
     icon: "Cpu",
   },
   {
+    slug: "placas-de-video",
+    name: "Placas de Vídeo",
+    icon: "Gpu",
+  },
+  {
     slug: "informatica",
     name: "Informática",
     icon: "Laptop",

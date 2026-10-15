@@ -13,6 +13,7 @@ import {
   Factory,
   Gamepad2,
   Gem,
+  Gpu,
   Guitar,
   HardHat,
   HeartPulse,
@@ -41,6 +42,7 @@ import {
 const ICONS: Record<string, LucideIcon> = {
   "eletronicos": Tv,
   "pc-completo": Cpu,
+  "placas-de-video": Gpu,
   "informatica": Laptop,
   "celulares": Smartphone,
   "acessorios-celular": Cable,

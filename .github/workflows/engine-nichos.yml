@@ -27,6 +27,7 @@ jobs:
           - "instrumentos,dermocosmeticos,ervas-naturais"
           - "joias-relogios,beleza,saude"
           - "animais,higiene-cuidados,bebes"
+          - "placas-de-video"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -60,4 +61,4 @@ jobs:
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
           SHOPEE_APP_ID: ${{ secrets.SHOPEE_APP_ID }}
           SHOPEE_APP_SECRET: ${{ secrets.SHOPEE_APP_SECRET }}
-          SHOPEE_ONLY: "perfumes,livros,instrumentos,dermocosmeticos,ervas-naturais,joias-relogios,beleza,animais,higiene-cuidados,bebes,saude"
+          SHOPEE_ONLY: "perfumes,livros,instrumentos,dermocosmeticos,ervas-naturais,joias-relogios,beleza,animais,higiene-cuidados,bebes,saude,placas-de-video"

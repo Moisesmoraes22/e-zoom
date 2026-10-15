@@ -123,6 +123,12 @@ const NOT_HIGIENE = /(porta[- ]|saboneteira|dispenser|suporte|\bpet\b|c[aã]es|g
 const SABONETE_LEAD = lead("sabonetes?(?! [ií]ntimo)")
 export const isHigiene = (title: string) => HIGIENE_LEAD.test(title) && !NOT_HIGIENE.test(title)
 
+// Graphics cards: named as a video card or by chip family (GeForce, Radeon, Arc, Quadro). Laptops, PCs, monitors,
+// holders, cables and frames ("quadro decorativo") only borrow the words.
+const GPU_WORDS = /(placas? de v[ií]deo|placas? gr[aá]ficas?|\bgpu\b|geforce|radeon|\bgtx ?\d{3,4}|\brtx ?\d{3,4}|\brx ?\d{3,4}|\barc ?[ab]\d{3}|nvidia quadro|quadro (?:rtx|[pktm]\d{3,4})|\bgt ?\d{3,4}\b)/i
+const NOT_GPU = /(notebook|laptop|ultrabook|pc gamer|computador|desktop|\bcpu\b|monitor|suporte|cooler|water ?block|backplate|riser|cabo\b|adaptador|fonte\b|gabinete|mochila|\bcase\b|capa\b|teclado|mouse|headset|ventoinha|\bfan\b|pasta t[eé]rmica|adesivo|jogo\b|console|ps[45]\b|xbox|placa m[aã]e|processador|mem[oó]ria|\bssd\b|smartphone|celular|tablet|brinquedo|chaveiro|mousepad|poster|decorativ|captura)/i
+export const isGpu = (title: string) => GPU_WORDS.test(title) && !NOT_GPU.test(title)
+
 /** True when the title is a fragrance / a book: keeps a catalog search for them free of look-alikes. */
 export const isPerfume = (title: string) => PERFUME.test(title) && !NOT_PERFUME.test(title)
 export const isPcCompleto = (title: string) => PC_LEAD.test(title) && !NOT_PC.test(title)
@@ -144,6 +150,7 @@ const RULES: { from: string[]; test: (t: string) => boolean; to: string }[] = [
   // "Workstation" is also a synthesizer: it goes back to the instruments.
   { from: ["pc-completo"], to: "instrumentos", test: (t) => /sintetizador|teclado musical|synthesizer/i.test(t) },
   // A complete PC is its own category (the niche the site invests in), out of "Informática" and the grab bags.
+  { from: ["informatica", "eletronicos", "games", "casa", "esporte", "celulares", "acessorios-celular", ...NOISY], to: "placas-de-video", test: isGpu },
   { from: ["informatica", "eletronicos", "games", "casa", "esporte", "celulares", ...NOISY], to: "pc-completo", test: isPcCompleto },
   // Fragrances leave "Beleza" and any grab bag they were dropped in.
   { from: ["beleza", "saude", "casa", "moda", "esporte", "suplementos", "joias-relogios", "antiguidades", "festas", "arte-papelaria", "celulares", "eletronicos", "alimentos-bebidas", "agro", "industria"], to: "perfumes", test: (t) => PERFUME.test(t) && !NOT_PERFUME.test(t) },

@@ -131,6 +131,17 @@ const CASES: [string, string, string][] = [
   ["Au.migos Pets Lenço Umedecido Para Cães E Gatos", "bebes", "animais"],
   ["Mordedor Natural Desidratado Bully Stick Para Cães", "bebes", "animais"],
   ["Mordedor Silicone Bebê Anel Refrigerante", "bebes", "bebes"],
+  // graphics cards
+  ["Placa de Vídeo Galax GeForce RTX 4060 8GB GDDR6 1-Click OC", "informatica", "placas-de-video"],
+  ["Placa de Vídeo Radeon RX 6600 8GB XFX Speedster SWFT 210", "eletronicos", "placas-de-video"],
+  ["Nvidia Quadro P620 2GB Placa de Vídeo Profissional", "informatica", "placas-de-video"],
+  ["Placa de Vídeo GT 710 2GB DDR3 Low Profile", "games", "placas-de-video"],
+  ["Notebook Gamer Acer Nitro 5 Intel i5 RTX 3050 16GB", "informatica", "informatica"],
+  ["PC Gamer Completo Ryzen 5 5600 RTX 4060 16GB SSD 480GB", "informatica", "pc-completo"],
+  ["Suporte Anti Sag Para Placa De Vídeo Gpu Ajustável", "informatica", "informatica"],
+  ["Cabo Riser PCI-E 16x Para Placa de Vídeo Mineração", "informatica", "informatica"],
+  ["Quadro Decorativo Gamer Controle 3 Peças", "casa", "casa"],
+  ["Placa de Captura de Vídeo HDMI 4K USB 3.0", "informatica", "informatica"],
   // personal hygiene
   ["Creme Dental Colgate Total 12 Clean Mint 90g", "beleza", "higiene-cuidados"],
   ["Desodorante Aerosol Rexona Masculino Active 150ml", "beleza", "higiene-cuidados"],
