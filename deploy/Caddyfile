@@ -12,3 +12,9 @@ n8n.ezooom.com.br {
 	encode zstd gzip
 	reverse_proxy n8n:5678
 }
+
+# API do Supabase proprio (login, banco, arquivos) e painel de administracao dele (protegido por senha).
+api.ezooom.com.br {
+	encode zstd gzip
+	reverse_proxy host.docker.internal:8000
+}
