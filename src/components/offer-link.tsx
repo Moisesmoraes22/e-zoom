@@ -2,25 +2,24 @@
 
 import type { AnchorHTMLAttributes } from "react"
 
+import { areaOf, positionBucket } from "@/lib/impressions"
 import { recordProduct } from "@/lib/interest-profile"
+import { useShelf } from "@/lib/shelf"
 import type { Product, StoreSource } from "@/lib/types"
 
 interface OfferLinkProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
   product: Pick<Product, "id" | "title" | "category">
   store: StoreSource
   affiliateUrl: string
-}
-
-/** Site area of the current page, as stored with each click. */
-const originOf = (pathname: string) => {
-  const area = pathname.split("/")[1] ?? ""
-  return area === "" ? "home" : ["busca", "categoria", "produto"].includes(area) ? area : "outro"
+  /** Place of the card in its list (1 = first), when it is in one. */
+  position?: number
 }
 
 /** Counts a click on an offer (profile + popularity). sendBeacon survives the page being left for the store. */
-export function recordOfferClick(product: Pick<Product, "id" | "title" | "category">) {
+export function recordOfferClick(product: Pick<Product, "id" | "title" | "category">, shelf = "", position?: number) {
   recordProduct("click", product)
-  const payload = JSON.stringify({ offerId: product.id, origin: originOf(window.location.pathname) })
+  const origin = areaOf(window.location.pathname)
+  const payload = JSON.stringify({ offerId: product.id, origin, shelf: shelf || origin, position: positionBucket(position) })
   if (!navigator.sendBeacon?.("/api/click", new Blob([payload], { type: "application/json" }))) {
     void fetch("/api/click", { method: "POST", body: payload, keepalive: true }).catch(() => {})
   }
@@ -35,12 +34,14 @@ export function OfferLink({
   product,
   store: _store,
   affiliateUrl,
+  position,
   onClick,
   onAuxClick,
   ...rest
 }: OfferLinkProps) {
   void _store // part of the call sites' API; kept out of the <a> props
-  const record = () => recordOfferClick(product)
+  const shelf = useShelf()
+  const record = () => recordOfferClick(product, shelf, position)
   const handleClick: React.MouseEventHandler<HTMLAnchorElement> = (event) => {
     record()
     onClick?.(event)

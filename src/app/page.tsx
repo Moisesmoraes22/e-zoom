@@ -10,6 +10,7 @@ import { HowToBuy } from "@/components/how-to-buy"
 import { ForYouSection } from "@/components/for-you-section"
 import { InterestsSection } from "@/components/interests-section"
 import { LazyWelcome } from "@/components/lazy-welcome"
+import { RecentlyViewed } from "@/components/recently-viewed"
 import { PriceChips } from "@/components/price-chips"
 import { LazyProductRow } from "@/components/lazy-product-row"
 import { SiteFooter } from "@/components/site-footer"
@@ -374,6 +375,7 @@ export default async function Home() {
       <HomeHero />
       <StoreStrip counts={storeCounts} />
       <FeaturedOffers offers={featured} />
+      <RecentlyViewed />
       <ForYouSection />
       <StoresSection counts={storeCounts} />
       {drops.length >= SHELF_MIN && (
@@ -409,6 +411,7 @@ export default async function Home() {
       {rows.map((row) => (
         <Fragment key={row.slug}>
           <LazyProductRow
+            shelf={`prateleira-${row.slug}`}
             title={row.title}
             ids={row.items.map((p) => p.id)}
             href={`/categoria/${row.slug}`}

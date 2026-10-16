@@ -1,7 +1,7 @@
 "use client"
 
 import { AnimatePresence, m as motion } from "framer-motion"
-import { useRef } from "react"
+import { useEffect, useRef } from "react"
 import Link from "next/link"
 import { ArrowUpRight, Bookmark, Flame, Truck } from "lucide-react"
 
@@ -12,6 +12,8 @@ import { discountOf, priceCut } from "@/lib/deals"
 import { useFavorites } from "@/lib/favorites-context"
 import { cardImage } from "@/lib/image-url"
 import { useHotClicks } from "@/lib/use-hot-clicks"
+import { observeImpression } from "@/lib/impressions"
+import { useShelf } from "@/lib/shelf"
 import { STORES } from "@/lib/mock-data"
 import type { Product } from "@/lib/types"
 import { cn, formatCurrency } from "@/lib/utils"
@@ -27,6 +29,7 @@ export function ProductCard({
   label,
   compact = false,
   priority = false,
+  position,
 }: {
   product: Product
   className?: string
@@ -36,6 +39,8 @@ export function ProductCard({
   priority?: boolean
   /** Small tag above the title, e.g. "Achado E-Zooom". */
   label?: string
+  /** Place in its list (1 = first), recorded with the exibição and the click. */
+  position?: number
 }) {
   const { toggleFavorite, isFavorite, launchFlight } = useFavorites()
   const favorited = isFavorite(product.id)
@@ -44,6 +49,9 @@ export function ProductCard({
   const cut = priceCut(product)
   const store = STORES[product.store]
   const clicks = useHotClicks(product.id, product.clicks)
+  const shelf = useShelf()
+  const rootRef = useRef<HTMLDivElement>(null)
+  useEffect(() => observeImpression(rootRef.current, product.id, shelf, position), [product.id, shelf, position])
 
   const handleToggle = (event: React.MouseEvent) => {
     event.preventDefault()
@@ -56,6 +64,7 @@ export function ProductCard({
 
   return (
     <div
+      ref={rootRef}
       className={cn(
         "group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-shadow hover:shadow-md",
         className,
@@ -186,6 +195,7 @@ export function ProductCard({
           product={product}
           store={product.store}
           affiliateUrl={product.affiliateUrl}
+          position={position}
           className="group/cta flex min-h-11 items-center justify-center gap-1.5 rounded-lg bg-cta px-2 py-2 text-[13px] font-bold sm:text-sm text-cta-foreground transition-colors duration-200 hover:bg-cta-hover active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         >
           <span className="text-center leading-tight">

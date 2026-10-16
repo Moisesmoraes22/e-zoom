@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react"
 import { ProductCarousel } from "@/components/product-carousel"
 import { CATEGORIES } from "@/lib/mock-data"
 import { pickedCategories, WELCOME_OPEN } from "@/lib/interest-profile"
+import { Shelf } from "@/lib/shelf"
 import { useBudget, useInterestsRaw } from "@/lib/use-interests"
 import type { Product } from "@/lib/types"
 
@@ -61,7 +62,9 @@ export function ForYouSection() {
           Mudar preferências
         </button>
       </div>
-      <ProductCarousel ariaLabel="Escolhidas para você" items={items.map((product) => ({ product }))} />
+      <Shelf name="para-voce">
+        <ProductCarousel ariaLabel="Escolhidas para você" items={items.map((product) => ({ product }))} />
+      </Shelf>
     </section>
   )
 }

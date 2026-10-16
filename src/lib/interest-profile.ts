@@ -100,6 +100,31 @@ export function savePicks(categories: string[], budget: string) {
   }
 }
 
+/** Offers this browser opened or clicked, newest first, each once ("Vistos recentemente"). */
+export function recentlyViewedIds(raw: string, max = 12): string[] {
+  try {
+    const parsed = JSON.parse(raw || "[]")
+    if (!Array.isArray(parsed)) return []
+    const ids: string[] = []
+    for (let i = parsed.length - 1; i >= 0 && ids.length < max; i--) {
+      const e = parsed[i] as InterestEvent
+      if ((e?.kind === "view" || e?.kind === "click") && typeof e.id === "string" && !ids.includes(e.id)) ids.push(e.id)
+    }
+    return ids
+  } catch {
+    return []
+  }
+}
+
+/** Forgets which offers were opened here (searches and chosen categories stay). */
+export function forgetViewedOffers() {
+  try {
+    const kept = readEvents().filter((e) => !(e.id && (e.kind === "view" || e.kind === "click")))
+    localStorage.setItem(INTERESTS_KEY, JSON.stringify(kept))
+    window.dispatchEvent(new Event(INTERESTS_CHANGED))
+  } catch {}
+}
+
 export function clearInterests() {
   try {
     localStorage.removeItem(INTERESTS_KEY)

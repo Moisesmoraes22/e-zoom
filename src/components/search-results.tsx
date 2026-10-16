@@ -352,12 +352,13 @@ function SearchResultsInner({
                 ref={gridRef}
                 className="grid scroll-mt-24 grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6"
               >
-                {visible.map((item) => {
+                {visible.map((item, i) => {
                   const product = cards.get(item.id)
                   return product ? (
                     <ProductCard
                       key={item.id}
                       product={product}
+                      position={(page - 1) * PAGE_SIZE + i + 1}
                       label={boosted.has(item.id) ? "Combina com seus interesses" : undefined}
                     />
                   ) : (

@@ -5,10 +5,12 @@ import { ClosedOffer } from "@/components/closed-offer"
 import { DealsCarousel } from "@/components/deals-carousel"
 import { ProductComments } from "@/components/product-comments"
 import { ProductDetail } from "@/components/product-detail"
+import { RecentlyViewed } from "@/components/recently-viewed"
 import type { PriceSeries } from "@/components/price-history-chart"
 import { SiteFooter } from "@/components/site-footer"
 import { ALL_PRODUCTS, CATEGORIES, getProductOffers, STORES } from "@/lib/mock-data"
 import type { Product } from "@/lib/types"
+import { Shelf } from "@/lib/shelf"
 import { formatCurrency } from "@/lib/utils"
 import { getClosedOffer, getOffer, getOfferImages, getPhoneAccessories, getPriceStats, getRelated, getSiblings, getTopDiscountIds } from "@/lib/offers"
 import { breadcrumbJsonLd, productJsonLd, serializeJsonLd } from "@/lib/structured-data"
@@ -154,25 +156,32 @@ export default async function ProdutoPage({
         </section>
       )}
       {accessories.length >= 3 && (
-        <DealsCarousel
+        <Shelf name="acessorios">
+          <DealsCarousel
           products={accessories}
           title="Acessórios para celular"
           href="/categoria/acessorios-celular"
           tone="light"
         />
+        </Shelf>
       )}
       {similar.length >= 3 && (
-        <DealsCarousel
+        <Shelf name="parecidas">
+          <DealsCarousel
           products={similar}
           title="Ofertas parecidas"
         />
+        </Shelf>
       )}
       {more.length >= 3 && (
-        <DealsCarousel
+        <Shelf name="mais-desconto">
+          <DealsCarousel
           products={more}
           title="Mais ofertas com desconto"
         />
+        </Shelf>
       )}
+      <RecentlyViewed excludeId={product.id} />
       <SiteFooter />
     </main>
   )

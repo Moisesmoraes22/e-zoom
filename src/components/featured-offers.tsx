@@ -2,6 +2,8 @@ import { ArrowRight } from "lucide-react"
 import Link from "next/link"
 import type { ReactNode } from "react"
 
+import { Shelf } from "@/lib/shelf"
+
 import { ProductCard } from "@/components/product-card"
 import type { Product } from "@/lib/types"
 
@@ -51,7 +53,9 @@ export function FeaturedOffers({
             key={product.id}
             className={i === 4 ? "hidden 2xl:block" : i >= 5 ? "hidden 3xl:block" : undefined}
           >
-            <ProductCard product={product} priority={i < 2} />
+            <Shelf name={id}>
+              <ProductCard product={product} priority={i < 2} position={i + 1} />
+            </Shelf>
           </li>
         ))}
       </ul>

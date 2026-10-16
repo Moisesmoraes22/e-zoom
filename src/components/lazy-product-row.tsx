@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useEffect, useRef, useState } from "react"
 
 import { SectionHeader } from "@/components/section-header"
+import { Shelf } from "@/lib/shelf"
 import { useCards } from "@/lib/use-cards"
 import type { Product } from "@/lib/types"
 
@@ -18,12 +19,15 @@ const ProductRow = dynamic(() => import("@/components/product-row").then((m) => 
  */
 export function LazyProductRow({
   ids,
+  shelf,
   title,
   href = "/busca",
   linkLabel,
   chips,
 }: {
   ids: string[]
+  /** List name for the exibições and clicks (the category of the shelf). */
+  shelf: string
   title: string
   href?: string
   linkLabel?: string
@@ -56,7 +60,11 @@ export function LazyProductRow({
   const products = ids.map((id) => cards.get(id)).filter((p): p is Product => !!p)
 
   if (near && products.length > 0) {
-    return <ProductRow title={title} products={products} href={href} linkLabel={linkLabel} chips={chips} />
+    return (
+      <Shelf name={shelf}>
+        <ProductRow title={title} products={products} href={href} linkLabel={linkLabel} chips={chips} />
+      </Shelf>
+    )
   }
 
   return (

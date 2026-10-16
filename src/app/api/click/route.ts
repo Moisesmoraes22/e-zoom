@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js"
 const ORIGINS = new Set(["home", "busca", "categoria", "produto", "outro"])
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 const BOT = /bot|crawl|spider|headless|preview|lighthouse/i
+const SHELF = /^[a-z0-9-]{1,40}$/
 
 // Best-effort limiter, per server instance: at most 30 clicks a minute per visitor, and the same
 // offer counts once every 30 s. It stops a script from inflating the ranking or filling the table;
@@ -38,8 +39,10 @@ export async function POST(request: Request) {
   if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) return done
   if (BOT.test(request.headers.get("user-agent") ?? "")) return done
 
-  const body = (await request.json().catch(() => null)) as { offerId?: unknown; origin?: unknown } | null
-  const { offerId, origin } = body ?? {}
+  const body = (await request.json().catch(() => null)) as
+    | { offerId?: unknown; origin?: unknown; shelf?: unknown; position?: unknown }
+    | null
+  const { offerId, origin, shelf, position } = body ?? {}
   if (typeof offerId !== "string" || !UUID.test(offerId)) return done
 
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown"
@@ -49,9 +52,13 @@ export async function POST(request: Request) {
     auth: { persistSession: false },
   })
   // Through the database function: it validates and caps the volume for every instance at once.
-  await supabase.rpc("record_click", {
-    p_offer: offerId,
-    p_origin: typeof origin === "string" && ORIGINS.has(origin) ? origin : "outro",
+  const base = { p_offer: offerId, p_origin: typeof origin === "string" && ORIGINS.has(origin) ? origin : "outro" }
+  const { error } = await supabase.rpc("record_click", {
+    ...base,
+    p_shelf: typeof shelf === "string" && SHELF.test(shelf) ? shelf : null,
+    p_position: Number.isInteger(position) && (position as number) >= 0 && (position as number) <= 17 ? position : null,
   })
+  // Before the database learns the list and position (migration 20261016100000), the old function still counts the click.
+  if (error) await supabase.rpc("record_click", base)
   return done
 }

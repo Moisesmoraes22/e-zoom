@@ -46,13 +46,13 @@ export function DealsCarousel({
           aria-label={title ?? "Ofertas"}
         >
           <CarouselContent>
-            {products.map((product) => (
+            {products.map((product, i) => (
               <CarouselItem
                 key={product.id}
                 className="basis-[60%] min-[375px]:basis-[50%] min-[480px]:basis-[40%] md:basis-[28.57%] lg:basis-[22.22%] xl:basis-[18.18%] 2xl:basis-[15.38%]"
               >
                 <div className="h-full">
-                  <ProductCard product={product} className={navy ? "bg-background" : undefined} compact />
+                  <ProductCard product={product} className={navy ? "bg-background" : undefined} compact position={i + 1} />
                 </div>
               </CarouselItem>
             ))}
