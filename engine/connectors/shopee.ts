@@ -13,7 +13,15 @@ const MAX_OFFERS = 4500 // every category (about 3.5k after the quality filter);
 /** Best sellers per search term, filed under the site's own category slugs. */
 const KEYWORDS: Record<string, string[]> = {
   eletronicos: ["fone bluetooth", "carregador turbo", "smartwatch", "caixa de som bluetooth", "cabo usb c"],
-  celulares: ["smartphone", "iphone", "samsung galaxy", "redmi", "xiaomi", "motorola moto", "realme", "google pixel", "capa celular", "pelicula celular", "carregador portatil"],
+  celulares: [
+    "smartphone", "iphone", "iphone 15", "iphone 14", "iphone 13", "iphone 16", "iphone 12", "iphone 11", "samsung galaxy",
+    "samsung galaxy a15", "samsung galaxy a05", "samsung galaxy a35", "samsung galaxy a55", "samsung galaxy a16", "samsung galaxy m15",
+    "samsung galaxy s24", "samsung galaxy s23", "samsung galaxy z flip", "redmi", "redmi note 13", "redmi note 14", "redmi 13c", "redmi a3",
+    "poco", "poco x6", "xiaomi", "motorola moto", "moto g", "moto g54", "moto g24", "moto g05", "moto e", "motorola edge", "motorola razr",
+    "realme", "realme c61", "infinix", "infinix hot", "tecno", "tecno spark", "honor", "oppo", "vivo", "nokia", "google pixel",
+    "celular 5g", "celular 128gb", "celular 256gb", "celular desbloqueado", "celular barato", "celular idoso", "celular rustico",
+    "celular gamer", "smartphone 5g", "celular dual chip", "capa celular", "pelicula celular", "carregador portatil",
+  ],
   informatica: ["mouse sem fio", "teclado", "webcam", "hd externo", "pen drive", "roteador wifi"],
   eletrodomesticos: ["liquidificador", "cafeteira", "aspirador de po", "ferro de passar", "ventilador", "forno eletrico", "batedeira", "chaleira eletrica", "sanduicheira", "panela eletrica"],
   casa: ["air fryer", "organizador casa", "luminaria led", "panela antiaderente", "estante", "sapateira", "rack tv", "escrivaninha", "guarda roupa", "cadeira escritorio"],

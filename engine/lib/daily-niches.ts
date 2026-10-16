@@ -16,4 +16,5 @@ export const DAILY_NICHES = new Set([
   "bebes",
   "saude",
   "placas-de-video",
+  "celulares",
 ])

@@ -49,6 +49,34 @@ const CATEGORY_TERMS: Record<string, string[]> = {
     "redmi note 14", "redmi note 13", "redmi 14c", "redmi 13c", "poco x7", "xiaomi smartphone",
     "motorola edge", "moto g85", "moto g55", "moto g35", "moto g15", "motorola moto e",
     "realme c75", "realme 14", "realme smartphone", "google pixel 9", "google pixel 8a", "smartphone",
+    // Samsung: every line (A, M, S, Z) and the newest models.
+    "samsung galaxy s25 ultra", "samsung galaxy s25 fe", "samsung galaxy s25 edge", "samsung galaxy s24 ultra", "samsung galaxy s24 fe",
+    "samsung galaxy s23", "samsung galaxy s23 fe", "samsung galaxy a56", "samsung galaxy a36", "samsung galaxy a26", "samsung galaxy a25",
+    "samsung galaxy a15", "samsung galaxy a05", "samsung galaxy a05s", "samsung galaxy a14", "samsung galaxy a54", "samsung galaxy a34",
+    "samsung galaxy m55", "samsung galaxy m35", "samsung galaxy m15", "samsung galaxy z flip 6", "samsung galaxy z fold 6",
+    "samsung galaxy z flip 7", "samsung galaxy z fold 7", "samsung galaxy a07", "samsung galaxy a17", "samsung galaxy s21 fe",
+    // Motorola.
+    "motorola razr", "motorola razr 50", "motorola razr 60", "motorola edge 60", "motorola edge 50", "motorola edge 40 neo",
+    "moto g96", "moto g86", "moto g75", "moto g84", "moto g54", "moto g24", "moto g05", "moto g04", "moto g stylus", "moto g power",
+    "moto e14", "moto e22", "motorola moto g 5g",
+    // Xiaomi, Redmi and Poco.
+    "redmi note 14 pro", "redmi note 14 pro plus", "redmi note 13 pro", "redmi note 12", "redmi 15c", "redmi 15", "redmi a5", "redmi a3",
+    "redmi 12", "poco x7 pro", "poco f7", "poco f7 pro", "poco m7", "poco c75", "poco x6", "xiaomi 15t", "xiaomi 14t", "xiaomi 15",
+    "xiaomi redmi", "xiaomi poco",
+    // iPhone: storage variants and refurbished.
+    "iphone 15 128gb", "iphone 14 128gb", "iphone 13 128gb", "iphone 12 64gb", "iphone 11 64gb", "iphone 16 128gb", "iphone 16 256gb",
+    "iphone recondicionado", "iphone seminovo", "iphone 17e",
+    // Other makers.
+    "realme c61", "realme c65", "realme c71", "realme 12", "realme 13", "realme gt", "realme narzo", "infinix hot 50", "infinix hot 60",
+    "infinix note 40", "infinix smart 9", "infinix zero", "tecno spark 30", "tecno spark go", "tecno camon", "tecno pova", "honor x6b",
+    "honor 200", "honor magic", "oppo a", "oppo reno", "vivo y", "vivo v", "nokia c", "nokia g", "zte blade", "nothing phone",
+    "oneplus", "asus zenfone", "asus rog phone", "lenovo smartphone", "positivo smartphone", "multilaser smartphone", "lg smartphone",
+    "google pixel 9 pro", "google pixel 10", "google pixel 8",
+    // By need.
+    "celular 5g", "celular 128gb", "celular 256gb", "celular 512gb", "celular 64gb", "celular 8gb ram", "celular 12gb ram",
+    "celular dual chip", "celular desbloqueado", "celular gamer", "celular barato", "celular idoso", "celular rústico",
+    "celular para idosos", "celular com nfc", "celular android", "smartphone 5g", "smartphone 256gb", "smartphone dobrável",
+    "celular básico", "celular com botão",
     "carregador portátil", "capa para celular", "película de vidro",
   ],
   informatica: ["notebook", "ssd", "memória ram", "mouse sem fio", "teclado mecânico", "monitor", "roteador wifi", "webcam", "hd externo", "pen drive", "impressora", "tablet"],

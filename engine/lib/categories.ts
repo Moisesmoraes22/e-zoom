@@ -40,7 +40,9 @@ const NOISY = ["agro", "antiguidades", "industria", "joias-relogios", "arte-pape
 
 // A phone names itself first ("Smartphone Motorola...", "Celular iPhone 17...", "Galaxy A55..."); a word
 // further on ("Capa para celular", "Tela Magnética ... Celular") only mentions it.
-const PHONE_LEAD = lead("smartphone|celular|iphone|apple iphone|(?:samsung )?galaxy [a-z]?\\d+|redmi|xiaomi redmi|moto [gec]\\d+|motorola moto|poco [a-z]\\d+|realme")
+const PHONE_LEAD = lead(
+  "smartphone|celular|iphone|apple iphone|(?:samsung )?galaxy (?:z ?(?:flip|fold)\\d*|[a-z]?\\d+)|redmi|xiaomi (?:redmi|poco|note|\\d+)|moto [gec]\\d+|motorola (?:moto|edge|razr)|moto (?:edge|razr)|poco [a-z]?\\d+|realme|infinix (?:hot|note|smart|zero)|tecno (?:spark|camon|pova|pop)|honor (?:x|magic|\\d)|oppo (?:a|reno|find)\\w*|vivo (?:y|v|x)\\d+|nokia (?:c|g|\\d)\\d*|zte (?:blade|a\\d)|nothing phone|oneplus|asus (?:zenfone|rog phone)"
+)
 const TOY_PHONE = /(infantil|brinquedo|mordedor|musical|simulador|de mentirinha)/i
 const NOTEBOOK_LEAD = lead("notebook|(?:samsung )?galaxy book\\d*|macbook|chromebook|ideapad|vivobook|inspiron|aspire")
 // Small appliances named at the start of the title.

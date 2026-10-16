@@ -131,6 +131,15 @@ const CASES: [string, string, string][] = [
   ["Au.migos Pets Lenço Umedecido Para Cães E Gatos", "bebes", "animais"],
   ["Mordedor Natural Desidratado Bully Stick Para Cães", "bebes", "animais"],
   ["Mordedor Silicone Bebê Anel Refrigerante", "bebes", "bebes"],
+  // phones named by maker and model
+  ["Infinix Hot 50 128GB 4GB RAM Tela 6.78 Dual Chip", "eletronicos", "celulares"],
+  ["Samsung Galaxy Z Flip6 256GB 5G Dobrável", "eletronicos", "celulares"],
+  ["Motorola Edge 50 Fusion 256GB 5G", "informatica", "celulares"],
+  ["Xiaomi Poco X7 Pro 512GB 12GB RAM", "eletronicos", "celulares"],
+  ["Tecno Spark 30 256GB 8GB RAM", "eletronicos", "celulares"],
+  ["Capa Para Motorola Edge 50 Fusion Silicone", "celulares", "acessorios-celular"],
+  ["Pelicula Para Infinix Hot 50 3D", "celulares", "acessorios-celular"],
+  ["TV Samsung 55 Polegadas Crystal 4K", "eletronicos", "eletronicos"],
   // graphics cards
   ["Placa de Vídeo Galax GeForce RTX 4060 8GB GDDR6 1-Click OC", "informatica", "placas-de-video"],
   ["Placa de Vídeo Radeon RX 6600 8GB XFX Speedster SWFT 210", "eletronicos", "placas-de-video"],
