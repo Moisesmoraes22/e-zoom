@@ -18,6 +18,9 @@ import { STORES } from "@/lib/mock-data"
 import type { Product } from "@/lib/types"
 import { cn, formatCurrency } from "@/lib/utils"
 
+/** Price size by the length of the formatted price ("R$ 999,99" = 9, "R$ 10.201,91" = 12). */
+const priceSize = (len: number) => (len >= 13 ? "text-lg" : len >= 11 ? "text-[1.2rem]" : "text-[1.6rem]")
+
 /**
  * Offer card v2: store on top, the whole photo on white, the title, one big price, and what is
  * really known about payment and shipping. A button that names the store goes straight to it.
@@ -140,7 +143,9 @@ export function ProductCard({
             <span
               className={cn(
                 "font-extrabold tabular-nums leading-tight text-price",
-                compact ? "text-[1.6rem]" : "text-[1.6rem] sm:text-3xl",
+                // Long prices (R$ 1.000,00 and up) get a smaller size so they fit two cards side by side on a phone.
+                priceSize(formatCurrency(product.price).length),
+                !compact && "sm:text-3xl",
               )}
             >
               {formatCurrency(product.price)}
