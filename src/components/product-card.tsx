@@ -204,7 +204,7 @@ export function ProductCard({
           className="group/cta flex min-h-11 items-center justify-center gap-1.5 rounded-lg bg-cta px-2 py-2 text-[13px] font-bold sm:text-sm text-cta-foreground transition-colors duration-200 hover:bg-cta-hover active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         >
           <span className="text-center leading-tight">
-            {cut ? "Quero aproveitar esse desconto" : `Ver ${product.store === "mercado_livre" ? "no" : "na"} ${store.name}`}
+            {`Ver ${product.store === "mercado_livre" ? "no" : "na"} ${store.name}`}
           </span>
           <ArrowUpRight
             className="hidden h-4 w-4 shrink-0 transition-transform sm:block duration-200 group-hover/cta:-translate-y-0.5 group-hover/cta:translate-x-0.5"

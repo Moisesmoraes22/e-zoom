@@ -12,7 +12,7 @@ export default function HowItWorksPage() {
       <h1>Como funciona</h1>
       <p>
         O E-Zooom é um hub de ofertas: reunimos promoções de lojas como Mercado Livre e Amazon em um só lugar para
-        você comparar e escolher onde comprar. Não somos uma loja.
+        você encontrar a oferta e ir direto à loja. Não somos uma loja.
       </p>
 
       <h2>1. Encontramos as ofertas</h2>

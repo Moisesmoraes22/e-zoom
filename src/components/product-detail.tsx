@@ -30,7 +30,7 @@ import { StoreLogo } from "@/components/store-logo"
 import { TimeAgo } from "@/components/time-ago"
 import { ViewCount } from "@/components/view-count"
 import { Button } from "@/components/ui/button"
-import { discountOf, priceCut, savingsOf } from "@/lib/deals"
+import { discountOf, savingsOf } from "@/lib/deals"
 import { useFavorites } from "@/lib/favorites-context"
 import { recordProduct } from "@/lib/interest-profile"
 import { lowestFor } from "@/lib/lowest-price"
@@ -258,7 +258,7 @@ export function ProductDetail({
               className="mt-5 h-12 w-full gap-2 rounded-lg bg-cta text-base font-bold text-cta-foreground shadow-lg shadow-cta/30 ring-offset-2 hover:bg-cta-hover"
             >
               <OfferLink product={product} store={bestOffer.store} affiliateUrl={bestOffer.affiliateUrl}>
-                {priceCut(product) ? "Quero aproveitar esse desconto" : `Ver oferta ${into} ${store.name}`}
+                {`Ver oferta ${into} ${store.name}`}
                 <ArrowUpRight className="h-5 w-5" aria-hidden />
               </OfferLink>
             </Button>

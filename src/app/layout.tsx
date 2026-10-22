@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     template: "%s — E-Zooom",
   },
   description:
-    "Hub de ofertas que reúne os melhores preços do Mercado Livre, Shopee e Amazon num só lugar.",
+    "Hub de ofertas que reúne promoções do Mercado Livre, Shopee e Amazon num só lugar.",
   // Lets Google AdSense verify ownership of the site; it sets no cookie and loads no script.
   other: { "google-adsense-account": "ca-pub-5930842502912656" },
   openGraph: {

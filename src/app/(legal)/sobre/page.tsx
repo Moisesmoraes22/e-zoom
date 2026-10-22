@@ -12,7 +12,7 @@ export default function AboutPage() {
       <h1>Sobre o E-Zooom</h1>
       <p>
         O E-Zooom é um hub de ofertas: reunimos em um só lugar promoções de lojas como Mercado Livre, Shopee e Amazon,
-        para você comparar preços e ir direto à oferta. A compra é sempre finalizada na loja; nós não vendemos, não
+        para você encontrar ofertas e ir direto à loja. A compra é sempre finalizada na loja; nós não vendemos, não
         entregamos e não processamos pagamentos.
       </p>
 

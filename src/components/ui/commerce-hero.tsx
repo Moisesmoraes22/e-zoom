@@ -77,8 +77,8 @@ export function CommerceHero({
                 <span className="text-foreground"> que realmente valem a pena.</span>
               </h1>
               <p className="mb-4 max-w-lg text-sm leading-relaxed text-muted-foreground sm:mb-6 sm:text-lg">
-                <span className="sm:hidden">Compare preços e ache o melhor preço.</span>
-                <span className="hidden sm:inline">Compare preços e descubra onde comprar pelo melhor preço.</span>
+                <span className="sm:hidden">Ofertas de várias lojas num só lugar.</span>
+                <span className="hidden sm:inline">Ofertas de várias lojas num só lugar. Uma busca para facilitar sua escolha.</span>
               </p>
 
               <SearchBar className="max-w-xl" />
