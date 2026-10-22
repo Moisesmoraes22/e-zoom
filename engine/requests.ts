@@ -4,6 +4,7 @@ import { withoutBlocked } from "./lib/blocklist.ts"
 import { refineCategory } from "./lib/categories.ts"
 import { guessCategory } from "./lib/message-parser.ts"
 import { searchMercadoLivre } from "./lib/ml-search.ts"
+import { withoutProhibited } from "./lib/title-rules.ts"
 
 // Brings into the catalogue the products visitors searched for and did not find (table
 // `product_requests`, filled by the site's "Pedir este produto" button). Most requested first,
@@ -38,7 +39,7 @@ const blocked = blockedRows ?? []
 
 for (const request of pending) {
   try {
-    const found = withoutBlocked(await searchMercadoLivre(request.term, process.env, OFFERS_PER_TERM), blocked)
+    const found = withoutProhibited(withoutBlocked(await searchMercadoLivre(request.term, process.env, OFFERS_PER_TERM), blocked)).kept
     const now = new Date().toISOString()
     if (found.length > 0) {
       // A free search has no store category: the title decides, through the same rules the collectors use.

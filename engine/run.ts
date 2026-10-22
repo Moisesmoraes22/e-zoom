@@ -4,6 +4,7 @@ import { createMercadoLivreConnector } from "./connectors/mercadolivre.ts"
 import { createShopeeConnector } from "./connectors/shopee.ts"
 import { createTelegramConnector } from "./connectors/telegram.ts"
 import { withoutBlocked } from "./lib/blocklist.ts"
+import { summarizeDropped, withoutProhibited } from "./lib/title-rules.ts"
 import { DAILY_NICHES } from "./lib/daily-niches.ts"
 import type { Connector } from "./types.ts"
 
@@ -46,7 +47,9 @@ async function main() {
     const { data: blockedRows, error: blockedError } = await supabase.from("blocked_offers").select("store_id, external_id")
     if (blockedError) throw blockedError
     const blocked = blockedRows ?? []
-    const offers = withoutBlocked(await connector.fetchOffers(), blocked)
+    // Titles the affiliate terms or the owner rule out (used items, hookahs, sweets...) are never saved.
+    const { kept: offers, dropped } = withoutProhibited(withoutBlocked(await connector.fetchOffers(), blocked))
+    if (dropped.length > 0) console.log(`[${connector.name}] left out by title rules: ${summarizeDropped(dropped)}`)
     for (const b of blocked) {
       await supabase.from("offers").update({ is_active: false }).eq("store_id", b.store_id).eq("external_id", b.external_id).eq("is_active", true)
     }

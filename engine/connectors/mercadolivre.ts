@@ -63,9 +63,9 @@ const CATEGORY_TERMS: Record<string, string[]> = {
     "redmi note 14 pro", "redmi note 14 pro plus", "redmi note 13 pro", "redmi note 12", "redmi 15c", "redmi 15", "redmi a5", "redmi a3",
     "redmi 12", "poco x7 pro", "poco f7", "poco f7 pro", "poco m7", "poco c75", "poco x6", "xiaomi 15t", "xiaomi 14t", "xiaomi 15",
     "xiaomi redmi", "xiaomi poco",
-    // iPhone: storage variants and refurbished.
+    // iPhone: storage variants (new only: the affiliate terms do not allow used or refurbished items).
     "iphone 15 128gb", "iphone 14 128gb", "iphone 13 128gb", "iphone 12 64gb", "iphone 11 64gb", "iphone 16 128gb", "iphone 16 256gb",
-    "iphone recondicionado", "iphone seminovo", "iphone 17e",
+    "iphone 17e",
     // Other makers.
     "realme c61", "realme c65", "realme c71", "realme 12", "realme 13", "realme gt", "realme narzo", "infinix hot 50", "infinix hot 60",
     "infinix note 40", "infinix smart 9", "infinix zero", "tecno spark 30", "tecno spark go", "tecno camon", "tecno pova", "honor x6b",
