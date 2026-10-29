@@ -3,6 +3,7 @@ import { createHash } from "node:crypto"
 import { isArtBrush, isBook, isDermocosmetico, isErvas, isGpu, isHigiene, isJoiaLookalike, isPetLookalike, isPcCompleto, isPerfume, isTool, refineCategory } from "../lib/categories.ts"
 import { DAILY_NICHES } from "../lib/daily-niches.ts"
 import { shopeeShopBadge } from "../lib/seller.ts"
+import { CURATED_MIN_RATING, CURATED_MIN_SALES, CURATED_SHOPEE } from "../lib/shopee-curated.ts"
 import type { Connector, OfferRow } from "../types.ts"
 
 const ENDPOINT = "https://open-api.affiliate.shopee.com.br/graphql"
@@ -150,6 +151,27 @@ async function query<T>(env: NodeJS.ProcessEnv, graphql: string): Promise<T> {
   return json.data as T
 }
 
+function toRow(node: Node, category: string): OfferRow {
+  const price = Number(node.priceMin)
+  const rate = node.priceDiscountRate ?? 0
+  return {
+    store_id: "shopee",
+    external_id: `${node.shopId}.${node.itemId}`,
+    title: node.productName.slice(0, 160),
+    image: node.imageUrl ?? null,
+    category_slug: refineCategory(node.productName, category),
+    price,
+    // Only a real discount from the store; never invented.
+    original_price: rate >= 5 && rate <= 50 ? Math.round((price / (1 - rate / 100)) * 100) / 100 : null,
+    url: `https://shopee.com.br/product/${node.shopId}/${node.itemId}`,
+    affiliate_url: node.offerLink ?? null,
+    is_free_shipping: false,
+    popularity: node.sales ?? null,
+    seller_leader: shopeeShopBadge(node.shopType),
+    source: "api",
+  }
+}
+
 export function createShopeeConnector(env: NodeJS.ProcessEnv): Connector {
   return {
     name: "shopee",
@@ -193,28 +215,30 @@ export function createShopeeConnector(env: NodeJS.ProcessEnv): Connector {
             if (category === "joias-relogios" && isJoiaLookalike(node.productName)) continue
 
             const externalId = `${node.shopId}.${node.itemId}`
-            if (offers.has(externalId)) continue
-
-            const rate = node.priceDiscountRate ?? 0
-            offers.set(externalId, {
-              store_id: "shopee",
-              external_id: externalId,
-              title: node.productName.slice(0, 160),
-              image: node.imageUrl,
-              category_slug: refineCategory(node.productName, category),
-              price,
-              // Only a real discount from the store; never invented.
-              original_price: rate >= 5 && rate <= 50 ? Math.round((price / (1 - rate / 100)) * 100) / 100 : null,
-              url: `https://shopee.com.br/product/${node.shopId}/${node.itemId}`,
-              affiliate_url: node.offerLink,
-              is_free_shipping: false,
-              popularity: node.sales ?? null,
-              seller_leader: shopeeShopBadge(node.shopType),
-              source: "api",
-            })
+            if (!offers.has(externalId)) offers.set(externalId, toRow(node, category))
           }
           console.log(`[shopee] ${category}/${keyword}: ${offers.size} ofertas até agora`)
         }
+      }
+
+      // Items picked by hand, fetched one by one (regular run only, not the daily niche workflow).
+      if (!wanted) {
+        for (const [externalId, category] of Object.entries(CURATED_SHOPEE)) {
+          if (offers.has(externalId)) continue
+          const [shopId, itemId] = externalId.split(".")
+          if (!/^\d+$/.test(shopId) || !/^\d+$/.test(itemId)) continue // ids are inlined in the query
+          // One item failing (removed, API hiccup) must not lose the whole run: skip it.
+          const node = await query<{ productOfferV2: { nodes: Node[] } }>(
+            env,
+            `{ productOfferV2(itemId: ${itemId}, shopId: ${shopId}, limit: 1) {
+              nodes { itemId shopId productName priceMin priceDiscountRate imageUrl offerLink ratingStar sales shopType }
+            } }`,
+          ).then((d) => d.productOfferV2.nodes[0], (error) => console.warn(`[shopee] ${externalId}: ${error.message}`))
+          if (!node?.imageUrl || !node.offerLink || !(Number(node.priceMin) >= 5)) continue
+          if ((node.sales ?? 0) < CURATED_MIN_SALES || Number(node.ratingStar) < CURATED_MIN_RATING) continue
+          offers.set(externalId, toRow(node, category))
+        }
+        console.log(`[shopee] escolhidos à mão: ${offers.size} ofertas no total`)
       }
       return [...offers.values()]
     },
